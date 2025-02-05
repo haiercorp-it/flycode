@@ -181,6 +181,11 @@
 					"type": "string",
 					"default": null,
 					"description": "Path to Chrome executable for browser use functionality. If not set, the extension will attempt to find or download it automatically."
+				},
+				"cline.enableTelemetry": {
+					"type": "boolean",
+					"default": false,
+					"description": "Enables extension to post anonymous usage data to help improve the product."
 				}
 			}
 		}
