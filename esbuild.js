@@ -2,8 +2,21 @@ const esbuild = require("esbuild")
 const fs = require("fs")
 const path = require("path")
 const dotenv = require("dotenv")
-// Load environment variables from .env.local
-dotenv.config({ path: ".env.local" })
+const dotenvExpand = require("dotenv-expand")
+
+const ENV_FILES = [
+	".env.local", // Highest priority (local overrides all)
+	`.env.${process.env.NODE_ENV}`, // E.g., .env.development or .env.production
+	".env", // Default fallback
+]
+
+for (const file of ENV_FILES) {
+	const envPath = path.resolve(__dirname, file)
+	if (fs.existsSync(envPath)) {
+		const envConfig = dotenv.config({ path: envPath })
+		dotenvExpand.expand(envConfig)
+	}
+}
 
 const production = process.argv.includes("--production")
 const watch = process.argv.includes("--watch")

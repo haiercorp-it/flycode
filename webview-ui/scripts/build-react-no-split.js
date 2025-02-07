@@ -13,9 +13,25 @@ const rewire = require("rewire")
 const defaults = rewire("react-scripts/scripts/build.js")
 const config = defaults.__get__("config")
 const dotenv = require("dotenv")
+const dotenvExpand = require("dotenv-expand")
+const ModuleScopePlugin = require("react-dev-utils/ModuleScopePlugin")
+const path = require("path")
+const fs = require("fs")
+const webpack = require("webpack")
 
-// Load environment variables from root .env.local
-dotenv.config({ path: "../.env.local" })
+const ENV_FILES = [
+	"../.env.local", // Highest priority (local overrides all)
+	`../.env.${process.env.NODE_ENV}`, // E.g., .env.development or .env.production
+	"../.env", // Default fallback
+]
+
+for (const file of ENV_FILES) {
+	const envPath = path.resolve(__dirname, file)
+	if (fs.existsSync(envPath)) {
+		const envConfig = dotenv.config({ path: envPath })
+		dotenvExpand.expand(envConfig)
+	}
+}
 
 /* Modifying Webpack Configuration for 'shared' dir
 This section uses Rewire to modify Create React App's webpack configuration without ejecting. Rewire allows us to inject and alter the internal build scripts of CRA at runtime. This allows us to maintain a flexible project structure that keeps shared code outside the webview-ui/src directory, while still adhering to CRA's security model that typically restricts imports to within src/. 
@@ -25,10 +41,6 @@ Before, we would just import types from shared dir and specifying include (and a
 - Imports from the shared directory must use full paths relative to the src directory, without file extensions.
 - Example: import { someFunction } from '../../src/shared/utils/helpers'
 */
-const ModuleScopePlugin = require("react-dev-utils/ModuleScopePlugin")
-const path = require("path")
-const fs = require("fs")
-const webpack = require("webpack")
 
 // Get all files in the shared directory
 const sharedDir = path.resolve(__dirname, "..", "..", "src", "shared")
