@@ -9,7 +9,6 @@ import { PostHogProvider } from "posthog-js/react"
 
 posthog.init(process.env.POSTHOG_PROJECT_API_KEY || "", {
 	api_host: process.env.POSTHOG_INSTANCE_ADDRESS || "",
-	debug: true,
 })
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement)

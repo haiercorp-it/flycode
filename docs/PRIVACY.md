@@ -9,7 +9,7 @@ Cline Bot Inc. ("Cline," "we," "our," and/or "us") values the privacy of individ
 -   Your data is only sent to your chosen AI provider (e.g., Anthropic, OpenAI) when you explicitly request assistance
 -   All processing happens locally on your machine
 -   API keys are stored securely in VS Code's built-in settings storage
--   Telemetry is collected anonymously via posthog is the user wants to opt in
+-   Telemetry is collected anonymously via PostHog if the user opts in
 
 ## Information We Process
 
