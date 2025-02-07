@@ -7,6 +7,7 @@ import { Logger } from "./services/logging/Logger"
 import { createClineAPI } from "./exports"
 import "./utils/path" // necessary to have access to String.prototype.toPosix
 import { DIFF_VIEW_URI_SCHEME } from "./integrations/editor/DiffViewProvider"
+import { PostHog } from "posthog-node"
 
 /*
 Built using https://github.com/microsoft/vscode-webview-ui-toolkit
@@ -16,6 +17,8 @@ https://github.com/microsoft/vscode-webview-ui-toolkit-samples/tree/main/default
 https://github.com/microsoft/vscode-webview-ui-toolkit-samples/tree/main/frameworks/hello-world-react-cra
 
 */
+
+const posthog = new PostHog(process.env.POSTHOG_PROJECT_API_KEY || "", { host: process.env.POSTHOG_INSTANCE_ADDRESS || "" })
 
 let outputChannel: vscode.OutputChannel
 
@@ -54,6 +57,23 @@ export function activate(context: vscode.ExtensionContext) {
 				type: "action",
 				action: "mcpButtonClicked",
 			})
+		}),
+	)
+
+	context.subscriptions.push(
+		vscode.workspace.onDidChangeConfiguration(async (e) => {
+			if (e.affectsConfiguration("cline")) {
+				Logger.log("Configuration changed")
+				await sidebarProvider.postStateToWebview()
+				const config = vscode.workspace.getConfiguration("cline")
+				// we use optIn and optOut because we want to keep posthog active for feature flags
+				if (config.get("enableTelemetry")) {
+					posthog.identify({ distinctId: vscode.env.machineId })
+					posthog.optIn()
+				} else {
+					posthog.optOut()
+				}
+			}
 		}),
 	)
 
