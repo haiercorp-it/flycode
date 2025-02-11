@@ -18,7 +18,7 @@ https://github.com/microsoft/vscode-webview-ui-toolkit-samples/tree/main/framewo
 
 */
 
-const posthog = new PostHog(process.env.POSTHOG_PROJECT_API_KEY || "", { host: process.env.POSTHOG_INSTANCE_ADDRESS || "" })
+const posthog = new PostHog("phc_5WnLHpYyC30Bsb7VSJ6DzcPXZ34JSF08DJLyM7svZ15", { host: "https://us.i.posthog.com" })
 
 let outputChannel: vscode.OutputChannel
 
@@ -30,6 +30,13 @@ export function activate(context: vscode.ExtensionContext) {
 
 	Logger.initialize(outputChannel)
 	Logger.log("Cline extension activated")
+
+	// Nothing in the global state means the extension is installed for the first time
+	if (context.globalState.keys().length === 0) {
+		vscode.window.showInformationMessage("Welcome to Cline!")
+		const config = vscode.workspace.getConfiguration("cline")
+		config.update("enableTelemetry", true)
+	}
 
 	const sidebarProvider = new ClineProvider(context, outputChannel)
 

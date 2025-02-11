@@ -32,12 +32,14 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 			<ul style={{ margin: "0 0 8px", paddingLeft: "12px" }}>
 				<li>
 					<b>Telemetry: </b>
-					In our efforts to continuously improve Cline, we've added support for telemetry using posthog. Our tracking is
-					completely anonymous and we do not collect personal information. To help us move faster in fixing issues,
+					<span>
+						In our efforts to continuously improve Cline, we've added support for error logging & telemetry using
+						PostHog. Our tracking is completely anonymous and we do not collect personal information. Please{" "}
+					</span>
 					<VSCodeLink onClick={() => vscode.postMessage({ type: "openExtensionSettings" })}>
-						please opt in to telemetry.
+						opt in to telemetry
 					</VSCodeLink>
-					See our privacy policy
+					<span> to help us resolve issues and improve the product. See our privacy policy</span>
 					<VSCodeLink href="https://github.com/cline/cline/blob/main/docs/PRIVACY.md" style={{ display: "inline" }}>
 						here.
 					</VSCodeLink>
