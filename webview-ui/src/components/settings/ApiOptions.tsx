@@ -199,6 +199,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 			{selectedProvider === "anthropic" && (
 				<div>
 					<VSCodeTextField
+						className="ph-no-capture"
 						value={apiConfiguration?.apiKey || ""}
 						style={{ width: "100%" }}
 						type="password"

@@ -11,7 +11,7 @@ root.render(
 	<React.StrictMode>
 		<PostHogProvider
 			apiKey="phc_5WnLHpYyC30Bsb7VSJ6DzcPXZ34JSF08DJLyM7svZ15"
-			options={{ api_host: "https://us.i.posthog.com" }}>
+			options={{ api_host: "https://us.i.posthog.com", capture_pageview: false }}>
 			<App />
 		</PostHogProvider>
 	</React.StrictMode>,

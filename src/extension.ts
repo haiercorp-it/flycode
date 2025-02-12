@@ -7,7 +7,7 @@ import { Logger } from "./services/logging/Logger"
 import { createClineAPI } from "./exports"
 import "./utils/path" // necessary to have access to String.prototype.toPosix
 import { DIFF_VIEW_URI_SCHEME } from "./integrations/editor/DiffViewProvider"
-import { PostHog } from "posthog-node"
+import posthog from "./services/analytics/PostHogClient"
 
 /*
 Built using https://github.com/microsoft/vscode-webview-ui-toolkit
@@ -17,8 +17,6 @@ https://github.com/microsoft/vscode-webview-ui-toolkit-samples/tree/main/default
 https://github.com/microsoft/vscode-webview-ui-toolkit-samples/tree/main/frameworks/hello-world-react-cra
 
 */
-
-const posthog = new PostHog("phc_5WnLHpYyC30Bsb7VSJ6DzcPXZ34JSF08DJLyM7svZ15", { host: "https://us.i.posthog.com" })
 
 let outputChannel: vscode.OutputChannel
 
@@ -75,7 +73,6 @@ export function activate(context: vscode.ExtensionContext) {
 				const config = vscode.workspace.getConfiguration("cline")
 				// we use optIn and optOut because we want to keep posthog active for feature flags
 				if (config.get("enableTelemetry")) {
-					posthog.identify({ distinctId: vscode.env.machineId })
 					posthog.optIn()
 				} else {
 					posthog.optOut()
@@ -214,6 +211,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {
+export async function deactivate() {
 	Logger.log("Cline extension deactivated")
+	await posthog.shutdown()
 }
