@@ -1,9 +1,19 @@
 # Changelog
 
+## 3.4.0
+
+### Minor Changes
+
+-   7b6a3d2: Advanced Setting to disable browser tool
+-   82eba4d: Add extension setting for chromium executable path
+-   e8a2e88: qwen platform adds deepseek-r1/v3 support
+-   1cc1c26: Adding .clineignore guide
+-   69ff71b: Allowing the user to give feedback when approving a tool use.
+
 ## [3.3.2]
 
 -   Fix bug where OpenRouter requests would periodically not return cost/token stats, leading to context window limit errors
--   Make checkpoints more visible and keep track of restored checkpoints 
+-   Make checkpoints more visible and keep track of restored checkpoints
 
 ## [3.3.0]
 
