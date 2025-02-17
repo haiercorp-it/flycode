@@ -13,7 +13,7 @@ export class HaierInternalHandler implements ApiHandler {
 	constructor(options: ApiHandlerOptions) {
 		this.options = options
 
-/* 		this.client = new OpenAI({
+		/* 		this.client = new OpenAI({
 			baseURL: options.haierinternalAiBaseUrl, // 基础 URL
 			apiKey: options.haierinternalApiKey,
 			defaultHeaders: {

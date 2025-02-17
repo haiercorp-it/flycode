@@ -90,7 +90,7 @@ type GlobalStateKey =
 	| "requestyModelId"
 	| "togetherModelId"
 	| "haierinternalAiBaseUrl"
-/* 	| "haierinternalApiKey" */
+	/* 	| "haierinternalApiKey" */
 	| "haierinternalModelId"
 
 export const GlobalFileNames = {
@@ -515,7 +515,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 							await this.updateGlobalState("requestyModelId", requestyModelId)
 							await this.updateGlobalState("togetherModelId", togetherModelId)
 							await this.updateGlobalState("haierinternalAiBaseUrl", haierinternalAiBaseUrl)
-/* 							await this.updateGlobalState("haierinternalApiKey", haierinternalApiKey) */
+							/* 							await this.updateGlobalState("haierinternalApiKey", haierinternalApiKey) */
 							await this.updateGlobalState("haierinternalModelId", haierinternalModelId)
 							if (this.cline) {
 								this.cline.api = buildApiHandler(message.apiConfiguration)
@@ -1453,7 +1453,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			qwenApiLine,
 			liteLlmApiKey,
 			haierinternalAiBaseUrl,
-/* 			haierinternalApiKey, */
+			/* 			haierinternalApiKey, */
 			haierinternalModelId,
 		] = await Promise.all([
 			this.getGlobalState("apiProvider") as Promise<ApiProvider | undefined>,
@@ -1507,7 +1507,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			this.getGlobalState("qwenApiLine") as Promise<string | undefined>,
 			this.getSecret("liteLlmApiKey") as Promise<string | undefined>,
 			this.getGlobalState("haierinternalAiBaseUrl") as Promise<string | undefined>,
-/* 			this.getGlobalState("haierinternalApiKey") as Promise<string | undefined>, */
+			/* 			this.getGlobalState("haierinternalApiKey") as Promise<string | undefined>, */
 			this.getGlobalState("haierinternalModelId") as Promise<string | undefined>,
 		])
 
@@ -1572,7 +1572,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 				liteLlmModelId,
 				liteLlmApiKey,
 				haierinternalAiBaseUrl,
-/* 				haierinternalApiKey, */
+				/* 				haierinternalApiKey, */
 				haierinternalModelId,
 			},
 			lastShownAnnouncementId,
