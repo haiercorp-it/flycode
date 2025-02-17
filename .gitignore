@@ -6,5 +6,5 @@ tmp
 *.vsix
 
 .DS_Store
-
+localreademe.md
 pnpm-lock.yaml
