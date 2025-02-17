@@ -1123,7 +1123,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 				</div>
 			)}
 
-{selectedProvider === "haierinternal" && (
+			{selectedProvider === "haierinternal" && (
 				<div>
 					<VSCodeTextField
 						value={apiConfiguration?.haierinternalAiBaseUrl || ""}
@@ -1147,13 +1147,15 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							color: "var(--vscode-descriptionForeground)",
 						}}>
 						由海尔集团内部配置的大模型，有夏克江提供. See their{" "}
-						<VSCodeLink href="https://ihaier.feishu.cn/docx/GcafdtMiSo5c2ixoUPfck6b2nqb?from=from_copylink" style={{ display: "inline", fontSize: "inherit" }}>
+						<VSCodeLink
+							href="https://ihaier.feishu.cn/docx/GcafdtMiSo5c2ixoUPfck6b2nqb?from=from_copylink"
+							style={{ display: "inline", fontSize: "inherit" }}>
 							quickstart guide
 						</VSCodeLink>{" "}
 						for more information.
 					</p>
 				</div>
-			)}	
+			)}
 
 			{apiErrorMessage && (
 				<p
