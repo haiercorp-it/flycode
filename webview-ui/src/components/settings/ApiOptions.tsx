@@ -195,6 +195,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 					<VSCodeOption value="lmstudio">LM Studio</VSCodeOption>
 					<VSCodeOption value="ollama">Ollama</VSCodeOption>
 					<VSCodeOption value="litellm">LiteLLM</VSCodeOption>
+					<VSCodeOption value="haierinternal">haierinternal</VSCodeOption>
 				</VSCodeDropdown>
 			</DropdownContainer>
 
@@ -1122,6 +1123,38 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 				</div>
 			)}
 
+{selectedProvider === "haierinternal" && (
+				<div>
+					<VSCodeTextField
+						value={apiConfiguration?.haierinternalAiBaseUrl || ""}
+						style={{ width: "100%" }}
+						type="url"
+						onInput={handleInputChange("haierinternalAiBaseUrl")}
+						placeholder={"Default: http://10.250.66.28:2025/deepseek-r1-70b"}>
+						<span style={{ fontWeight: 500 }}>Base URL (optional)</span>
+					</VSCodeTextField>
+					<VSCodeTextField
+						value={apiConfiguration?.haierinternalModelId || ""}
+						style={{ width: "100%" }}
+						onInput={handleInputChange("haierinternalModelId")}
+						placeholder={"e.g. geepseek-r1:70b"}>
+						<span style={{ fontWeight: 500 }}>Model ID</span>
+					</VSCodeTextField>
+					<p
+						style={{
+							fontSize: "12px",
+							marginTop: "5px",
+							color: "var(--vscode-descriptionForeground)",
+						}}>
+						由海尔集团内部配置的大模型，有夏克江提供. See their{" "}
+						<VSCodeLink href="https://ihaier.feishu.cn/docx/GcafdtMiSo5c2ixoUPfck6b2nqb?from=from_copylink" style={{ display: "inline", fontSize: "inherit" }}>
+							quickstart guide
+						</VSCodeLink>{" "}
+						for more information.
+					</p>
+				</div>
+			)}	
+
 			{apiErrorMessage && (
 				<p
 					style={{
@@ -1401,6 +1434,12 @@ export function normalizeApiConfiguration(apiConfiguration?: ApiConfiguration): 
 			return {
 				selectedProvider: provider,
 				selectedModelId: apiConfiguration?.liteLlmModelId || "",
+				selectedModelInfo: openAiModelInfoSaneDefaults,
+			}
+		case "haierinternal":
+			return {
+				selectedProvider: provider,
+				selectedModelId: apiConfiguration?.haierinternalModelId || "",
 				selectedModelInfo: openAiModelInfoSaneDefaults,
 			}
 		default:

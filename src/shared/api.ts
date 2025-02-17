@@ -15,6 +15,7 @@ export type ApiProvider =
 	| "mistral"
 	| "vscode-lm"
 	| "litellm"
+	| "haierinternal"
 
 export interface ApiHandlerOptions {
 	apiModelId?: string
@@ -56,6 +57,9 @@ export interface ApiHandlerOptions {
 	vsCodeLmModelSelector?: any
 	o3MiniReasoningEffort?: string
 	qwenApiLine?: string
+	haierinternalAiBaseUrl?: string
+	haierinternalApiKey?: string
+	haierinternalModelId?: string
 }
 
 export type ApiConfiguration = ApiHandlerOptions & {
@@ -740,6 +744,19 @@ export const liteLlmModelInfoSaneDefaults: ModelInfo = {
 	maxTokens: -1,
 	contextWindow: 128_000,
 	supportsImages: true,
+	supportsPromptCache: false,
+	inputPrice: 0,
+	outputPrice: 0,
+}
+
+// 克江提供
+// https://ihaier.feishu.cn/docx/GcafdtMiSo5c2ixoUPfck6b2nqb?from=from_copylink
+export type HaierinternalMModelId = string
+export const HaierinternalDefaultModelId = "deepseek-r1:32b"
+export const HaierinternalModelInfoSaneDefaults: ModelInfo = {
+	maxTokens: 4096,
+	contextWindow: 8192,
+	supportsImages: false,
 	supportsPromptCache: false,
 	inputPrice: 0,
 	outputPrice: 0,

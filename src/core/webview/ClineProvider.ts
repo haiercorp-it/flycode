@@ -89,6 +89,9 @@ type GlobalStateKey =
 	| "qwenApiLine"
 	| "requestyModelId"
 	| "togetherModelId"
+	| "haierinternalAiBaseUrl"
+	| "haierinternalApiKey"
+	| "haierinternalModelId"
 
 export const GlobalFileNames = {
 	apiConversationHistory: "api_conversation_history.json",
@@ -468,6 +471,9 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 								liteLlmModelId,
 								liteLlmApiKey,
 								qwenApiLine,
+								haierinternalAiBaseUrl,
+								haierinternalApiKey,
+								haierinternalModelId,
 							} = message.apiConfiguration
 							await this.updateGlobalState("apiProvider", apiProvider)
 							await this.updateGlobalState("apiModelId", apiModelId)
@@ -508,6 +514,9 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 							await this.updateGlobalState("qwenApiLine", qwenApiLine)
 							await this.updateGlobalState("requestyModelId", requestyModelId)
 							await this.updateGlobalState("togetherModelId", togetherModelId)
+							await this.updateGlobalState("haierinternalAiBaseUrl", haierinternalAiBaseUrl)
+							await this.updateGlobalState("haierinternalApiKey", haierinternalApiKey)
+							await this.updateGlobalState("haierinternalModelId", haierinternalModelId)
 							if (this.cline) {
 								this.cline.api = buildApiHandler(message.apiConfiguration)
 							}
@@ -1443,6 +1452,9 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			previousModeModelInfo,
 			qwenApiLine,
 			liteLlmApiKey,
+			haierinternalAiBaseUrl,
+			haierinternalApiKey,
+			haierinternalModelId,
 		] = await Promise.all([
 			this.getGlobalState("apiProvider") as Promise<ApiProvider | undefined>,
 			this.getGlobalState("apiModelId") as Promise<string | undefined>,
@@ -1494,6 +1506,9 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			this.getGlobalState("previousModeModelInfo") as Promise<ModelInfo | undefined>,
 			this.getGlobalState("qwenApiLine") as Promise<string | undefined>,
 			this.getSecret("liteLlmApiKey") as Promise<string | undefined>,
+			this.getGlobalState("haierinternalAiBaseUrl") as Promise<string | undefined>,
+			this.getGlobalState("haierinternalApiKey") as Promise<string | undefined>,
+			this.getGlobalState("haierinternalModelId") as Promise<string | undefined>,
 		])
 
 		let apiProvider: ApiProvider
@@ -1556,6 +1571,9 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 				liteLlmBaseUrl,
 				liteLlmModelId,
 				liteLlmApiKey,
+				haierinternalAiBaseUrl,
+				haierinternalApiKey,
+				haierinternalModelId,
 			},
 			lastShownAnnouncementId,
 			customInstructions,
