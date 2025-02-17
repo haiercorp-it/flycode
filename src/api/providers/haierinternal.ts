@@ -8,18 +8,18 @@ import { ApiStream } from "../transform/stream"
 
 export class HaierInternalHandler implements ApiHandler {
 	private options: ApiHandlerOptions
-	private client: OpenAI
+	/* private client: OpenAI */
 
 	constructor(options: ApiHandlerOptions) {
 		this.options = options
 
-		this.client = new OpenAI({
+/* 		this.client = new OpenAI({
 			baseURL: options.haierinternalAiBaseUrl, // 基础 URL
 			apiKey: options.haierinternalApiKey,
 			defaultHeaders: {
 				"Content-Type": "application/json",
 			},
-		})
+		}) */
 	}
 
 	@withRetry()

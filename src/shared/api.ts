@@ -58,7 +58,7 @@ export interface ApiHandlerOptions {
 	o3MiniReasoningEffort?: string
 	qwenApiLine?: string
 	haierinternalAiBaseUrl?: string
-	haierinternalApiKey?: string
+/* 	haierinternalApiKey?: string */
 	haierinternalModelId?: string
 }
 
