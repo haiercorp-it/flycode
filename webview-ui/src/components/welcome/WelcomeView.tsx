@@ -17,6 +17,7 @@ const WelcomeView = () => {
 	const disableLetsGoButton = apiErrorMessage != null
 
 	const handleSubmit = () => {
+		console.log("Submitting configuration:", apiConfiguration)
 		vscode.postMessage({ type: "apiConfiguration", apiConfiguration })
 	}
 
@@ -27,7 +28,9 @@ const WelcomeView = () => {
 	}
 
 	useEffect(() => {
-		setApiErrorMessage(validateApiConfiguration(apiConfiguration))
+		const error = validateApiConfiguration(apiConfiguration)
+		console.log("Submitting configuration:", apiConfiguration)
+		setApiErrorMessage(error)
 	}, [apiConfiguration])
 
 	// Add message handler for subscription confirmation
