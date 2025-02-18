@@ -1146,7 +1146,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: "5px",
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						由海尔集团内部配置的大模型，有夏克江提供. See their{" "}
+						由海尔集团内部搭建的大模型，有问题联系夏克江. See their{" "}
 						<VSCodeLink
 							href="https://ihaier.feishu.cn/docx/GcafdtMiSo5c2ixoUPfck6b2nqb?from=from_copylink"
 							style={{ display: "inline", fontSize: "inherit" }}>
