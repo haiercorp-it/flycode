@@ -24,7 +24,9 @@ export class OpenRouterHandler implements ApiHandler {
 			},
 		})
 	}
-
+	getAccountInfo() {
+		
+	}
 	@withRetry()
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
 		const model = this.getModel()

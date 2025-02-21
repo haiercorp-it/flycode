@@ -10,6 +10,10 @@ export interface BrowserSettings {
 	// chromeType: "chromium" | "system"
 }
 
+export interface AccountInfo {
+	type: string
+	text: string
+}
 export const DEFAULT_BROWSER_SETTINGS: BrowserSettings = {
 	viewport: {
 		width: 900,

@@ -160,6 +160,9 @@ export class VsCodeLmHandler implements ApiHandler, SingleCompletionHandler {
 		}
 	}
 
+	getAccountInfo() {
+		
+	}
 	/**
 	 * Creates a language model chat client based on the provided selector.
 	 *

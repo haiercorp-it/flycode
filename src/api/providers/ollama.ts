@@ -16,6 +16,9 @@ export class OllamaHandler implements ApiHandler {
 			apiKey: "ollama",
 		})
 	}
+	getAccountInfo() {
+		
+	}
 
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
 		const openAiMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [

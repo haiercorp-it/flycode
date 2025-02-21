@@ -23,7 +23,9 @@ export class OpenAiNativeHandler implements ApiHandler {
 			apiKey: this.options.openAiNativeApiKey,
 		})
 	}
-
+	getAccountInfo() {
+		
+	}
 	@withRetry()
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
 		switch (this.getModel().id) {

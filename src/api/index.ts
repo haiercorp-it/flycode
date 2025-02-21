@@ -17,11 +17,13 @@ import { QwenHandler } from "./providers/qwen"
 import { MistralHandler } from "./providers/mistral"
 import { VsCodeLmHandler } from "./providers/vscode-lm"
 import { LiteLlmHandler } from "./providers/litellm"
+import { HaierUserCenterHandler } from "./providers/usercenter"
 import { HaierInternalHandler } from "./providers/haierinternal"
 
 export interface ApiHandler {
 	createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream
 	getModel(): { id: string; info: ModelInfo }
+	getAccountInfo(): any
 }
 
 export interface SingleCompletionHandler {
@@ -65,6 +67,8 @@ export function buildApiHandler(configuration: ApiConfiguration): ApiHandler {
 			return new LiteLlmHandler(options)
 		case "haierinternal":
 			return new HaierInternalHandler(options)
+		case "usercenter":
+			return new HaierUserCenterHandler(options)		
 		default:
 			return new AnthropicHandler(options)
 	}

@@ -2,8 +2,8 @@
 	"name": "haiergi-dev",
 	"displayName": "HaierGi",
 	"description": "Autonomous coding agent right in your IDE, capable of creating/editing files, running commands, using the browser, and more with your permission every step of the way.",
-	"version": "0.0.1",
-	"icon": "assets/icons/icon.png",
+	"version": "0.0.2",
+	"icon": "assets/icons/gi.jpg",
 	"galleryBanner": {
 		"color": "#617A91",
 		"theme": "dark"
@@ -50,7 +50,7 @@
 			"activitybar": [
 				{
 					"id": "claude-dev-ActivityBar",
-					"title": "Cline",
+					"title": "HaierGi",
 					"icon": "assets/icons/icon.svg"
 				}
 			]
@@ -190,6 +190,7 @@
 		"compile": "npm run check-types && npm run lint && node esbuild.js",
 		"watch": "npm-run-all -p watch:*",
 		"watch:esbuild": "node esbuild.js --watch",
+		"vsec": "npm i && vsce package && ovsx publish",
 		"watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
 		"package": "npm run build:webview && npm run check-types && npm run lint && node esbuild.js --production",
 		"compile-tests": "tsc -p ./tsconfig.test.json --outDir out",
@@ -272,6 +273,7 @@
 		"strip-ansi": "^7.1.0",
 		"tree-sitter-wasms": "^0.1.11",
 		"turndown": "^7.2.0",
+		"vsce": "^2.15.0",
 		"web-tree-sitter": "^0.22.6",
 		"zod": "^3.23.8"
 	}

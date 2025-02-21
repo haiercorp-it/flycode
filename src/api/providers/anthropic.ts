@@ -16,7 +16,9 @@ export class AnthropicHandler implements ApiHandler {
 			baseURL: this.options.anthropicBaseUrl || undefined,
 		})
 	}
-
+	getAccountInfo() {
+		
+	}
 	@withRetry()
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
 		const model = this.getModel()

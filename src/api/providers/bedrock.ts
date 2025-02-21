@@ -16,6 +16,10 @@ export class AwsBedrockHandler implements ApiHandler {
 		this.initializationPromise = this.initializeClient()
 	}
 
+	getAccountInfo() {
+		
+	}
+
 	private async initializeClient() {
 		let clientConfig: any = {
 			awsRegion: this.options.awsRegion || "us-east-1",

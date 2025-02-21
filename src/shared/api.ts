@@ -16,6 +16,7 @@ export type ApiProvider =
 	| "vscode-lm"
 	| "litellm"
 	| "haierinternal"
+	| "usercenter"
 
 export interface ApiHandlerOptions {
 	apiModelId?: string
@@ -60,6 +61,8 @@ export interface ApiHandlerOptions {
 	haierinternalAiBaseUrl?: string
 	/* 	haierinternalApiKey?: string */
 	haierinternalModelId?: string
+	haierragflowapikey?: string
+	haierragflowapiid?: string
 }
 
 export type ApiConfiguration = ApiHandlerOptions & {
