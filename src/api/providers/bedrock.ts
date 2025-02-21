@@ -16,9 +16,7 @@ export class AwsBedrockHandler implements ApiHandler {
 		this.initializationPromise = this.initializeClient()
 	}
 
-	getAccountInfo() {
-		
-	}
+	getAccountInfo() {}
 
 	private async initializeClient() {
 		let clientConfig: any = {

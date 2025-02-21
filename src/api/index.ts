@@ -68,7 +68,7 @@ export function buildApiHandler(configuration: ApiConfiguration): ApiHandler {
 		case "haierinternal":
 			return new HaierInternalHandler(options)
 		case "usercenter":
-			return new HaierUserCenterHandler(options)		
+			return new HaierUserCenterHandler(options)
 		default:
 			return new AnthropicHandler(options)
 	}

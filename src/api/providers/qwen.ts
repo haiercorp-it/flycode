@@ -20,8 +20,7 @@ export class QwenHandler implements ApiHandler {
 			apiKey: this.options.qwenApiKey,
 		})
 	}
-	getAccountInfo() {
-	}
+	getAccountInfo() {}
 
 	getModel(): { id: QwenModelId; info: ModelInfo } {
 		const modelId = this.options.apiModelId

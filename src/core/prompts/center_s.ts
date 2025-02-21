@@ -147,4 +147,4 @@ function App() {
 </result>
 <command>npm run dev</command>
 </attempt_completion>
-`;
+`

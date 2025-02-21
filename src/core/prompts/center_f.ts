@@ -5,7 +5,7 @@
 // 账号中心触发规则
 
 // 当检测到以下任一条件时自动触发SDK接入流程：
-// 1. 用户输入包含 @账号中心 或 #iam 
+// 1. 用户输入包含 @账号中心 或 #iam
 // 2. 项目存在登录相关路由（/login /auth）但无SDK引用
 // 3. package.json包含@haier/iam但未找到初始化代码
 
@@ -36,7 +36,7 @@
 // export const AUTH_CONFIG = {
 //   // 账号中心配置（由@haier/iam注入）
 //   ssoUrl: "${await ask_followup_question('请提供SSO服务地址 (如 https://iam.haier.net)')}",
-//   clientId: "${await ask_followup_question('请输入应用K码，可在IAM控制台获取')}", 
+//   clientId: "${await ask_followup_question('请输入应用K码，可在IAM控制台获取')}",
 //   tokenUrl: "${await ask_followup_question('请输入令牌服务地址 (如 /api/auth/token)')}",
 // >>>>>>> REPLACE
 // </diff>
@@ -82,7 +82,7 @@
 // app.use(AuthPlugin)
 // >>>>>>> REPLACE
 // </diff>
-// </replace_in_file>` 
+// </replace_in_file>`
 
 // : framework === 'react' ? `
 // <write_to_file>
@@ -107,7 +107,7 @@
 //   return children
 // }
 // </content>
-// </write_to_file>` 
+// </write_to_file>`
 
 // : framework === 'uniapp' ? `
 // <write_to_file>

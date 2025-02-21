@@ -53,7 +53,7 @@ import { arePathsEqual, getReadablePath } from "../utils/path"
 import { fixModelHtmlEscaping, removeInvalidChars } from "../utils/string"
 import { AssistantMessageContent, parseAssistantMessage, ToolParamName, ToolUseName } from "./assistant-message"
 import { constructNewFileContent } from "./assistant-message/diff"
-import { isHaierDoc,hasAccountCenter } from "./assistant-message/haier"
+import { isHaierDoc, hasAccountCenter } from "./assistant-message/haier"
 import { ClineIgnoreController, LOCK_TEXT_SYMBOL } from "./ignore/ClineIgnoreController"
 import { parseMentions } from "./mentions"
 import { formatResponse } from "./prompts/responses"
@@ -70,7 +70,6 @@ type UserContent = Array<
 export interface ApiHandlerNew extends ApiHandler {
 	getAccountInfo(): any
 }
-
 
 export class Cline {
 	readonly taskId: string
@@ -120,7 +119,7 @@ export class Cline {
 	private didCompleteReadingStream = false
 	private didAutomaticallyRetryFailedApiRequest = false
 	private didUserCenterApi = false
-	apiConfigRation:ApiConfiguration = {}; 
+	apiConfigRation: ApiConfiguration = {}
 	constructor(
 		provider: ClineProvider,
 		apiConfiguration: ApiConfiguration,
@@ -132,14 +131,14 @@ export class Cline {
 		images?: string[],
 		historyItem?: HistoryItem,
 	) {
-		this.apiConfigRation = apiConfiguration;
+		this.apiConfigRation = apiConfiguration
 		this.clineIgnoreController = new ClineIgnoreController(cwd)
 		this.clineIgnoreController.initialize().catch((error) => {
 			console.error("Failed to initialize ClineIgnoreController:", error)
 		})
 		this.providerRef = new WeakRef(provider)
 		this.api = buildApiHandler(apiConfiguration)
-		this.usercenterApi = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
+		this.usercenterApi = buildApiHandler({ ...apiConfiguration, apiProvider: "usercenter" })
 		this.terminalManager = new TerminalManager()
 		this.urlContentFetcher = new UrlContentFetcher(provider.context)
 		this.browserSession = new BrowserSession(provider.context, browserSettings)
@@ -157,24 +156,23 @@ export class Cline {
 			// if (task && hasAccountCenter(task!)){
 			// 	this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
 			// }
-			this.didUserCenterApi = true;
+			this.didUserCenterApi = true
 			this.taskId = Date.now().toString()
 			this.startTask(task, images)
 		} else {
 			throw new Error("Either historyItem or task/images must be provided")
 		}
-		
 	}
 	get currentApi(): ApiHandler {
 		if (this.didUserCenterApi === false) {
-		  if (!this.api) {
-			this.api = buildApiHandler(this.apiConfigRation)
-		  }
-		  return this.api;
-		}else{
-			return buildApiHandler({'apiProvider':'usercenter'})
+			if (!this.api) {
+				this.api = buildApiHandler(this.apiConfigRation)
+			}
+			return this.api
+		} else {
+			return buildApiHandler({ apiProvider: "usercenter" })
 		}
-	  }
+	}
 
 	updateBrowserSettings(browserSettings: BrowserSettings) {
 		this.browserSettings = browserSettings
@@ -795,13 +793,13 @@ export class Cline {
 		await this.providerRef.deref()?.postStateToWebview()
 
 		// away 如果task 有@账号中心则执行
-		if (task && !this.accountInfo){
-			 const userInfo	 = await this.usercenterApi?.getAccountInfo();
-			 console.log(userInfo);
-			 this.accountInfo = userInfo;
+		if (task && !this.accountInfo) {
+			const userInfo = await this.usercenterApi?.getAccountInfo()
+			console.log(userInfo)
+			this.accountInfo = userInfo
 			// this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
 		}
-		
+
 		await this.say("text", task, images)
 
 		this.isInitialized = true
@@ -1298,7 +1296,7 @@ export class Cline {
 
 		const supportsComputerUse = modelSupportsComputerUse && !disableBrowserTool // only enable computer use if the model supports it and the user hasn't disabled it
 		console.log("supportsComputerUse", this.accountInfo)
-		let systemPrompt = await SYSTEM_PROMPT(cwd, supportsComputerUse, mcpHub, this.browserSettings,this.accountInfo)
+		let systemPrompt = await SYSTEM_PROMPT(cwd, supportsComputerUse, mcpHub, this.browserSettings, this.accountInfo)
 		console.log("systemPrompt", systemPrompt)
 		let settingsCustomInstructions = this.customInstructions?.trim()
 		const clineRulesFilePath = path.resolve(cwd, GlobalFileNames.clineRules)
@@ -1370,7 +1368,6 @@ export class Cline {
 			}
 		}
 
-
 		// away 发送消息 最终发送的是 this.apiConversationHistory + 删除区间进行消息提纯
 		// conversationHistoryDeletedRange is updated only when we're close to hitting the context window, so we don't continuously break the prompt cache
 		const truncatedConversationHistory = getTruncatedMessages(
@@ -1416,9 +1413,6 @@ export class Cline {
 		// this delegates to another generator or iterable object. In this case, it's saying "yield all remaining values from this iterator". This effectively passes along all subsequent chunks from the original stream.
 		yield* iterator
 	}
-
-
-
 
 	async presentAssistantMessage() {
 		if (this.abort) {
@@ -2951,25 +2945,23 @@ export class Cline {
 		}
 		// away 注意 控制单位 userMessageContentReady 控制递归获取数据
 		// away 一次block is finished, 现在我们要循环下一个block 了 this.presentAssistantMessageLocked = false
-		// 这里要进行判断 如果这个block.partial== false 说明这个语句块没有结束  this.userMessageContentReady = true  .进行获取 
-        // if (this.currentStreamingContentIndex === this.assistantMessageContent.length - 1) {
-				// its okay that we increment if !didCompleteReadingStream, it'll just return bc out of bounds and as streaming continues it will call presentAssistantMessage if a new block is ready. if streaming is finished then we set userMessageContentReady to true when out of bounds. This gracefully allows the stream to continue on and all potential content blocks be presented.
-				// last block is complete and it is finished executing
-				//this.userMessageContentReady = true // will allow pwaitfor to continue
-			//}
+		// 这里要进行判断 如果这个block.partial== false 说明这个语句块没有结束  this.userMessageContentReady = true  .进行获取
+		// if (this.currentStreamingContentIndex === this.assistantMessageContent.length - 1) {
+		// its okay that we increment if !didCompleteReadingStream, it'll just return bc out of bounds and as streaming continues it will call presentAssistantMessage if a new block is ready. if streaming is finished then we set userMessageContentReady to true when out of bounds. This gracefully allows the stream to continue on and all potential content blocks be presented.
+		// last block is complete and it is finished executing
+		//this.userMessageContentReady = true // will allow pwaitfor to continue
+		//}
 		//  否则继续执行 presentAssistantMessage
-			// if (this.currentStreamingContentIndex < this.assistantMessageContent.length) {
-			// 	// there are already more content blocks to stream, so we'll call this function ourselves
-			// 	// await this.presentAssistantContent()
+		// if (this.currentStreamingContentIndex < this.assistantMessageContent.length) {
+		// 	// there are already more content blocks to stream, so we'll call this function ourselves
+		// 	// await this.presentAssistantContent()
 
-			// 	this.presentAssistantMessage()
-			// 	return
-			// }
+		// 	this.presentAssistantMessage()
+		// 	return
+		// }
 
-
-		 // 如果这个条件判断就是获取的消息块已经结束了 就说明这个消息块已经结束了 	
+		// 如果这个条件判断就是获取的消息块已经结束了 就说明这个消息块已经结束了
 		// away 3289 等待for userMessageContentReady to be true  recursivelyMakeClineRequests 进行循环发送数据
-		
 
 		/*
 		Seeing out of bounds is fine, it means that the next too call is being built up and ready to add to assistantMessageContent to present. 
@@ -3101,7 +3093,7 @@ export class Cline {
 		const [parsedUserContent, environmentDetails] = await this.loadContext(userContent, includeFileDetails)
 		console.log("parsedUserContent-------------", parsedUserContent)
 		userContent = parsedUserContent
-		 // away 创建user 消息 添加 环境消息  addToApiConversationHistory 最终赋值给 apiConversationHistory
+		// away 创建user 消息 添加 环境消息  addToApiConversationHistory 最终赋值给 apiConversationHistory
 
 		// add environment details as its own text block, separate from tool results
 		userContent.push({ type: "text", text: environmentDetails })

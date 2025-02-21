@@ -115,7 +115,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 	private authManager: FirebaseAuthManager
 	private latestAnnouncementId = "jan-20-2025" // update to some unique identifier when we add a new announcement
 
-	 constructor(
+	constructor(
 		readonly context: vscode.ExtensionContext,
 		private readonly outputChannel: vscode.OutputChannel,
 	) {
@@ -124,9 +124,8 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 		this.workspaceTracker = new WorkspaceTracker(this)
 		this.mcpHub = new McpHub(this)
 		this.authManager = new FirebaseAuthManager(this)
-		this.updateGlobalState("haierragflowapikey", "ragflow-E5NmNjOTY2ZWZmMTExZWY4MGUxNjI3MD");
-		this.updateGlobalState("haierragflowapiid", "0645c520e9f311efa5ac2a35a7cb74c2");
-
+		this.updateGlobalState("haierragflowapikey", "ragflow-E5NmNjOTY2ZWZmMTExZWY4MGUxNjI3MD")
+		this.updateGlobalState("haierragflowapiid", "0645c520e9f311efa5ac2a35a7cb74c2")
 	}
 
 	/*
@@ -522,8 +521,8 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 							await this.updateGlobalState("haierinternalAiBaseUrl", haierinternalAiBaseUrl)
 							/* 							await this.updateGlobalState("haierinternalApiKey", haierinternalApiKey) */
 							await this.updateGlobalState("haierinternalModelId", haierinternalModelId)
-							await this.updateGlobalState("haierragflowapikey", "ragflow-E5NmNjOTY2ZWZmMTExZWY4MGUxNjI3MD");
-							await this.updateGlobalState("haierragflowapiid", "0645c520e9f311efa5ac2a35a7cb74c2");
+							await this.updateGlobalState("haierragflowapikey", "ragflow-E5NmNjOTY2ZWZmMTExZWY4MGUxNjI3MD")
+							await this.updateGlobalState("haierragflowapiid", "0645c520e9f311efa5ac2a35a7cb74c2")
 							if (this.cline) {
 								this.cline.api = buildApiHandler(message.apiConfiguration)
 							}
@@ -1464,7 +1463,6 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			haierinternalModelId,
 			haierragflowapikey,
 			haierragflowapiid,
-			
 		] = await Promise.all([
 			this.getGlobalState("apiProvider") as Promise<ApiProvider | undefined>,
 			this.getGlobalState("apiModelId") as Promise<string | undefined>,

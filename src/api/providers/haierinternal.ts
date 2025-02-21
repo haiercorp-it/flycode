@@ -21,9 +21,7 @@ export class HaierInternalHandler implements ApiHandler {
 			},
 		}) */
 	}
-	getAccountInfo() {
-		
-	}
+	getAccountInfo() {}
 	@withRetry()
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
 		if (!this.options.haierinternalAiBaseUrl) {

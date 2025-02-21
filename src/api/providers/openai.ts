@@ -27,9 +27,7 @@ export class OpenAiHandler implements ApiHandler {
 			})
 		}
 	}
-	getAccountInfo() {
-		
-	}
+	getAccountInfo() {}
 	@withRetry()
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
 		const modelId = this.options.openAiModelId ?? ""

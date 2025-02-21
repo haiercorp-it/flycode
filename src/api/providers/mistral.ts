@@ -27,9 +27,7 @@ export class MistralHandler implements ApiHandler {
 		})
 	}
 
-	getAccountInfo() {
-		
-	}
+	getAccountInfo() {}
 	@withRetry()
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
 		const stream = await this.client.chat.stream({

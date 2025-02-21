@@ -983,9 +983,9 @@ export const AUTH_CONFIG = {
 =======
 export const AUTH_CONFIG = {
   // 账号中心配置（由@haier/iam注入）
-  ssoUrl: "${('请提供SSO服务地址 (如 https://iam.haier.net)')}",
-  clientId: "${('请输入应用K码，可在IAM控制台获取')}", 
-  tokenUrl: "${('请输入令牌服务地址 (如 /api/auth/token)')}",
+  ssoUrl: "${"请提供SSO服务地址 (如 https://iam.haier.net)"}",
+  clientId: "${"请输入应用K码，可在IAM控制台获取"}", 
+  tokenUrl: "${"请输入令牌服务地址 (如 /api/auth/token)"}",
 >>>>>>> REPLACE
 </diff>
 </replace_in_file>
@@ -996,7 +996,8 @@ export const AUTH_CONFIG = {
 
 # 动态生成configUserCenter初始化代码（根据检测到的框架）
 ${
-  framework === 'vue' ? `
+	framework === "vue"
+		? `
 <write_to_file>
 <path>src/plugins/auth.ts</path>
 <content>
@@ -1030,9 +1031,9 @@ const app = createApp(App)
 app.use(AuthPlugin)
 >>>>>>> REPLACE
 </diff>
-</replace_in_file>` 
-
-: framework === 'react' ? `
+</replace_in_file>`
+		: framework === "react"
+			? `
 <write_to_file>
 <path>src/providers/AuthProvider.tsx</path>
 <content>
@@ -1055,9 +1056,9 @@ export default function AuthProvider({ children }) {
   return children
 }
 </content>
-</write_to_file>` 
-
-: framework === 'uniapp' ? `
+</write_to_file>`
+			: framework === "uniapp"
+				? `
 <write_to_file>
 <path>src/utils/auth.ts</path>
 <content>
@@ -1074,7 +1075,7 @@ export const initIamSDK = async () => {
 }
 </content>
 </write_to_file>`
-: ''
+				: ""
 }
 
 // 增加环境变量验证
@@ -1087,15 +1088,15 @@ export const initIamSDK = async () => {
 </execute_command>
 
 <replace_in_file>
-<path>.env.${framework === 'vue' ? 'local' : 'development'}</path>
+<path>.env.${framework === "vue" ? "local" : "development"}</path>
 <diff>
 <<<<<<< SEARCH
 # API配置
 =======
 # 账号中心配置
-VITE_SSO_URL=${('请输入SSO生产环境地址')}
-VITE_SSO_TEST_URL=${('请输入SSO测试环境地址')}
-VITE_CLIENT_ID=${('请输入应用K码')}
+VITE_SSO_URL=${"请输入SSO生产环境地址"}
+VITE_SSO_TEST_URL=${"请输入SSO测试环境地址"}
+VITE_CLIENT_ID=${"请输入应用K码"}
 >>>>>>> REPLACE
 </diff>
 </replace_in_file>
