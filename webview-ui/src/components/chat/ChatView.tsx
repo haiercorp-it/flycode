@@ -797,12 +797,9 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 							<VSCodeLink
 								href="https://www-cdn.anthropic.com/fed9cc193a14b84131812372d8d5857f8f304c52/Model_Card_Claude_3_Addendum.pdf"
 								style={{ display: "inline" }}>
-								Claude 3.5 Sonnet's agentic coding capabilities,
 							</VSCodeLink>{" "}
-							I can handle complex software development tasks step-by-step. With tools that let me create & edit
-							files, explore complex projects, use the browser, and execute terminal commands (after you grant
-							permission), I can assist you in ways that go beyond code completion or tech support. I can even use
-							MCP to create new tools and extend my own capabilities.
+							Empowering developers to build beyond boundaries with AI-driven automation and future-ready architectures. \
+							Turn complex code into limitless innovation—where every line scales infinitely.
 						</p>
 					</div>
 					{taskHistory.length > 0 && <HistoryPreview showHistoryView={showHistoryView} />}

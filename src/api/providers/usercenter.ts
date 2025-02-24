@@ -201,7 +201,9 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 			// 处理流式响应
 			while (true) {
 				const { done, value } = await reader.read()
-				if (done) break
+				if (done) {
+					break
+				}
 
 				// 解码响应数据
 				const chunk = new TextDecoder().decode(value)
@@ -550,7 +552,9 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 				// 处理流式响应
 				while (true) {
 					const { done, value } = await reader.read()
-					if (done) break
+					if (done) {
+						break
+					}
 
 					// 解码响应数据
 					const chunk = new TextDecoder().decode(value)

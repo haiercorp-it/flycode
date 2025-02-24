@@ -272,6 +272,9 @@ export class Cline {
 			} catch (error) {
 				console.error("Failed to get task directory size:", taskDir, error)
 			}
+			console.log("task-first-message=======", taskMessage.text);
+
+
 			await this.providerRef.deref()?.updateTaskHistory({
 				id: this.taskId,
 				ts: lastRelevantMessage.ts,
