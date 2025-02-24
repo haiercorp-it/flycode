@@ -14,6 +14,7 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 	private url: string = "https://ikm.haier.net"
 	private openRag = true
 	private chatAssiantName: string = "new_chat_1"
+	private chatAssiantId: string = ""
 	constructor(options: ApiHandlerOptions) {
 		this.options = options
 		// this.providerRef = new WeakRef(options.provider)
@@ -41,6 +42,9 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 			console.log("chatAssitId", chatAssitIds)
 			chatAssitId = chatAssitIds
 		} else {
+			return null
+		}
+		if (!chatAssitId) {
 			return null
 		}
 		const url = this.url + `/api/v1/chats?page=1&page_size=100&id=${chatAssitId}`
@@ -397,6 +401,7 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 		let chatAssaitId = undefined
 		if (remainAssiant.length > 0) {
 			chatAssaitId = remainAssiant[0].id
+			this.chatAssiantName = remainAssiant[0].name
 		} else {
 			chatAssaitId = await this.createchatAssiant()
 		}
@@ -451,6 +456,93 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 		//     })
 		//     throw error
 		// }
+	}
+
+	public async createMessagePreaper() {
+		const remainAssiant = await this.listChatAssiants()
+		let chatAssaitId = undefined
+		if (remainAssiant && remainAssiant.length > 0) {
+			chatAssaitId = remainAssiant[0].id
+			this.chatAssiantName = remainAssiant[0].name
+		} else {
+			chatAssaitId = await this.createchatAssiant()
+		}
+		await this.createChatSession(chatAssaitId)
+		this.chatAssiantId = chatAssaitId
+	}
+
+	public async *readRagStreamChunk(question: string): ApiStream {
+		// const remainAssiant = await this.listChatAssiants()
+		const url = this.url + `/api/v1/chats/${this.chatAssiantId}/completions`
+		const payload = {
+			name: this.chatAssiantName,
+			question: question,
+			stream: true,
+		}
+		const headers = {
+			Authorization: "",
+			"Content-Type": "application/json",
+			"User-Agent":
+				"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+		}
+		headers["Authorization"] = `Bearer` + " " + this.options.haierragflowapikey
+
+		try {
+			// 使用 fetch API 发送请求并处理流式响应
+			const response = await fetch(url, {
+				method: "POST",
+				headers: headers,
+				body: JSON.stringify(payload),
+			})
+			if (!response.ok) {
+				const errorText = await response.text()
+				console.error("Error response:", {
+					status: response.status,
+					statusText: response.statusText,
+					body: errorText,
+				})
+				throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`)
+			}
+
+			// 获取响应流
+			const reader = response.body?.getReader()
+			if (!reader) {
+				throw new Error("No response body")
+			}
+
+			let hasYieldedContent = false // 添加标志来跟踪是否有输出内容
+
+			// 处理流式响应
+			while (true) {
+				const { done, value } = await reader.read()
+				if (done) {
+					break
+				}
+				// 解码响应数据
+				const chunk = new TextDecoder().decode(value)
+				const lines = chunk.split("\n").filter((line) => line.trim())
+				console.log("chunk-----:", chunk)
+				for (const line of lines) {
+					try {
+						// 直接解析整个 JSON 对象
+						const raw_line = line.replace(/^data:/, "").trim()
+						const data = JSON.parse(raw_line)
+						if (data.data?.answer) {
+							hasYieldedContent = true
+							yield {
+								type: "reasoning",
+								reasoning: data.data.answer,
+							}
+						}
+					} catch (e) {
+						console.error("Error parsing chunk:", e)
+					}
+				}
+			}
+		} catch (error) {
+			console.error("Error sending request:", error)
+			throw new Error(`Failed to send request: ${(error as any).message}`)
+		}
 	}
 
 	@withRetry()
@@ -531,7 +623,9 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 			//        })
 			//        throw error
 			//    }
-			//    const chunkstream = await this.createChunkListDocument();
+			// const chunkstreams = await this.createChunkListDocument();
+			const chunkstream = await this.readRagStreamChunk(systemPrompt)
+			yield* chunkstream
 			//    const iterator = chunkstream[Symbol.asyncIterator]()
 			//    try {
 			// 	// awaiting first chunk to see if it will throw an error
@@ -539,7 +633,6 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 			// 	yield firstChunk.value;
 			// } catch (error) {
 			// }
-			// this.createchatAssiant();
 		} else {
 			// const url = "http://10.250.7.75:33607/api/v2/integrate "
 			const url = "http://localhost:8000/api/v2/integrate"

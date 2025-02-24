@@ -94,7 +94,6 @@ export class HaierInternalHandler implements ApiHandler {
 			while (true) {
 				const { done, value } = await reader.read()
 				if (done) break
-
 				// 解码响应数据
 				const chunk = new TextDecoder().decode(value)
 				const lines = chunk.split("\n").filter((line) => line.trim())

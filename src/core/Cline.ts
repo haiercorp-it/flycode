@@ -1297,16 +1297,16 @@ export class Cline {
 		const lastApiReqIndex = findLastIndex(this.clineMessages, (m) => m.say === "api_req_started")
 		const taskMessage = this.clineMessages[0] // first message is always the task say
 		// history.filter((message:any) => message.role == "user")[0].content
-		if (!this.accountInfo && taskMessage.text) {
-			let objResponse: RAGOBJInterface = processRAGText(taskMessage.text)
-			if (objResponse.isRag === true) {
-				console.log("text", taskMessage.text)
-				const userInfo = await this.usercenterApi?.getAccountInfoNew(objResponse.text)
-				console.log(userInfo)
-				this.accountInfo = userInfo
-			}
-			// this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
-		}
+		// if (!this.accountInfo && taskMessage.text) {
+		// 	let objResponse: RAGOBJInterface = processRAGText(taskMessage.text)
+		// 	if (objResponse.isRag === true) {
+		// 		console.log("text", taskMessage.text)
+		// 		const userInfo = await this.usercenterApi?.getAccountInfoNew(objResponse.text)
+		// 		console.log(userInfo)
+		// 		this.accountInfo = userInfo
+		// 	}
+		// 	// this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
+		// }
 
 		let systemPrompt = await SYSTEM_PROMPT(cwd, supportsComputerUse, mcpHub, this.browserSettings, this.accountInfo)
 		console.log("systemPrompt", systemPrompt)
@@ -1386,11 +1386,19 @@ export class Cline {
 			this.apiConversationHistory,
 			this.conversationHistoryDeletedRange,
 		)
-
-		let stream = this.api.createMessage(systemPrompt, truncatedConversationHistory)
-
-		const iterator = stream[Symbol.asyncIterator]()
-
+		let stream
+		if (!this.accountInfo && taskMessage.text) {
+			let objResponse: RAGOBJInterface = processRAGText(taskMessage.text)
+			if (objResponse.isRag === true) {
+				console.log("text", taskMessage.text)
+				await this.usercenterApi?.createMessagePreaper()
+				stream = this.usercenterApi?.createMessage(objResponse.text, truncatedConversationHistory)
+			}
+			// this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
+		} else {
+			stream = this.api.createMessage(systemPrompt, truncatedConversationHistory)
+		}
+		const iterator = stream![Symbol.asyncIterator]()
 		try {
 			// awaiting first chunk to see if it will throw an error
 			this.isWaitingForFirstChunk = true

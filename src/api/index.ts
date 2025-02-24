@@ -30,6 +30,7 @@ export interface ApiHandler {
 export interface ApiRAGHandler extends ApiHandler {
 	getAccountInfoNew(question: string): any
 	setProvider(provider: ClineProvider): void
+	createMessagePreaper(): any
 }
 
 export interface SingleCompletionHandler {
