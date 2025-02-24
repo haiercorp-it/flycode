@@ -59,22 +59,14 @@ const WelcomeView = () => {
 					padding: "0 20px",
 					overflow: "auto",
 				}}>
-				<h2>Hi, I'm Cline</h2>
+				<h2>你好，我是GL</h2>
 				<p>
-					I can do all kinds of tasks thanks to the latest breakthroughs in{" "}
-					<VSCodeLink
-						href="https://www-cdn.anthropic.com/fed9cc193a14b84131812372d8d5857f8f304c52/Model_Card_Claude_3_Addendum.pdf"
-						style={{ display: "inline" }}>
-						Claude 3.5 Sonnet's agentic coding capabilities
-					</VSCodeLink>{" "}
-					and access to tools that let me create & edit files, explore complex projects, use the browser, and execute
-					terminal commands (with your permission, of course). I can even use MCP to create new tools and extend my own
-					capabilities.
+					我能够调用集团IT提供的大模型和知识库，从而高效地完成代码编写、SDK引入以及调试工作。我可以根据您的需求来创建和编辑文件、探索复杂项目、使用浏览器以及执行终端命令。如有必要，您还可以编写MCP工具来进一步扩展我的能力。
 				</p>
 
-				<b>To get started, this extension needs an API provider for Claude 3.5 Sonnet.</b>
+				<b>（暂时您可以在下方配置大模型，以便调试，请优先使用haierinternal，这是私域大模型能力）</b>
 
-				<div
+				{/* <div
 					style={{
 						marginTop: "15px",
 						padding: isSubscribed ? "5px 15px 5px 15px" : "12px",
@@ -107,12 +99,12 @@ const WelcomeView = () => {
 							</div>
 						</>
 					)}
-				</div>
+				</div> */}
 
 				<div style={{ marginTop: "15px" }}>
 					<ApiOptions showModelOptions={false} />
 					<VSCodeButton onClick={handleSubmit} disabled={disableLetsGoButton} style={{ marginTop: "3px" }}>
-						Let's go!
+						开始使用！
 					</VSCodeButton>
 				</div>
 			</div>

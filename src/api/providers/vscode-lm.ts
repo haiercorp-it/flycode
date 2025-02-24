@@ -155,7 +155,7 @@ export class VsCodeLmHandler implements ApiHandler, SingleCompletionHandler {
 			this.dispose()
 
 			throw new Error(
-				`Cline <Language Model API>: Failed to initialize handler: ${error instanceof Error ? error.message : "Unknown error"}`,
+				`  <Language Model API>: Failed to initialize handler: ${error instanceof Error ? error.message : "Unknown error"}`,
 			)
 		}
 	}
@@ -206,7 +206,7 @@ export class VsCodeLmHandler implements ApiHandler, SingleCompletionHandler {
 			}
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : "Unknown error"
-			throw new Error(`Cline <Language Model API>: Failed to select model: ${errorMessage}`)
+			throw new Error(`  <Language Model API>: Failed to select model: ${errorMessage}`)
 		}
 	}
 
@@ -339,7 +339,7 @@ export class VsCodeLmHandler implements ApiHandler, SingleCompletionHandler {
 			} catch (error) {
 				const message = error instanceof Error ? error.message : "Unknown error"
 				console.error("Cline <Language Model API>: Client creation failed:", message)
-				throw new Error(`Cline <Language Model API>: Failed to create client: ${message}`)
+				throw new Error(`  <Language Model API>: Failed to create client: ${message}`)
 			}
 		}
 
@@ -441,7 +441,7 @@ export class VsCodeLmHandler implements ApiHandler, SingleCompletionHandler {
 		try {
 			// Create the response stream with minimal required options
 			const requestOptions: vscode.LanguageModelChatRequestOptions = {
-				justification: `Cline would like to use '${client.name}' from '${client.vendor}', Click 'Allow' to proceed.`,
+				justification: `  would like to use '${client.name}' from '${client.vendor}', Click 'Allow' to proceed.`,
 			}
 
 			// Note: Tool support is currently provided by the VSCode Language Model API directly
@@ -532,7 +532,7 @@ export class VsCodeLmHandler implements ApiHandler, SingleCompletionHandler {
 			this.ensureCleanState()
 
 			if (error instanceof vscode.CancellationError) {
-				throw new Error("Cline <Language Model API>: Request cancelled by user")
+				throw new Error("  <Language Model API>: Request cancelled by user")
 			}
 
 			if (error instanceof Error) {
@@ -548,12 +548,12 @@ export class VsCodeLmHandler implements ApiHandler, SingleCompletionHandler {
 				// Handle error-like objects
 				const errorDetails = JSON.stringify(error, null, 2)
 				console.error("Cline <Language Model API>: Stream error object:", errorDetails)
-				throw new Error(`Cline <Language Model API>: Response stream error: ${errorDetails}`)
+				throw new Error(`  <Language Model API>: Response stream error: ${errorDetails}`)
 			} else {
 				// Fallback for unknown error types
 				const errorMessage = String(error)
 				console.error("Cline <Language Model API>: Unknown stream error:", errorMessage)
-				throw new Error(`Cline <Language Model API>: Response stream error: ${errorMessage}`)
+				throw new Error(`  <Language Model API>: Response stream error: ${errorMessage}`)
 			}
 		}
 	}

@@ -102,7 +102,7 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 						rows={4}
 						placeholder={'e.g. "Run unit tests at the end", "Use TypeScript with async/await", "Speak in Spanish"'}
 						onInput={(e: any) => setCustomInstructions(e.target?.value ?? "")}>
-						<span style={{ fontWeight: "500" }}>Custom Instructions</span>
+						<span style={{ fontWeight: "500" }}>自定义提示词</span>
 					</VSCodeTextArea>
 					<p
 						style={{
@@ -110,7 +110,7 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 							marginTop: "5px",
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						These instructions are added to the end of the system prompt sent with every request.
+						这些指令会添加到随每个请求发送的系统提示的末尾。
 					</p>
 				</div>
 
@@ -144,7 +144,7 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 							margin: "0 0 16px 0",
 						}}>
 						<i className="codicon codicon-settings-gear" />
-						Advanced Settings
+						更多设置
 					</SettingsButton>
 				</div>
 				<div
@@ -155,7 +155,7 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 						lineHeight: "1.2",
 						padding: "0 8px 15px 0",
 					}}>
-					<p
+					{/* <p
 						style={{
 							wordWrap: "break-word",
 							margin: 0,
@@ -165,14 +165,14 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 						<VSCodeLink href="https://github.com/cline/cline" style={{ display: "inline" }}>
 							https://github.com/cline/cline
 						</VSCodeLink>
-					</p>
+					</p> */}
 					<p
 						style={{
 							fontStyle: "italic",
 							margin: "10px 0 0 0",
 							padding: 0,
 						}}>
-						v{version}
+						GI v{version}
 					</p>
 				</div>
 			</div>

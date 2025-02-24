@@ -1,7 +1,7 @@
 {
-	"name": "haiergi-dev",
-	"displayName": "HaierGi",
-	"description": "Autonomous coding agent right in your IDE, capable of creating/editing files, running commands, using the browser, and more with your permission every step of the way.",
+	"name": "it-gi-dev",
+	"displayName": "GI",
+	"description": "Empowering developers to build beyond boundaries with AI-driven automation and future-ready architectures. Turn complex code into limitless innovation—where every line scales infinitely.",
 	"version": "0.0.31",
 	"icon": "assets/icons/icon.png",
 	"galleryBanner": {
@@ -12,10 +12,10 @@
 		"vscode": "^1.84.0"
 	},
 	"author": {
-		"name": "Cline Bot Inc."
+		"name": "IT Group."
 	},
 	"license": "Apache-2.0",
-	"publisher": "saoudrizwan",
+	"publisher": "IT",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/cline/cline"
@@ -25,23 +25,12 @@
 		"AI",
 		"Chat",
 		"Programming Languages",
-		"Education",
-		"Snippets",
 		"Testing"
 	],
 	"keywords": [
-		"cline",
-		"claude",
-		"dev",
-		"mcp",
-		"openrouter",
-		"coding",
-		"agent",
-		"autonomous",
-		"chatgpt",
-		"sonnet",
 		"ai",
-		"llama"
+		"coding",
+		"test"
 	],
 	"activationEvents": [],
 	"main": "./dist/extension.js",
@@ -50,7 +39,7 @@
 			"activitybar": [
 				{
 					"id": "claude-dev-ActivityBar",
-					"title": "HaierGi",
+					"title": "GI",
 					"icon": "assets/icons/icon.svg"
 				}
 			]
@@ -67,32 +56,32 @@
 		"commands": [
 			{
 				"command": "cline.plusButtonClicked",
-				"title": "New Task",
+				"title": "新任务",
 				"icon": "$(add)"
 			},
 			{
 				"command": "cline.mcpButtonClicked",
-				"title": "MCP Servers",
+				"title": "MCP扩展",
 				"icon": "$(server)"
 			},
 			{
 				"command": "cline.historyButtonClicked",
-				"title": "History",
+				"title": "历史",
 				"icon": "$(history)"
 			},
 			{
 				"command": "cline.popoutButtonClicked",
-				"title": "Open in Editor",
+				"title": "在编辑区打开",
 				"icon": "$(link-external)"
 			},
 			{
 				"command": "cline.settingsButtonClicked",
-				"title": "Settings",
+				"title": "设置",
 				"icon": "$(settings-gear)"
 			},
 			{
 				"command": "cline.openInNewTab",
-				"title": "Open In New Tab",
+				"title": "打开新选项卡",
 				"category": "Cline"
 			}
 		],
@@ -257,7 +246,6 @@
 		"firebase": "^11.2.0",
 		"get-folder-size": "^5.0.0",
 		"globby": "^14.0.2",
-		"haiergi-dev": "file:",
 		"ignore": "^7.0.3",
 		"isbinaryfile": "^5.0.2",
 		"mammoth": "^1.8.0",

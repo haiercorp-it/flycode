@@ -53,7 +53,7 @@ class CheckpointTracker {
 	private static async getWorkingDirectory(): Promise<string> {
 		const cwd = vscode.workspace.workspaceFolders?.map((folder) => folder.uri.fsPath).at(0)
 		if (!cwd) {
-			throw new Error("No workspace detected. Please open Cline in a workspace to use checkpoints.")
+			throw new Error("No workspace detected. Please open GI in a workspace to use checkpoints.")
 		}
 		const homedir = os.homedir()
 		const desktopPath = path.join(homedir, "Desktop")
@@ -227,7 +227,7 @@ class CheckpointTracker {
 			)
 
 			// Set up git identity (git throws an error if user.name or user.email is not set)
-			await git.addConfig("user.name", "Cline Checkpoint")
+			await git.addConfig("user.name", "GI Checkpoint")
 			await git.addConfig("user.email", "noreply@example.com")
 
 			await this.addAllFiles(git)
