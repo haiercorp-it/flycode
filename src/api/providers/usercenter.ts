@@ -32,18 +32,16 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 		}
 	}
 
-	public async commomRequest(url:string, payload: any,method:string = "post") {
-
-	}
+	public async commomRequest(url: string, payload: any, method: string = "post") {}
 
 	public async listChatAssiants() {
-		let chatAssitId;
+		let chatAssitId
 		if (this.providerRef) {
 			const chatAssitIds = await this.providerRef.deref()?.getSecret("chatAssitId")
 			console.log("chatAssitId", chatAssitIds)
-			chatAssitId = chatAssitIds;
-		}else{
-			return null;
+			chatAssitId = chatAssitIds
+		} else {
+			return null
 		}
 		const url = this.url + `/api/v1/chats?page=1&page_size=100&id=${chatAssitId}`
 		console.log("this is url", url)
@@ -62,14 +60,14 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 
 			if (!response.ok) {
 				if (this.providerRef) {
-					await this.providerRef.deref()?.setSecret("chatAssitId", undefined);
+					await this.providerRef.deref()?.setSecret("chatAssitId", undefined)
 				}
 				throw new Error(`Failed to send request: ${response.statusText}`)
 			}
 			const result = await response.json()
 			if (result.data?.length === 0) {
 				if (this.providerRef) {
-					await this.providerRef.deref()?.setSecret("chatAssitId", undefined);
+					await this.providerRef.deref()?.setSecret("chatAssitId", undefined)
 				}
 			}
 			console.log("Response:", result)
@@ -394,12 +392,12 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 		// }
 	}
 	public async getAccountInfoNew(question: string) {
-		const remainAssiant = await this.listChatAssiants() 
+		const remainAssiant = await this.listChatAssiants()
 		console.log("this is remainAssiant:", remainAssiant)
-		let chatAssaitId = undefined;
+		let chatAssaitId = undefined
 		if (remainAssiant.length > 0) {
 			chatAssaitId = remainAssiant[0].id
-		}else{
+		} else {
 			chatAssaitId = await this.createchatAssiant()
 		}
 		const sessionId = await this.createChatSession(chatAssaitId)
