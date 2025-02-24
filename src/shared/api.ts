@@ -63,6 +63,8 @@ export interface ApiHandlerOptions {
 	haierinternalModelId?: string
 	haierragflowapikey?: string
 	haierragflowapiid?: string
+	haierragflowapiurl?: string
+	haierragflowapidatasetid?: string
 }
 
 export type ApiConfiguration = ApiHandlerOptions & {

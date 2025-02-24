@@ -96,6 +96,8 @@ type GlobalStateKey =
 	| "haierinternalModelId"
 	| "haierragflowapikey"
 	| "haierragflowapiid"
+	| "haierragflowapiurl"
+	| "haierragflowapidatasetid"
 
 export const GlobalFileNames = {
 	apiConversationHistory: "api_conversation_history.json",
@@ -128,6 +130,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 		this.authManager = new FirebaseAuthManager(this)
 		this.updateGlobalState("haierragflowapikey", "ragflow-E5NmNjOTY2ZWZmMTExZWY4MGUxNjI3MD")
 		this.updateGlobalState("haierragflowapiid", "0645c520e9f311efa5ac2a35a7cb74c2")
+		this.updateGlobalState("haierragflowapiurl", "https://ikm.haier.net")
 	}
 
 	/*
@@ -525,6 +528,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 							await this.updateGlobalState("haierinternalModelId", haierinternalModelId)
 							await this.updateGlobalState("haierragflowapikey", "ragflow-E5NmNjOTY2ZWZmMTExZWY4MGUxNjI3MD")
 							await this.updateGlobalState("haierragflowapiid", "0645c520e9f311efa5ac2a35a7cb74c2")
+							await this.updateGlobalState("haierragflowapiurl", "https://ikm.haier.net")
 							if (this.cline) {
 								this.cline.api = buildApiHandler(message.apiConfiguration)
 							}
@@ -1465,6 +1469,8 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			haierinternalModelId,
 			haierragflowapikey,
 			haierragflowapiid,
+			haierragflowapiurl,
+			haierragflowapidatasetid,
 		] = await Promise.all([
 			this.getGlobalState("apiProvider") as Promise<ApiProvider | undefined>,
 			this.getGlobalState("apiModelId") as Promise<string | undefined>,
@@ -1521,6 +1527,8 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			this.getGlobalState("haierinternalModelId") as Promise<string | undefined>,
 			this.getGlobalState("haierragflowapikey") as Promise<string | undefined>,
 			this.getGlobalState("haierragflowapiid") as Promise<string | undefined>,
+			this.getGlobalState("haierragflowapiurl") as Promise<string | undefined>,
+			this.getGlobalState("haierragflowapidatasetid") as Promise<string | undefined>,
 		])
 
 		let apiProvider: ApiProvider
@@ -1589,6 +1597,8 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 				// away 增加 haierragflowapikey 和 haierragflowmodelid 字段
 				haierragflowapikey,
 				haierragflowapiid,
+				haierragflowapidatasetid,
+				haierragflowapiurl,
 			},
 			lastShownAnnouncementId,
 			customInstructions,

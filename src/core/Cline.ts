@@ -53,7 +53,7 @@ import { arePathsEqual, getReadablePath } from "../utils/path"
 import { fixModelHtmlEscaping, removeInvalidChars } from "../utils/string"
 import { AssistantMessageContent, parseAssistantMessage, ToolParamName, ToolUseName } from "./assistant-message"
 import { constructNewFileContent } from "./assistant-message/diff"
-import { isHaierDoc, hasAccountCenter, replaceRAG, RAGOBJInterface } from "./assistant-message/haier"
+import { isHaierDoc, hasAccountCenter, replaceRAG, RAGOBJInterface, processRAGText } from "./assistant-message/haier"
 import { ClineIgnoreController, LOCK_TEXT_SYMBOL } from "./ignore/ClineIgnoreController"
 import { parseMentions } from "./mentions"
 import { formatResponse } from "./prompts/responses"
@@ -1293,14 +1293,12 @@ export class Cline {
 
 		const disableBrowserTool = vscode.workspace.getConfiguration("cline").get<boolean>("disableBrowserTool") ?? false
 		const modelSupportsComputerUse = this.api.getModel().info.supportsComputerUse ?? false
-
 		const supportsComputerUse = modelSupportsComputerUse && !disableBrowserTool // only enable computer use if the model supports it and the user hasn't disabled it
-
 		const lastApiReqIndex = findLastIndex(this.clineMessages, (m) => m.say === "api_req_started")
 		const taskMessage = this.clineMessages[0] // first message is always the task say
 		// history.filter((message:any) => message.role == "user")[0].content
 		if (!this.accountInfo && taskMessage.text) {
-			let objResponse: RAGOBJInterface = replaceRAG(taskMessage.text)
+			let objResponse: RAGOBJInterface = processRAGText(taskMessage.text)
 			if (objResponse.isRag === true) {
 				console.log("text", taskMessage.text)
 				const userInfo = await this.usercenterApi?.getAccountInfoNew(objResponse.text)
