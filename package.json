@@ -38,17 +38,17 @@
 		"viewsContainers": {
 			"activitybar": [
 				{
-					"id": "claude-dev-ActivityBar",
+					"id": "claude-dev-ActivityBarS",
 					"title": "GI",
 					"icon": "assets/icons/icon.svg"
 				}
 			]
 		},
 		"views": {
-			"claude-dev-ActivityBar": [
+			"claude-dev-ActivityBarS": [
 				{
 					"type": "webview",
-					"id": "claude-dev.SidebarProvider",
+					"id": "claude-devS.SidebarProvider",
 					"name": ""
 				}
 			]
@@ -95,32 +95,32 @@
 				{
 					"command": "cline.plusButtonClicked",
 					"group": "navigation@1",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == claude-devS.SidebarProvider"
 				},
 				{
 					"command": "cline.mcpButtonClicked",
 					"group": "navigation@2",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == claude-devS.SidebarProvider"
 				},
 				{
 					"command": "cline.historyButtonClicked",
 					"group": "navigation@3",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == claude-devS.SidebarProvider"
 				},
 				{
 					"command": "cline.popoutButtonClicked",
 					"group": "navigation@4",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == claude-devS.SidebarProvider"
 				},
 				{
 					"command": "cline.settingsButtonClicked",
 					"group": "navigation@5",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == claude-devS.SidebarProvider"
 				},
 				{
 					"command": "cline.haierRAGCountClicked",
 					"group": "navigation@6",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == claude-devS.SidebarProvider"
 				}
 			]
 		},
