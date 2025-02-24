@@ -8,7 +8,7 @@ import pWaitFor from "p-wait-for"
 import * as path from "path"
 import { serializeError } from "serialize-error"
 import * as vscode from "vscode"
-import { ApiHandler, buildApiHandler } from "../api"
+import { ApiHandler, buildApiHandler, ApiRAGHandler, buildApiRAGHandler } from "../api"
 import { OpenAiHandler } from "../api/providers/openai"
 import { OpenRouterHandler } from "../api/providers/openrouter"
 import { ApiStream } from "../api/transform/stream"
@@ -67,14 +67,11 @@ type ToolResponse = string | Array<Anthropic.TextBlockParam | Anthropic.ImageBlo
 type UserContent = Array<
 	Anthropic.TextBlockParam | Anthropic.ImageBlockParam | Anthropic.ToolUseBlockParam | Anthropic.ToolResultBlockParam
 >
-export interface ApiHandlerNew extends ApiHandler {
-	getAccountInfo(): any
-}
 
 export class Cline {
 	readonly taskId: string
 	api: ApiHandler
-	usercenterApi: ApiHandler
+	usercenterApi: ApiRAGHandler
 	private terminalManager: TerminalManager
 	private urlContentFetcher: UrlContentFetcher
 	browserSession: BrowserSession
@@ -138,7 +135,8 @@ export class Cline {
 		})
 		this.providerRef = new WeakRef(provider)
 		this.api = buildApiHandler(apiConfiguration)
-		this.usercenterApi = buildApiHandler({ ...apiConfiguration, apiProvider: "usercenter" })
+		this.usercenterApi = buildApiRAGHandler({ ...apiConfiguration, apiProvider: "usercenter" })
+		this.usercenterApi.setProvider(provider)
 		this.terminalManager = new TerminalManager()
 		this.urlContentFetcher = new UrlContentFetcher(provider.context)
 		this.browserSession = new BrowserSession(provider.context, browserSettings)
@@ -793,12 +791,12 @@ export class Cline {
 		await this.providerRef.deref()?.postStateToWebview()
 
 		// away 如果task 有@账号中心则执行
-		if (task && !this.accountInfo) {
-			const userInfo = await this.usercenterApi?.getAccountInfo()
-			console.log(userInfo)
-			this.accountInfo = userInfo
-			// this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
-		}
+		// if (task && !this.accountInfo) {
+		// 	const userInfo = await this.usercenterApi?.getAccountInfoNew(task)
+		// 	console.log(userInfo)
+		// 	this.accountInfo = userInfo
+		// 	// this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
+		// }
 
 		await this.say("text", task, images)
 
@@ -1295,7 +1293,19 @@ export class Cline {
 		const modelSupportsComputerUse = this.api.getModel().info.supportsComputerUse ?? false
 
 		const supportsComputerUse = modelSupportsComputerUse && !disableBrowserTool // only enable computer use if the model supports it and the user hasn't disabled it
-		console.log("supportsComputerUse", this.accountInfo)
+
+		const lastApiReqIndex = findLastIndex(this.clineMessages, (m) => m.say === "api_req_started")
+		const taskMessage = this.clineMessages[0] // first message is always the task say
+
+		// history.filter((message:any) => message.role == "user")[0].content
+		if (!this.accountInfo && taskMessage.text) {
+			console.log("text", taskMessage.text)
+			const userInfo = await this.usercenterApi?.getAccountInfoNew(taskMessage.text)
+			console.log(userInfo)
+			this.accountInfo = userInfo
+			// this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
+		}
+
 		let systemPrompt = await SYSTEM_PROMPT(cwd, supportsComputerUse, mcpHub, this.browserSettings, this.accountInfo)
 		console.log("systemPrompt", systemPrompt)
 		let settingsCustomInstructions = this.customInstructions?.trim()

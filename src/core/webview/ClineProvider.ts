@@ -53,6 +53,8 @@ type SecretKey =
 	| "liteLlmApiKey"
 	| "authToken"
 	| "authNonce"
+	| "chatAssitId"
+
 type GlobalStateKey =
 	| "apiProvider"
 	| "apiModelId"
@@ -1656,6 +1658,10 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 
 	async getSecret(key: SecretKey) {
 		return await this.context.secrets.get(key)
+	}
+
+	async setSecret(key: SecretKey, value: string) {
+		await this.storeSecret(key, value)
 	}
 
 	// dev

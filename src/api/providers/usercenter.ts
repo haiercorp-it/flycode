@@ -2,11 +2,13 @@ import { Anthropic } from "@anthropic-ai/sdk"
 import OpenAI, { AzureOpenAI } from "openai"
 import { withRetry } from "../retry"
 import { ApiHandlerOptions, azureOpenAiDefaultApiVersion, ModelInfo, openAiModelInfoSaneDefaults } from "../../shared/api"
-import { ApiHandler } from "../index"
+import { ApiHandler, ApiRAGHandler } from "../index"
 import { convertToOpenAiMessages } from "../transform/openai-format"
 import { ApiStream } from "../transform/stream"
+import { ClineProvider } from "../../core/webview/ClineProvider"
 
-export class HaierUserCenterHandler implements ApiHandler {
+export class HaierUserCenterHandler implements ApiRAGHandler {
+	private providerRef: WeakRef<ClineProvider> | undefined = undefined
 	private options: ApiHandlerOptions
 	/* private client: OpenAI */
 	private url: string = "https://ikm.haier.net"
@@ -14,6 +16,7 @@ export class HaierUserCenterHandler implements ApiHandler {
 	private chatAssiantName: string = "new_chat_1"
 	constructor(options: ApiHandlerOptions) {
 		this.options = options
+		// this.providerRef = new WeakRef(options.provider)
 
 		/* 		this.client = new OpenAI({
             baseURL: options.haierinternalAiBaseUrl, // 基础 URL
@@ -23,9 +26,18 @@ export class HaierUserCenterHandler implements ApiHandler {
             },
         }) */
 	}
-
+	public setProvider(provider: ClineProvider) {
+		if (!this.providerRef) {
+			this.providerRef = new WeakRef(provider)
+		}
+	}
 	// 创建一个聊天助手服务
 	public async createchatAssiant() {
+		if (this.providerRef) {
+			const chatAssitId = await this.providerRef.deref()?.getSecret("chatAssitId")
+			console.log("chatAssitId", chatAssitId)
+		}
+
 		const url = this.url + "/api/v1/chats"
 		const timestamp = Date.now()
 		const chatName = `new_chat_${timestamp}`
@@ -33,6 +45,10 @@ export class HaierUserCenterHandler implements ApiHandler {
 		const payload = {
 			name: chatName,
 			dataset_ids: ["64c57d52ef7011ef98164a389f6d0c5d"],
+			llm: {
+				temperature: 0,
+				max_token: 1000,
+			},
 		}
 		const headers = {
 			Authorization: "",
@@ -55,6 +71,9 @@ export class HaierUserCenterHandler implements ApiHandler {
 			}
 			const result = await response.json()
 			console.log("Response:", result)
+			if (this.providerRef) {
+				await this.providerRef.deref()?.setSecret("chatAssitId", result.data.id)
+			}
 			return result.data.id
 		} catch (error) {
 			console.error("Error sending request:", error)
@@ -100,7 +119,7 @@ export class HaierUserCenterHandler implements ApiHandler {
 		const url = this.url + `/api/v1/chats/${chat_id}/completions`
 		const payload = {
 			name: this.chatAssiantName,
-			question: "集成账号中心",
+			question: question,
 			stream: false,
 		}
 		const headers = {
@@ -273,6 +292,60 @@ export class HaierUserCenterHandler implements ApiHandler {
 		const chatAssaitId = await this.createchatAssiant()
 		const sessionId = await this.createChatSession(chatAssaitId)
 		const resp = await this.converseWithchatassistant("集成账号中心前端", chatAssaitId)
+		console.log("resp:", resp)
+		return {
+			type: "text",
+			text: resp,
+		}
+		// const url = this.url + `/api/v1/datasets/64c57d52ef7011ef98164a389f6d0c5d/documents/d78bd6aaeff311ef94fe62707a40c49e/chunks?keywords=账号中心&page=1&page_size=1000`
+		// const headers = {
+		//     "Content-Type": "application/json",
+		//     "User-Agent":
+		//     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+		//     Authorization: "Bearer"+" "+this.options.haierragflowapikey
+		// }
+		// try {
+		//     // 使用 fetch API 发送请求并处理流式响应
+		//     const response = await fetch(url, {
+		//         method: "get",
+		//         headers: headers,
+		//     })
+
+		//     if (!response.ok) {
+		//         const errorText = await response.text()
+		//         console.error("Error response:", {
+		//             status: response.status,
+		//             statusText: response.statusText,
+		//             body: errorText,
+		//         })
+		//         throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`)
+		//     }
+		//     const datastr = await response.json();
+		//     const contentstr = datastr.data.chunks.map((item:any)=>item.content).join("\n");
+		//     console.log("response:", contentstr)
+		//     // 获取响应流
+		//     if (!datastr) {
+		//         throw new Error("No response body")
+		//     }
+		//     return {
+		//         type: "text",
+		//         text: contentstr,
+		//     }
+
+		// } catch (error) {
+		//     console.error("API call failed:", {
+		//         error: error,
+		//         status: error.response?.status,
+		//         data: error.response?.data,
+		//         message: error.message,
+		//     })
+		//     throw error
+		// }
+	}
+	public async getAccountInfoNew(question: string) {
+		const chatAssaitId = await this.createchatAssiant()
+		const sessionId = await this.createChatSession(chatAssaitId)
+		const resp = await this.converseWithchatassistant(question, chatAssaitId)
 		console.log("resp:", resp)
 		return {
 			type: "text",

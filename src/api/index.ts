@@ -19,11 +19,17 @@ import { VsCodeLmHandler } from "./providers/vscode-lm"
 import { LiteLlmHandler } from "./providers/litellm"
 import { HaierUserCenterHandler } from "./providers/usercenter"
 import { HaierInternalHandler } from "./providers/haierinternal"
+import { ClineProvider } from "../core/webview/ClineProvider"
 
 export interface ApiHandler {
 	createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream
 	getModel(): { id: string; info: ModelInfo }
 	getAccountInfo(): any
+}
+
+export interface ApiRAGHandler extends ApiHandler {
+	getAccountInfoNew(question: string): any
+	setProvider(provider: ClineProvider): void
 }
 
 export interface SingleCompletionHandler {
@@ -72,4 +78,9 @@ export function buildApiHandler(configuration: ApiConfiguration): ApiHandler {
 		default:
 			return new AnthropicHandler(options)
 	}
+}
+
+export function buildApiRAGHandler(configuration: ApiConfiguration): ApiRAGHandler {
+	const { apiProvider, ...options } = configuration
+	return new HaierUserCenterHandler(options)
 }
