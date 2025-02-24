@@ -51,6 +51,7 @@ export const ExtensionStateContextProvider: React.FC<{
 	const [mcpServers, setMcpServers] = useState<McpServer[]>([])
 
 	const handleMessage = useCallback((event: MessageEvent) => {
+		console.log("llllllllllllllllllllllllllllllllllll")
 		const message: ExtensionMessage = event.data
 		switch (message.type) {
 			case "state": {
@@ -74,6 +75,7 @@ export const ExtensionStateContextProvider: React.FC<{
 							config.qwenApiKey,
 							config.mistralApiKey,
 							config.haierinternalAiBaseUrl,
+							config.haierinternalModelId,
 							config.vsCodeLmModelSelector,
 						].some((key) => key !== undefined)
 					: false

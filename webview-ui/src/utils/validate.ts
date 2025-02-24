@@ -78,6 +78,12 @@ export function validateApiConfiguration(apiConfiguration?: ApiConfiguration): s
 					return "You must provide a valid model selector."
 				}
 				break
+			case "haierinternal":
+				console.log("Submitting configuration:", apiConfiguration)
+				if (!apiConfiguration.haierinternalAiBaseUrl && !apiConfiguration.haierinternalModelId) {
+					return "Please provide either a Base URL or Model ID"
+				}
+				break
 		}
 	}
 	return undefined
