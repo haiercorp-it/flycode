@@ -399,7 +399,7 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 		const remainAssiant = await this.listChatAssiants()
 		console.log("this is remainAssiant:", remainAssiant)
 		let chatAssaitId = undefined
-		if (remainAssiant.length > 0) {
+		if (remainAssiant && remainAssiant.length > 0) {
 			chatAssaitId = remainAssiant[0].id
 			this.chatAssiantName = remainAssiant[0].name
 		} else {
