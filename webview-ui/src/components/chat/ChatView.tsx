@@ -796,10 +796,9 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 							Thanks to{" "}
 							<VSCodeLink
 								href="https://www-cdn.anthropic.com/fed9cc193a14b84131812372d8d5857f8f304c52/Model_Card_Claude_3_Addendum.pdf"
-								style={{ display: "inline" }}>
-							</VSCodeLink>{" "}
-							Empowering developers to build beyond boundaries with AI-driven automation and future-ready architectures. \
-							Turn complex code into limitless innovation—where every line scales infinitely.
+								style={{ display: "inline" }}></VSCodeLink>{" "}
+							Empowering developers to build beyond boundaries with AI-driven automation and future-ready
+							architectures. \ Turn complex code into limitless innovation—where every line scales infinitely.
 						</p>
 					</div>
 					{taskHistory.length > 0 && <HistoryPreview showHistoryView={showHistoryView} />}
