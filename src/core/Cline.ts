@@ -288,7 +288,7 @@ export class Cline {
 				conversationHistoryDeletedRange: this.conversationHistoryDeletedRange,
 			})
 		} catch (error) {
-			console.error("Failed to save cline messages:", error)
+			console.error("Failed to save messages:", error)
 		}
 	}
 
@@ -312,7 +312,7 @@ export class Cline {
 						this.checkpointTracker = await CheckpointTracker.create(this.taskId, this.providerRef.deref())
 						this.checkpointTrackerErrorMessage = undefined
 					} catch (error) {
-						const errorMessage = error instanceof Error ? error.message : "Unknown error"
+						const errorMessage = error instanceof Error ? error.message : "未知错误"
 						console.error("Failed to initialize checkpoint tracker:", errorMessage)
 						this.checkpointTrackerErrorMessage = errorMessage
 						await this.providerRef.deref()?.postStateToWebview()
@@ -324,7 +324,7 @@ export class Cline {
 					try {
 						await this.checkpointTracker.resetHead(message.lastCheckpointHash)
 					} catch (error) {
-						const errorMessage = error instanceof Error ? error.message : "Unknown error"
+						const errorMessage = error instanceof Error ? error.message : "未知错误"
 						vscode.window.showErrorMessage("Failed to restore checkpoint: " + errorMessage)
 						didWorkspaceRestoreFail = true
 					}
@@ -423,7 +423,7 @@ export class Cline {
 				this.checkpointTracker = await CheckpointTracker.create(this.taskId, this.providerRef.deref())
 				this.checkpointTrackerErrorMessage = undefined
 			} catch (error) {
-				const errorMessage = error instanceof Error ? error.message : "Unknown error"
+				const errorMessage = error instanceof Error ? error.message : "未知错误"
 				console.error("Failed to initialize checkpoint tracker:", errorMessage)
 				this.checkpointTrackerErrorMessage = errorMessage
 				await this.providerRef.deref()?.postStateToWebview()
@@ -475,7 +475,7 @@ export class Cline {
 				}
 			}
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : "Unknown error"
+			const errorMessage = error instanceof Error ? error.message : "未知错误"
 			vscode.window.showErrorMessage("Failed to retrieve diff set: " + errorMessage)
 			relinquishButton()
 			return
@@ -527,7 +527,7 @@ export class Cline {
 				this.checkpointTracker = await CheckpointTracker.create(this.taskId, this.providerRef.deref())
 				this.checkpointTrackerErrorMessage = undefined
 			} catch (error) {
-				const errorMessage = error instanceof Error ? error.message : "Unknown error"
+				const errorMessage = error instanceof Error ? error.message : "未知错误"
 				console.error("Failed to initialize checkpoint tracker:", errorMessage)
 				return false
 			}
@@ -568,7 +568,7 @@ export class Cline {
 	}> {
 		// If this Cline instance was aborted by the provider, then the only thing keeping us alive is a promise still running in the background, in which case we don't want to send its result to the webview as it is attached to a new instance of Cline now. So we can safely ignore the result of any active promises, and this class will be deallocated. (Although we set Cline = undefined in provider, that simply removes the reference to this instance, but the instance is still alive until this promise resolves or rejects.)
 		if (this.abort) {
-			throw new Error("Cline instance aborted")
+			throw new Error("  instance aborted")
 		}
 		let askTs: number
 		if (partial !== undefined) {
@@ -686,7 +686,7 @@ export class Cline {
 
 	async say(type: ClineSay, text?: string, images?: string[], partial?: boolean): Promise<undefined> {
 		if (this.abort) {
-			throw new Error("Cline instance aborted")
+			throw new Error("  instance aborted")
 		}
 
 		if (partial !== undefined) {
@@ -766,9 +766,7 @@ export class Cline {
 	async sayAndCreateMissingParamError(toolName: ToolUseName, paramName: string, relPath?: string) {
 		await this.say(
 			"error",
-			`Cline tried to use ${toolName}${
-				relPath ? ` for '${relPath.toPosix()}'` : ""
-			} without value for required parameter '${paramName}'. Retrying...`,
+			`我们尝试使用 ${toolName}${relPath ? ` 用于 '${relPath.toPosix()}'` : ""} 缺少必需参数 '${paramName}'的值. 重试...`,
 		)
 		return formatResponse.toolError(formatResponse.missingToolParameterError(paramName))
 	}
@@ -1436,7 +1434,7 @@ export class Cline {
 
 	async presentAssistantMessage() {
 		if (this.abort) {
-			throw new Error("Cline instance aborted")
+			throw new Error("  instance aborted")
 		}
 		console.log("presentAssistantMessage======")
 		if (this.presentAssistantMessageLocked) {
@@ -1625,7 +1623,7 @@ export class Cline {
 				const showNotificationForApprovalIfAutoApprovalEnabled = (message: string) => {
 					if (this.autoApprovalSettings.enabled && this.autoApprovalSettings.enableNotifications) {
 						showSystemNotification({
-							subtitle: "Approval Required",
+							subtitle: "批准请求",
 							message,
 						})
 					}
@@ -1849,7 +1847,7 @@ export class Cline {
 								} else {
 									// If auto-approval is enabled but this tool wasn't auto-approved, send notification
 									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to ${fileExists ? "edit" : "create"} ${path.basename(relPath)}`,
+										`我们需要 ${fileExists ? "修改" : "新建"} ${path.basename(relPath)}`,
 									)
 									this.removeLastPartialMessageIfExistsWithType("say", "tool")
 									// const didApprove = await askApproval("tool", completeMessage)
@@ -2004,7 +2002,7 @@ export class Cline {
 									this.consecutiveAutoApprovedRequestsCount++
 								} else {
 									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to read ${path.basename(absolutePath)}`,
+										`我们需要读取 ${path.basename(absolutePath)}`,
 									)
 									this.removeLastPartialMessageIfExistsWithType("say", "tool")
 									const didApprove = await askApproval("tool", completeMessage)
@@ -2075,7 +2073,7 @@ export class Cline {
 									this.consecutiveAutoApprovedRequestsCount++
 								} else {
 									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to view directory ${path.basename(absolutePath)}/`,
+										`我们需要查看目录 ${path.basename(absolutePath)}/`,
 									)
 									this.removeLastPartialMessageIfExistsWithType("say", "tool")
 									const didApprove = await askApproval("tool", completeMessage)
@@ -2138,9 +2136,7 @@ export class Cline {
 									await this.say("tool", completeMessage, undefined, false)
 									this.consecutiveAutoApprovedRequestsCount++
 								} else {
-									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to view source code definitions in ${path.basename(absolutePath)}/`,
-									)
+									showNotificationForApprovalIfAutoApprovalEnabled(`我们需要在 ${path.basename(absolutePath)}/`)
 									this.removeLastPartialMessageIfExistsWithType("say", "tool")
 									const didApprove = await askApproval("tool", completeMessage)
 									if (!didApprove) {
@@ -2215,7 +2211,7 @@ export class Cline {
 									this.consecutiveAutoApprovedRequestsCount++
 								} else {
 									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to search files in ${path.basename(absolutePath)}/`,
+										`我们需要在 ${path.basename(absolutePath)}/ 中搜索内容`,
 									)
 									this.removeLastPartialMessageIfExistsWithType("say", "tool")
 									const didApprove = await askApproval("tool", completeMessage)
@@ -2298,9 +2294,7 @@ export class Cline {
 										await this.say("browser_action_launch", url, undefined, false)
 										this.consecutiveAutoApprovedRequestsCount++
 									} else {
-										showNotificationForApprovalIfAutoApprovalEnabled(
-											`Cline wants to use a browser and launch ${url}`,
-										)
+										showNotificationForApprovalIfAutoApprovalEnabled(`我们需要使用浏览器打开 ${url}`)
 										this.removeLastPartialMessageIfExistsWithType("say", "browser_action_launch")
 										const didApprove = await askApproval("browser_action_launch", url)
 										if (!didApprove) {
@@ -2456,9 +2450,7 @@ export class Cline {
 									this.consecutiveAutoApprovedRequestsCount++
 									didAutoApprove = true
 								} else {
-									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to execute a command: ${command}`,
-									)
+									showNotificationForApprovalIfAutoApprovalEnabled(`我们需要执行一条命令: ${command}`)
 									// this.removeLastPartialMessageIfExistsWithType("say", "command")
 									const didApprove = await askApproval(
 										"command",
@@ -2552,10 +2544,7 @@ export class Cline {
 										parsedArguments = JSON.parse(mcp_arguments)
 									} catch (error) {
 										this.consecutiveMistakeCount++
-										await this.say(
-											"error",
-											`Cline tried to use ${tool_name} with an invalid JSON argument. Retrying...`,
-										)
+										await this.say("error", `尝试使用 ${tool_name} 时，提供了无效的 JSON 参数。重试...`)
 										pushToolResult(
 											formatResponse.toolError(
 												formatResponse.invalidMcpToolArgumentError(server_name, tool_name),
@@ -2584,7 +2573,7 @@ export class Cline {
 									this.consecutiveAutoApprovedRequestsCount++
 								} else {
 									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to use ${tool_name} on ${server_name}`,
+										`我们需要在 ${server_name} 服务中使用工具 ${tool_name}`,
 									)
 									this.removeLastPartialMessageIfExistsWithType("say", "use_mcp_server")
 									const didApprove = await askApproval("use_mcp_server", completeMessage)
@@ -2674,7 +2663,7 @@ export class Cline {
 									this.consecutiveAutoApprovedRequestsCount++
 								} else {
 									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to access ${uri} on ${server_name}`,
+										`我们需要在${server_name} 服务中访问 ${uri}  `,
 									)
 									this.removeLastPartialMessageIfExistsWithType("say", "use_mcp_server")
 									const didApprove = await askApproval("use_mcp_server", completeMessage)
@@ -2724,7 +2713,7 @@ export class Cline {
 
 								if (this.autoApprovalSettings.enabled && this.autoApprovalSettings.enableNotifications) {
 									showSystemNotification({
-										subtitle: "Cline has a question...",
+										subtitle: "请问...",
 										message: question.replace(/\n/g, " "),
 									})
 								}
@@ -3020,21 +3009,22 @@ export class Cline {
 		isNewTask: boolean = false,
 	): Promise<boolean> {
 		if (this.abort) {
-			throw new Error("Cline instance aborted")
+			throw new Error("instance aborted")
 		}
 
 		if (this.consecutiveMistakeCount >= 3) {
 			if (this.autoApprovalSettings.enabled && this.autoApprovalSettings.enableNotifications) {
 				showSystemNotification({
 					subtitle: "Error",
-					message: "Cline is having trouble. Would you like to continue the task?",
+					message: "遇到问题，你希望继续执行吗?",
 				})
 			}
 			const { response, text, images } = await this.ask(
 				"mistake_limit_reached",
-				this.api.getModel().id.includes("claude")
-					? `This may indicate a failure in his thought process or inability to use a tool properly, which can be mitigated with some user guidance (e.g. "Try breaking down the task into smaller steps").`
-					: "Cline uses complex prompts and iterative task execution that may be challenging for less capable models. For best results, it's recommended to use Claude 3.5 Sonnet for its advanced agentic coding capabilities.",
+				`大模型思考出了点问题，或者是大模型未能正确使用工具。你可以尝试添加适当的指导来重试，比如可以建议他“尝试将任务拆解成更小的步骤”来逐步推进。").`,
+				// "mistake_limit_reached",  this.api.getModel().id.includes("claude")
+				// 	? `This may indicate a failure in his thought process or inability to use a tool properly, which can be mitigated with some user guidance (e.g. "Try breaking down the task into smaller steps").`
+				// 	: "Cline uses complex prompts and iterative task execution that may be challenging for less capable models. For best results, it's recommended to use Claude 3.5 Sonnet for its advanced agentic coding capabilities.",
 			)
 			if (response === "messageResponse") {
 				userContent.push(
@@ -3057,12 +3047,12 @@ export class Cline {
 			if (this.autoApprovalSettings.enableNotifications) {
 				showSystemNotification({
 					subtitle: "Max Requests Reached",
-					message: `Cline has auto-approved ${this.autoApprovalSettings.maxRequests.toString()} API requests.`,
+					message: `我们自动批准了 ${this.autoApprovalSettings.maxRequests.toString()} API 请求.`,
 				})
 			}
 			await this.ask(
 				"auto_approval_max_req_reached",
-				`Cline has auto-approved ${this.autoApprovalSettings.maxRequests.toString()} API requests. Would you like to reset the count and proceed with the task?`,
+				`我们自动批准了 ${this.autoApprovalSettings.maxRequests.toString()} API 请求. 您是否希望重置计数并继续执行任务？`,
 			)
 			// if we get past the promise it means the user approved and did not start a new task
 			this.consecutiveAutoApprovedRequestsCount = 0
@@ -3094,8 +3084,8 @@ export class Cline {
 				this.checkpointTracker = await CheckpointTracker.create(this.taskId, this.providerRef.deref())
 				this.checkpointTrackerErrorMessage = undefined
 			} catch (error) {
-				const errorMessage = error instanceof Error ? error.message : "Unknown error"
-				console.error("Failed to initialize checkpoint tracker:", errorMessage)
+				const errorMessage = error instanceof Error ? error.message : "未知错误"
+				console.error("无法初始化检查点跟踪器 Failed to initialize checkpoint tracker:", errorMessage)
 				this.checkpointTrackerErrorMessage = errorMessage // will be displayed right away since we saveClineMessages next which posts state to webview
 			}
 		}
@@ -3294,7 +3284,7 @@ export class Cline {
 
 			// need to call here in case the stream was aborted
 			if (this.abort) {
-				throw new Error("Cline instance aborted")
+				throw new Error("instance aborted")
 			}
 
 			this.didCompleteReadingStream = true

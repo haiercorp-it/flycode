@@ -104,18 +104,19 @@ const McpView = ({ onDone }: McpViewProps) => {
 						marginBottom: "16px",
 						marginTop: "5px",
 					}}>
-					The{" "}
+					配置{" "}
 					<VSCodeLink href="https://github.com/modelcontextprotocol" style={{ display: "inline" }}>
-						Model Context Protocol
+						MCP扩展服务
 					</VSCodeLink>{" "}
-					enables communication with locally running MCP servers that provide additional tools and resources to extend
-					Cline's capabilities. You can use{" "}
+					的信息，使本插件可以与本地运行的MCP服务器进行通信。本插件可利用它获取额外的工具和资源，扩展更多的功能。
+					<br />
+					您可以使用{" "}
 					<VSCodeLink href="https://github.com/modelcontextprotocol/servers" style={{ display: "inline" }}>
-						community-made servers
+						社区服务
 					</VSCodeLink>{" "}
-					or ask Cline to create new tools specific to your workflow (e.g., "add a tool that gets the latest npm docs").{" "}
+					或者让本插件创建新的工具以适应您的工作流程（例如，“添加一个工具，以获取最新的npm文档”）。 <br />{" "}
 					<VSCodeLink href="https://x.com/sdrzn/status/1867271665086074969" style={{ display: "inline" }}>
-						See a demo here.
+						链接是一个DEMO.
 					</VSCodeLink>
 				</div>
 
@@ -142,7 +143,7 @@ const McpView = ({ onDone }: McpViewProps) => {
 							vscode.postMessage({ type: "openMcpSettings" })
 						}}>
 						<span className="codicon codicon-server" style={{ marginRight: "6px" }}></span>
-						Configure MCP Servers
+						配置MCP服务器
 					</VSCodeButton>
 				</div>
 
@@ -156,7 +157,7 @@ const McpView = ({ onDone }: McpViewProps) => {
 							})
 						}}
 						style={{ fontSize: "12px" }}>
-						Advanced MCP Settings
+						更多配置选项
 					</VSCodeLink>
 				</div>
 

@@ -30,7 +30,7 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 			</h3>
 			<ul style={{ margin: "0 0 8px", paddingLeft: "12px" }}>
 				<li>
-					<b>Plan/Act mode toggle:</b> Plan mode turns Cline into an architect that gathers information, asks clarifying
+					<b>Plan/Act mode toggle:</b> Plan mode turns into an architect that gathers information, asks clarifying
 					questions, and designs a solution. Switch back to Act mode to let him execute the plan!{" "}
 					<VSCodeLink href="https://x.com/sdrzn/status/1881761978986934582" style={{ display: "inline" }}>
 						See a demo here.
@@ -47,7 +47,7 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 					individual tools
 				</li>
 				<li>
-					In case you missed it, Cline now supports Checkpoints!{" "}
+					In case you missed it, we now supports Checkpoints!{" "}
 					<VSCodeLink href="https://x.com/sdrzn/status/1876378124126236949" style={{ display: "inline" }}>
 						See it in action here.
 					</VSCodeLink>

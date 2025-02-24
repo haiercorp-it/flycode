@@ -192,12 +192,12 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 							style={{ display: "flex", flexWrap: "wrap" }}
 							value={sortOption}
 							onChange={(e) => setSortOption((e.target as HTMLInputElement).value as SortOption)}>
-							<VSCodeRadio value="newest">Newest</VSCodeRadio>
-							<VSCodeRadio value="oldest">Oldest</VSCodeRadio>
-							<VSCodeRadio value="mostExpensive">Most Expensive</VSCodeRadio>
-							<VSCodeRadio value="mostTokens">Most Tokens</VSCodeRadio>
+							<VSCodeRadio value="newest">最新优先</VSCodeRadio>
+							<VSCodeRadio value="oldest">最旧优先</VSCodeRadio>
+							<VSCodeRadio value="mostExpensive">高花费优先</VSCodeRadio>
+							<VSCodeRadio value="mostTokens">高Token优先</VSCodeRadio>
 							<VSCodeRadio value="mostRelevant" disabled={!searchQuery} style={{ opacity: searchQuery ? 1 : 0.5 }}>
-								Most Relevant
+								相关度优先
 							</VSCodeRadio>
 						</VSCodeRadioGroup>
 					</div>
