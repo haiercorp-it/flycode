@@ -608,7 +608,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							color: "var(--vscode-editorWarning-foreground)",
 						}}>
 						<i className="codicon codicon-warning"></i>
-						<span>模型已判定此命令需要授权。</span>
+						<span>模型已判定此命令需要批准。</span>
 					</div>
 				)}
 			</>

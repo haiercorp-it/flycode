@@ -189,7 +189,7 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 							color: getAsVar(VSC_FOREGROUND),
 							whiteSpace: "nowrap",
 						}}>
-						自动授权:
+						自动批准:
 					</span>
 					<span
 						style={{
@@ -216,7 +216,7 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 							color: getAsVar(VSC_DESCRIPTION_FOREGROUND),
 							fontSize: "12px",
 						}}>
-						自动授权本插件执行以下操作。请在您了解相关风险的情况下才启用该功能。
+						自动批准本插件执行以下操作。请在您了解相关风险的情况下才启用该功能。
 					</div>
 					{ACTION_METADATA.map((action) => (
 						<div key={action.id} style={{ margin: "6px 0" }}>

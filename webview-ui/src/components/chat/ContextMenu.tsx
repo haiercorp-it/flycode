@@ -95,7 +95,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 						</>
 					)
 				} else {
-					return <span>Add {option.type === ContextMenuOptionType.File ? "File" : "Folder"}</span>
+					return <span>添加{option.type === ContextMenuOptionType.File ? "文件" : "目录"}</span>
 				}
 		}
 	}

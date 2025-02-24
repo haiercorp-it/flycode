@@ -1615,7 +1615,7 @@ export class Cline {
 				const showNotificationForApprovalIfAutoApprovalEnabled = (message: string) => {
 					if (this.autoApprovalSettings.enabled && this.autoApprovalSettings.enableNotifications) {
 						showSystemNotification({
-							subtitle: "授权请求",
+							subtitle: "批准请求",
 							message,
 						})
 					}
@@ -3039,12 +3039,12 @@ export class Cline {
 			if (this.autoApprovalSettings.enableNotifications) {
 				showSystemNotification({
 					subtitle: "Max Requests Reached",
-					message: `我们自动授权了 ${this.autoApprovalSettings.maxRequests.toString()} API 请求.`,
+					message: `我们自动批准了 ${this.autoApprovalSettings.maxRequests.toString()} API 请求.`,
 				})
 			}
 			await this.ask(
 				"auto_approval_max_req_reached",
-				`我们自动授权了 ${this.autoApprovalSettings.maxRequests.toString()} API 请求. 您是否希望重置计数并继续执行任务？`,
+				`我们自动批准了 ${this.autoApprovalSettings.maxRequests.toString()} API 请求. 您是否希望重置计数并继续执行任务？`,
 			)
 			// if we get past the promise it means the user approved and did not start a new task
 			this.consecutiveAutoApprovedRequestsCount = 0
