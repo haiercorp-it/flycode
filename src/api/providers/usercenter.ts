@@ -31,6 +31,37 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 			this.providerRef = new WeakRef(provider)
 		}
 	}
+
+	public async listChatAssiants() {
+		const url = this.url + "/api/v1/chats?page=1&page_size=100&id={chat_id}"
+		const headers = {
+			Authorization: "",
+			"Content-Type": "application/json",
+		}
+		headers["Authorization"] = `Bearer` + " " + this.options.haierragflowapikey
+		const payload = {}
+		try {
+			// 使用 fetch API 发送请求并处理流式响应
+			const response = await fetch(url, {
+				method: "get",
+				headers: headers,
+			})
+
+			if (!response.ok) {
+				throw new Error(`Failed to send request: ${response.statusText}`)
+			}
+			const result = await response.json()
+			console.log("Response:", result)
+			if (this.providerRef) {
+				await this.providerRef.deref()?.setSecret("chatAssitId", result.data.id)
+			}
+			return result.data.id
+		} catch (error) {
+			console.error("Error sending request:", error)
+			throw new Error(`Failed to send request: ${(error as any).message}`)
+		}
+	}
+
 	// 创建一个聊天助手服务
 	public async createchatAssiant() {
 		if (this.providerRef) {
