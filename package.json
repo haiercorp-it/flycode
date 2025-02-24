@@ -80,6 +80,11 @@
 				"icon": "$(settings-gear)"
 			},
 			{
+				"command": "cline.haierRAGCountClicked",
+				"title": "Open RAG ACCount",
+				"icon": "$(account)"
+			},
+			{
 				"command": "cline.openInNewTab",
 				"title": "打开新选项卡",
 				"category": "Cline"
@@ -110,6 +115,11 @@
 				{
 					"command": "cline.settingsButtonClicked",
 					"group": "navigation@5",
+					"when": "view == claude-dev.SidebarProvider"
+				},
+				{
+					"command": "cline.haierRAGCountClicked",
+					"group": "navigation@6",
 					"when": "view == claude-dev.SidebarProvider"
 				}
 			]

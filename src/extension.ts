@@ -47,6 +47,18 @@ export function activate(context: vscode.ExtensionContext) {
 			})
 		}),
 	)
+	//haierRAGCountClicked
+	context.subscriptions.push(
+		vscode.commands.registerCommand("cline.haierRAGCountClicked", async () => {
+			Logger.log("haierRAGCount Clicked")
+			await sidebarProvider.clearTask()
+			await sidebarProvider.postStateToWebview()
+			await sidebarProvider.postMessageToWebview({
+				type: "action",
+				action: "haierRAGCountClicked",
+			})
+		}),
+	)
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand("cline.mcpButtonClicked", () => {

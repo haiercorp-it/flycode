@@ -57,6 +57,7 @@ export const ExtensionStateContextProvider: React.FC<{
 			case "state": {
 				setState(message.state!)
 				const config = message.state?.apiConfiguration
+				console.log("config1111111111", config)
 				const hasKey = config
 					? [
 							config.apiKey,
@@ -77,6 +78,8 @@ export const ExtensionStateContextProvider: React.FC<{
 							config.haierinternalAiBaseUrl,
 							config.haierinternalModelId,
 							config.vsCodeLmModelSelector,
+							config.haierragflowapiurl,
+							config.haierragflowapikey,
 						].some((key) => key !== undefined)
 					: false
 				setShowWelcome(!hasKey)

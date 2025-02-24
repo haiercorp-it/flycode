@@ -31,6 +31,53 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 			this.providerRef = new WeakRef(provider)
 		}
 	}
+
+	public async commomRequest(url: string, payload: any, method: string = "post") {}
+
+	public async listChatAssiants() {
+		let chatAssitId
+		if (this.providerRef) {
+			const chatAssitIds = await this.providerRef.deref()?.getSecret("chatAssitId")
+			console.log("chatAssitId", chatAssitIds)
+			chatAssitId = chatAssitIds
+		} else {
+			return null
+		}
+		const url = this.url + `/api/v1/chats?page=1&page_size=100&id=${chatAssitId}`
+		console.log("this is url", url)
+		const headers = {
+			Authorization: "",
+			"Content-Type": "application/json",
+		}
+		headers["Authorization"] = `Bearer` + " " + this.options.haierragflowapikey
+		const payload = {}
+		try {
+			// 使用 fetch API 发送请求并处理流式响应
+			const response = await fetch(url, {
+				method: "get",
+				headers: headers,
+			})
+
+			if (!response.ok) {
+				if (this.providerRef) {
+					await this.providerRef.deref()?.setSecret("chatAssitId", undefined)
+				}
+				throw new Error(`Failed to send request: ${response.statusText}`)
+			}
+			const result = await response.json()
+			if (result.data?.length === 0) {
+				if (this.providerRef) {
+					await this.providerRef.deref()?.setSecret("chatAssitId", undefined)
+				}
+			}
+			console.log("Response:", result)
+			return result.data
+		} catch (error) {
+			console.error("Error sending request:", error)
+			throw new Error(`Failed to send request: ${(error as any).message}`)
+		}
+	}
+
 	// 创建一个聊天助手服务
 	public async createchatAssiant() {
 		if (this.providerRef) {
@@ -345,7 +392,14 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 		// }
 	}
 	public async getAccountInfoNew(question: string) {
-		const chatAssaitId = await this.createchatAssiant()
+		const remainAssiant = await this.listChatAssiants()
+		console.log("this is remainAssiant:", remainAssiant)
+		let chatAssaitId = undefined
+		if (remainAssiant.length > 0) {
+			chatAssaitId = remainAssiant[0].id
+		} else {
+			chatAssaitId = await this.createchatAssiant()
+		}
 		const sessionId = await this.createChatSession(chatAssaitId)
 		const resp = await this.converseWithchatassistant(question, chatAssaitId)
 		console.log("resp:", resp)

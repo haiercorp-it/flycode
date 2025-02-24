@@ -940,7 +940,7 @@ ${
 
 ====
 
-AddAccountInfo
+RAG INSTRUCTIONS
 ${accountInfo?.text}
 
 SYSTEM INFORMATION
