@@ -17,6 +17,7 @@ export type ApiProvider =
 	| "litellm"
 	| "haierinternal"
 	| "usercenter"
+	| "deepseek_local"
 
 export interface ApiHandlerOptions {
 	apiModelId?: string
@@ -65,6 +66,8 @@ export interface ApiHandlerOptions {
 	haierragflowapiid?: string
 	haierragflowapiurl?: string
 	haierragflowapidatasetid?: string
+	deepseekLocalUrl?: string
+	deepseekLocalModelId?: string
 }
 
 export type ApiConfiguration = ApiHandlerOptions & {

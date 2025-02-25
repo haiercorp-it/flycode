@@ -21,7 +21,7 @@ export function insertMention(text: string, position: number, value: string): { 
 		newValue = beforeCursor + "@" + value + " " + afterCursor
 		mentionIndex = position
 	}
-
+	console.log("insertMention", { newValue, mentionIndex })
 	return { newValue, mentionIndex }
 }
 
@@ -51,6 +51,7 @@ export enum ContextMenuOptionType {
 	URL = "url",
 	Git = "git",
 	NoResults = "noResults",
+	RAG = "RAG",
 }
 
 export interface ContextMenuQueryItem {
@@ -100,6 +101,7 @@ export function getContextMenuOptions(
 
 		return [
 			{ type: ContextMenuOptionType.URL },
+			{ type: ContextMenuOptionType.RAG },
 			{ type: ContextMenuOptionType.Problems },
 			{ type: ContextMenuOptionType.Terminal },
 			{ type: ContextMenuOptionType.Git },
@@ -206,7 +208,12 @@ export function shouldShowContextMenu(text: string, position: number): boolean {
 	if (textAfterAt.toLowerCase().startsWith("http")) return false
 
 	// Don't show the menu if it's a problems or terminal
-	if (textAfterAt.toLowerCase().startsWith("problems") || textAfterAt.toLowerCase().startsWith("terminal")) return false
+	if (
+		textAfterAt.toLowerCase().startsWith("problems") ||
+		textAfterAt.toLowerCase().startsWith("terminal") ||
+		textAfterAt.toLowerCase().startsWith("rag")
+	)
+		return false
 
 	// NOTE: it's okay that menu shows when there's trailing punctuation since user could be inputting a path with marks
 

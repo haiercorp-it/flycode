@@ -275,6 +275,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 			return [
 				{ type: ContextMenuOptionType.Problems, value: "problems" },
 				{ type: ContextMenuOptionType.Terminal, value: "terminal" },
+				{ type: ContextMenuOptionType.RAG, value: "RAG" },
 				...gitCommits,
 				...filePaths
 					.map((file) => "/" + file)
@@ -332,12 +333,13 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 						insertValue = "problems"
 					} else if (type === ContextMenuOptionType.Terminal) {
 						insertValue = "terminal"
+					} else if (type === ContextMenuOptionType.RAG) {
+						insertValue = "RAG"
 					} else if (type === ContextMenuOptionType.Git) {
 						insertValue = value || ""
 					}
 
 					const { newValue, mentionIndex } = insertMention(textAreaRef.current.value, cursorPosition, insertValue)
-
 					setInputValue(newValue)
 					const newCursorPosition = newValue.indexOf(" ", mentionIndex + insertValue.length) + 1
 					setCursorPosition(newCursorPosition)

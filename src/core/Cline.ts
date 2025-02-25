@@ -1293,15 +1293,24 @@ export class Cline {
 		const modelSupportsComputerUse = this.api.getModel().info.supportsComputerUse ?? false
 		const supportsComputerUse = modelSupportsComputerUse && !disableBrowserTool // only enable computer use if the model supports it and the user hasn't disabled it
 		const lastApiReqIndex = findLastIndex(this.clineMessages, (m) => m.say === "api_req_started")
-		const taskMessage = this.clineMessages[0] // first message is always the task say
+		const lastUserFeedBackApiReqIndex = findLastIndex(this.clineMessages, (m) => m.say === "user_feedback")
+
+		let taskMessage: any
+		if (lastUserFeedBackApiReqIndex === -1) {
+			taskMessage = this.clineMessages[0] // first message is always the task say
+		} else {
+			taskMessage = this.clineMessages[lastUserFeedBackApiReqIndex] // first message is always the task sa
+		}
 		// history.filter((message:any) => message.role == "user")[0].content
-		if (!this.accountInfo && taskMessage.text) {
+		if (taskMessage.text) {
 			let objResponse: RAGOBJInterface = processRAGText(taskMessage.text)
 			if (objResponse.isRag === true) {
-				console.log("text", taskMessage.text)
-				const userInfo = await this.usercenterApi?.getAccountInfoNew(objResponse.text)
-				console.log(userInfo)
-				this.accountInfo = userInfo
+				if (!this.accountInfo || this.accountInfo.type !== objResponse.text) {
+					console.log("text", taskMessage.text)
+					const userInfo = await this.usercenterApi?.getAccountInfoNew(objResponse.text)
+					console.log(userInfo)
+					this.accountInfo = userInfo
+				}
 			}
 			// this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
 		}

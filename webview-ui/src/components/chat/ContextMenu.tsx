@@ -54,6 +54,8 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 				return <span>粘贴URL来获取内容</span>
 			case ContextMenuOptionType.NoResults:
 				return <span>未找到结果</span>
+			case ContextMenuOptionType.RAG:
+				return <span>RAG</span>
 			case ContextMenuOptionType.Git:
 				if (option.value) {
 					return (
@@ -116,6 +118,8 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 				return "git-commit"
 			case ContextMenuOptionType.NoResults:
 				return "info"
+			case ContextMenuOptionType.RAG:
+				return "database"
 			default:
 				return "file"
 		}
@@ -203,6 +207,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 							)}
 						{(option.type === ContextMenuOptionType.Problems ||
 							option.type === ContextMenuOptionType.Terminal ||
+							option.type === ContextMenuOptionType.RAG ||
 							((option.type === ContextMenuOptionType.File ||
 								option.type === ContextMenuOptionType.Folder ||
 								option.type === ContextMenuOptionType.Git) &&

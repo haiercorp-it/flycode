@@ -409,7 +409,7 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 		const resp = await this.converseWithchatassistant(question, chatAssaitId)
 		console.log("resp:", resp)
 		return {
-			type: "text",
+			type: question,
 			text: resp,
 		}
 		// const url = this.url + `/api/v1/datasets/64c57d52ef7011ef98164a389f6d0c5d/documents/d78bd6aaeff311ef94fe62707a40c49e/chunks?keywords=账号中心&page=1&page_size=1000`
@@ -530,8 +530,8 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 						if (data.data?.answer) {
 							hasYieldedContent = true
 							yield {
-								type: "reasoning",
-								reasoning: data.data.answer,
+								type: "text",
+								text: data.data.answer,
 							}
 						}
 					} catch (e) {

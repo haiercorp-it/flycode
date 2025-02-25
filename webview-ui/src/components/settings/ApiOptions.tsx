@@ -196,6 +196,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 					<VSCodeOption value="ollama">Ollama</VSCodeOption>
 					<VSCodeOption value="litellm">LiteLLM</VSCodeOption>
 					<VSCodeOption value="haierinternal">haierinternal</VSCodeOption>
+					<VSCodeOption value="deepseek_local">deepseek_local</VSCodeOption>
 				</VSCodeDropdown>
 			</DropdownContainer>
 
@@ -1147,6 +1148,38 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							color: "var(--vscode-descriptionForeground)",
 						}}>
 						由集团IT搭建的大模型，有问题联系夏克江. See their{" "}
+						<VSCodeLink
+							href="https://ihaier.feishu.cn/docx/GcafdtMiSo5c2ixoUPfck6b2nqb?from=from_copylink"
+							style={{ display: "inline", fontSize: "inherit" }}>
+							quickstart guide
+						</VSCodeLink>{" "}
+						for more information.
+					</p>
+				</div>
+			)}
+			{selectedProvider === "deepseek_local" && (
+				<div>
+					<VSCodeTextField
+						value={apiConfiguration?.deepseekLocalUrl || ""}
+						style={{ width: "100%" }}
+						type="url"
+						onInput={handleInputChange("deepseekLocalUrl")}
+						placeholder={""}>
+						<span style={{ fontWeight: 500 }}>Base URL (optional)</span>
+					</VSCodeTextField>
+					<VSCodeTextField
+						value={apiConfiguration?.deepseekLocalModelId || ""}
+						style={{ width: "100%" }}
+						onInput={handleInputChange("deepseekLocalModelId")}
+						placeholder={""}>
+						<span style={{ fontWeight: 500 }}>Model ID</span>
+					</VSCodeTextField>
+					<p
+						style={{
+							fontSize: "12px",
+							marginTop: "5px",
+							color: "var(--vscode-descriptionForeground)",
+						}}>
 						<VSCodeLink
 							href="https://ihaier.feishu.cn/docx/GcafdtMiSo5c2ixoUPfck6b2nqb?from=from_copylink"
 							style={{ display: "inline", fontSize: "inherit" }}>
