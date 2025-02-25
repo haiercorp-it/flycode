@@ -108,7 +108,7 @@ export class DeepSeekLocalHandler implements ApiHandler {
 						const dataw = JSON.parse(raw_line)
 						console.log("dataw:", dataw.choices[0].delta.content, raw_line)
 
-						if (dataw.choices[0].delta.content) {
+						if (dataw?.choices[0].delta.content) {
 							hasYieldedContent = true
 							yield {
 								type: "text",

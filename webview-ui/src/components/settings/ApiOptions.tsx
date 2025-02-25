@@ -33,6 +33,7 @@ import {
 	openRouterDefaultModelInfo,
 	vertexDefaultModelId,
 	vertexModels,
+	deepseekModelInfoSaneDefaults,
 } from "../../../../src/shared/api"
 import { ExtensionMessage } from "../../../../src/shared/ExtensionMessage"
 import { useExtensionState } from "../../context/ExtensionStateContext"
@@ -1426,6 +1427,12 @@ export function normalizeApiConfiguration(apiConfiguration?: ApiConfiguration): 
 			return getProviderData(openAiNativeModels, openAiNativeDefaultModelId)
 		case "deepseek":
 			return getProviderData(deepSeekModels, deepSeekDefaultModelId)
+		case "deepseek_local":
+			return {
+				selectedProvider: provider,
+				selectedModelId: apiConfiguration?.deepseekLocalModelId || "",
+				selectedModelInfo: deepseekModelInfoSaneDefaults,
+			}
 		case "qwen":
 			return getProviderData(qwenModels, qwenDefaultModelId)
 		case "mistral":
