@@ -2,7 +2,7 @@
 	"name": "it-gi-dev",
 	"displayName": "GI",
 	"description": "Empowering developers to build beyond boundaries with AI-driven automation and future-ready architectures. Turn complex code into limitless innovation—where every line scales infinitely.",
-	"version": "0.0.42",
+	"version": "1.0.0",
 	"icon": "assets/icons/icon.png",
 	"galleryBanner": {
 		"color": "#617A91",
