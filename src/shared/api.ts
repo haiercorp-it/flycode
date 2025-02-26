@@ -268,7 +268,7 @@ export const openAiModelInfoSaneDefaults: ModelInfo = {
 }
 export const deepseekModelInfoSaneDefaults: ModelInfo = {
 	maxTokens: 8_000,
-	contextWindow: 64_000,
+	contextWindow: 51_000,
 	supportsImages: false,
 	supportsPromptCache: true,
 	inputPrice: 0,

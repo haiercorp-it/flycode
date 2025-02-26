@@ -121,11 +121,37 @@ export class DeepSeekLocalHandler implements ApiHandler {
 						const dataw = JSON.parse(raw_line)
 						console.log("dataw:", dataw.choices[0].delta.content, raw_line)
 
-						if (dataw?.choices[0].delta.content) {
-							hasYieldedContent = true
+						// if (dataw?.choices[0].delta.content) {
+						// 	hasYieldedContent = true
+						// 	yield {
+						// 		type: "text",
+						// 		text: dataw.choices[0].delta.content,
+						// 	}
+						// }
+						const delta = dataw?.choices[0]?.delta
+						if (delta?.content) {
 							yield {
 								type: "text",
-								text: dataw.choices[0].delta.content,
+								text: delta.content,
+							}
+						}
+
+						if (delta && "reasoning_content" in delta && delta.reasoning_content) {
+							yield {
+								type: "reasoning",
+								reasoning: (delta.reasoning_content as string | undefined) || "",
+							}
+						}
+
+						if (dataw.usage) {
+							yield {
+								type: "usage",
+								inputTokens: dataw.usage.prompt_tokens || 0, // (deepseek reports total input AND cache reads/writes, see context caching: https://api-docs.deepseek.com/guides/kv_cache) where the input tokens is the sum of the cache hits/misses, while anthropic reports them as separate tokens. This is important to know for 1) context management truncation algorithm, and 2) cost calculation (NOTE: we report both input and cache stats but for now set input price to 0 since all the cost calculation will be done using cache hits/misses)
+								outputTokens: dataw.usage.completion_tokens || 0,
+								// @ts-ignore-next-line
+								cacheReadTokens: dataw.usage.prompt_cache_hit_tokens || 0,
+								// @ts-ignore-next-line
+								cacheWriteTokens: dataw.usage.prompt_cache_miss_tokens || 0,
 							}
 						}
 					} catch (e) {
