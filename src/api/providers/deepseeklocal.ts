@@ -1,7 +1,13 @@
 import { Anthropic } from "@anthropic-ai/sdk"
 import OpenAI, { AzureOpenAI } from "openai"
 import { withRetry } from "../retry"
-import { ApiHandlerOptions, azureOpenAiDefaultApiVersion, ModelInfo, openAiModelInfoSaneDefaults } from "../../shared/api"
+import {
+	ApiHandlerOptions,
+	azureOpenAiDefaultApiVersion,
+	ModelInfo,
+	openAiModelInfoSaneDefaults,
+	deepseekModelInfoSaneDefaults,
+} from "../../shared/api"
 import { ApiHandler } from "../index"
 import { convertToOpenAiMessages } from "../transform/openai-format"
 import { ApiStream } from "../transform/stream"
@@ -66,11 +72,11 @@ export class DeepSeekLocalHandler implements ApiHandler {
 				},
 				...processedMessages,
 			],
-			max_tokens: 1024,
+			max_tokens: 8000,
 			temperature: 0.07,
 			stream: true,
 		}
-		console.log("Request body:", JSON.stringify(data, null, 2))
+		// console.log("Request body:", JSON.stringify(data, null, 2))
 		try {
 			// 使用 fetch API 发送请求并处理流式响应
 			const response = await fetch(url, {
@@ -145,7 +151,7 @@ export class DeepSeekLocalHandler implements ApiHandler {
 	getModel(): { id: string; info: ModelInfo } {
 		return {
 			id: this.options.openAiModelId ?? "",
-			info: openAiModelInfoSaneDefaults,
+			info: deepseekModelInfoSaneDefaults,
 		}
 	}
 }

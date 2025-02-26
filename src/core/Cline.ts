@@ -1316,7 +1316,6 @@ export class Cline {
 		}
 
 		let systemPrompt = await SYSTEM_PROMPT(cwd, supportsComputerUse, mcpHub, this.browserSettings, this.accountInfo)
-		console.log("systemPrompt", systemPrompt)
 		let settingsCustomInstructions = this.customInstructions?.trim()
 		const clineRulesFilePath = path.resolve(cwd, GlobalFileNames.clineRules)
 		let clineRulesFileInstructions: string | undefined

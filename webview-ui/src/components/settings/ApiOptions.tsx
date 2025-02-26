@@ -180,6 +180,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						minWidth: 130,
 						position: "relative",
 					}}>
+					<VSCodeOption value="deepseek_local">deepseek_local</VSCodeOption>
 					<VSCodeOption value="openrouter">OpenRouter</VSCodeOption>
 					<VSCodeOption value="anthropic">Anthropic</VSCodeOption>
 					<VSCodeOption value="bedrock">AWS Bedrock</VSCodeOption>
@@ -196,8 +197,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 					<VSCodeOption value="lmstudio">LM Studio</VSCodeOption>
 					<VSCodeOption value="ollama">Ollama</VSCodeOption>
 					<VSCodeOption value="litellm">LiteLLM</VSCodeOption>
-					<VSCodeOption value="haierinternal">haierinternal</VSCodeOption>
-					<VSCodeOption value="deepseek_local">deepseek_local</VSCodeOption>
+					{/* <VSCodeOption value="haierinternal">haierinternal</VSCodeOption> */}
 				</VSCodeDropdown>
 			</DropdownContainer>
 
