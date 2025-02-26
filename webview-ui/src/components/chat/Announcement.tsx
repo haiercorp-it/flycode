@@ -30,26 +30,25 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 			</h3>
 			<ul style={{ margin: "0 0 8px", paddingLeft: "12px" }}>
 				<li>
-					<b>Plan/Act mode toggle:</b> Plan mode turns into an architect that gathers information, asks clarifying
-					questions, and designs a solution. Switch back to Act mode to let him execute the plan!{" "}
+					<b>计划/执行模式切换：</b>
+					计划模式会转变为架构师角色：收集信息、提出澄清问题并设计方案。切换回执行模式来让其落实计划！{" "}
 					<VSCodeLink href="https://x.com/sdrzn/status/1881761978986934582" style={{ display: "inline" }}>
-						See a demo here.
+						点击查看演示
 					</VSCodeLink>
 				</li>
 				<li>
-					<b>Quick API/model switching</b> with a new popup menu under the chat field
+					<b>快速API/模型切换：</b>通过聊天框下方全新弹出菜单实现快速切换
 				</li>
 				<li>
-					<b>VS Code LM API</b> lets you use models from other extensions like GitHub Copilot
+					<b>VS Code LM API：</b>支持使用其他扩展的模型（如GitHub Copilot）
 				</li>
 				<li>
-					<b>MCP server improvements:</b> On/off toggle to disable servers when not in use, and Auto-approve option for
-					individual tools
+					<b>MCP服务器改进：</b>新增闲置时启用/禁用开关，以及单个工具的自动审批选项
 				</li>
 				<li>
-					In case you missed it, we now supports Checkpoints!{" "}
+					若您尚未知晓，我们现已支持检查点功能！{" "}
 					<VSCodeLink href="https://x.com/sdrzn/status/1876378124126236949" style={{ display: "inline" }}>
-						See it in action here.
+						查看实际效果
 					</VSCodeLink>
 				</li>
 			</ul>
