@@ -47,7 +47,10 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 		if (!chatAssitId) {
 			return null
 		}
-		const url = this.url + `/api/v1/chats?page=1&page_size=100&id=${chatAssitId}`
+		//694d6bfef35e11efa1bbfa163e16de57
+		// const url = this.url + `/api/v1/chats?page=1&page_size=100&id=${chatAssitId}`
+		const url = this.url + `/api/v1/chats?page=1&page_size=100&id=694d6bfef35e11efa1bbfa163e16de57`
+
 		console.log("this is url", url)
 		const headers = {
 			Authorization: "",
@@ -66,7 +69,7 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 				if (this.providerRef) {
 					await this.providerRef.deref()?.setSecret("chatAssitId", undefined)
 				}
-				throw new Error(`Failed to send request: ${response.statusText}`)
+				throw new Error(`RAG服务出问题了，@RAG功能暂无法从知识库获取到内容`)
 			}
 			const result = await response.json()
 			if (result.data?.length === 0) {
@@ -118,7 +121,7 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 			})
 
 			if (!response.ok) {
-				throw new Error(`Failed to send request: ${response.statusText}`)
+				throw new Error(`RAG服务出问题了，@RAG功能暂无法从知识库获取到内容`)
 			}
 			const result = await response.json()
 			console.log("Response:", result)
@@ -155,7 +158,7 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 			})
 
 			if (!response.ok) {
-				throw new Error(`Failed to send request: ${response.statusText}`)
+				throw new Error(`RAG服务出问题了，@RAG功能暂无法从知识库获取到内容`)
 			}
 			const result = await response.json()
 			console.log("Response:", result)
@@ -189,14 +192,14 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 				body: JSON.stringify(payload),
 			})
 			if (!response.ok) {
-				throw new Error(`Failed to send request: ${response.statusText}`)
+				throw new Error(`RAG服务出问题了，@RAG功能暂无法从知识库获取到内容`)
 			}
 			const result = await response.json()
 			console.log("Response:", result)
 			return result.data.answer
 		} catch (error) {
 			console.error("Error sending request:", error)
-			throw new Error(`Failed to send request: ${(error as any).message}`)
+			throw new Error(`${(error as any).message}`)
 		}
 	}
 
@@ -316,7 +319,7 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 					statusText: response.statusText,
 					body: errorText,
 				})
-				throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`)
+				throw new Error(`RAG服务出问题了，@RAG功能暂无法从知识库获取到内容`)
 			}
 			const datastr = await response.json()
 			const contentstr = datastr.data.chunks.map((item: any) => item.content).join("\n")
@@ -501,7 +504,7 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 					statusText: response.statusText,
 					body: errorText,
 				})
-				throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`)
+				throw new Error(`RAG服务出问题了，@RAG功能暂无法从知识库获取到内容`)
 			}
 
 			// 获取响应流
@@ -685,7 +688,7 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 						statusText: response.statusText,
 						body: errorText,
 					})
-					throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`)
+					throw new Error(`RAG服务出问题了，@RAG功能暂无法从知识库获取到内容`)
 				}
 
 				// 获取响应流
