@@ -82,7 +82,8 @@ export const ExtensionStateContextProvider: React.FC<{
 							config.haierragflowapikey,
 						].some((key) => key !== undefined)
 					: false
-				setShowWelcome(!hasKey)
+				// setShowWelcome(!hasKey)
+				setShowWelcome(false)
 				setDidHydrateState(true)
 				break
 			}

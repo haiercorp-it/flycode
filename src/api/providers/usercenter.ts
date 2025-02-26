@@ -196,6 +196,9 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 			}
 			const result = await response.json()
 			console.log("Response:", result)
+			if (result.data === null) {
+				throw new Error(`RAG服务出问题了，@RAG功能暂无法从知识库获取到内容`)
+			}
 			return result.data.answer
 		} catch (error) {
 			console.error("Error sending request:", error)

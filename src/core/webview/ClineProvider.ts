@@ -100,6 +100,8 @@ type GlobalStateKey =
 	| "haierragflowapidatasetid"
 	| "deepseekLocalModelId"
 	| "deepseekLocalUrl"
+	| "deepseekLocalDefaultUrl"
+	| "apiProviderSelect"
 
 export const GlobalFileNames = {
 	apiConversationHistory: "api_conversation_history.json",
@@ -133,6 +135,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 		this.updateGlobalState("haierragflowapikey", "ragflow-E5NmNjOTY2ZWZmMTExZWY4MGUxNjI3MD")
 		this.updateGlobalState("haierragflowapiid", "0645c520e9f311efa5ac2a35a7cb74c2")
 		this.updateGlobalState("haierragflowapiurl", "https://ikm.haier.net")
+		this.updateGlobalState("deepseekLocalDefaultUrl", "http://120.222.7.189:1025/v1/chat/completions")
 	}
 
 	/*
@@ -536,6 +539,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 							await this.updateGlobalState("haierragflowapikey", "ragflow-E5NmNjOTY2ZWZmMTExZWY4MGUxNjI3MD")
 							await this.updateGlobalState("haierragflowapiid", "0645c520e9f311efa5ac2a35a7cb74c2")
 							await this.updateGlobalState("haierragflowapiurl", "https://ikm.haier.net")
+							await this.updateGlobalState("apiProviderSelect", apiProvider)
 							if (this.cline) {
 								this.cline.api = buildApiHandler(message.apiConfiguration)
 							}
@@ -1482,6 +1486,9 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			// 获取loal
 			deepseekLocalUrl,
 			deepseekLocalModelId,
+
+			// 获取是否选择provider
+			apiProviderSelect,
 		] = await Promise.all([
 			this.getGlobalState("apiProvider") as Promise<ApiProvider | undefined>,
 			this.getGlobalState("apiModelId") as Promise<string | undefined>,
@@ -1542,6 +1549,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			this.getGlobalState("haierragflowapidatasetid") as Promise<string | undefined>,
 			this.getGlobalState("deepseekLocalUrl") as Promise<string | undefined>,
 			this.getGlobalState("deepseekLocalModelId") as Promise<string | undefined>,
+			this.getGlobalState("apiProviderSelect") as Promise<string | undefined>,
 		])
 
 		let apiProvider: ApiProvider
@@ -1550,12 +1558,13 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 		} else {
 			// Either new user or legacy user that doesn't have the apiProvider stored in state
 			// (If they're using OpenRouter or Bedrock, then apiProvider state will exist)
-			if (apiKey) {
-				apiProvider = "anthropic"
-			} else {
-				// New users should default to openrouter
-				apiProvider = "openrouter"
-			}
+			// if (apiKey) {
+			// 	apiProvider = "anthropic"
+			// } else {
+			// 	// New users should default to openrouter
+			// 	apiProvider = "openrouter"
+			// }
+			apiProvider = "deepseek_local"
 		}
 
 		const o3MiniReasoningEffort = vscode.workspace
@@ -1614,6 +1623,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 				haierragflowapiurl,
 				deepseekLocalModelId,
 				deepseekLocalUrl,
+				apiProviderSelect,
 			},
 			lastShownAnnouncementId,
 			customInstructions,

@@ -3022,6 +3022,7 @@ export class Cline {
 			throw new Error("instance aborted")
 		}
 
+		// away 请求3次进行失败返回请求询问询问用户是否继续执行任务 ask 3次后，重置mistake_limit_reached计数器
 		if (this.consecutiveMistakeCount >= 3) {
 			if (this.autoApprovalSettings.enabled && this.autoApprovalSettings.enableNotifications) {
 				showSystemNotification({
@@ -3050,6 +3051,7 @@ export class Cline {
 			this.consecutiveMistakeCount = 0
 		}
 
+		// away 正常执行  自动批准 且 自动批准有默认系数 20次=====1
 		if (
 			this.autoApprovalSettings.enabled &&
 			this.consecutiveAutoApprovedRequestsCount >= this.autoApprovalSettings.maxRequests
@@ -3068,6 +3070,7 @@ export class Cline {
 			this.consecutiveAutoApprovedRequestsCount = 0
 		}
 
+		// away 检索消息 如果没有 api_req_started 则认为是第一次执行建立检查点
 		// get previous api req's index to check token usage and determine if we need to truncate conversation history
 		const previousApiReqIndex = findLastIndex(this.clineMessages, (m) => m.say === "api_req_started")
 
@@ -3114,7 +3117,6 @@ export class Cline {
 		console.log("parsedUserContent-------------", parsedUserContent)
 		userContent = parsedUserContent
 		// away 创建user 消息 添加 环境消息  addToApiConversationHistory 最终赋值给 apiConversationHistory
-
 		// add environment details as its own text block, separate from tool results
 		userContent.push({ type: "text", text: environmentDetails })
 
