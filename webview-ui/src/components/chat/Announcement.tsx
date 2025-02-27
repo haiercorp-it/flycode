@@ -32,9 +32,9 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 				<li>
 					<b>计划/执行模式切换：</b>
 					计划模式会转变为架构师角色：收集信息、提出澄清问题并设计方案。切换回执行模式来让其落实计划！{" "}
-					<VSCodeLink href="https://x.com/sdrzn/status/1881761978986934582" style={{ display: "inline" }}>
+					{/* <VSCodeLink href="https://x.com/sdrzn/status/1881761978986934582" style={{ display: "inline" }}>
 						点击查看演示
-					</VSCodeLink>
+					</VSCodeLink> */}
 				</li>
 				<li>
 					<b>快速API/模型切换：</b>通过聊天框下方全新弹出菜单实现快速切换
@@ -46,10 +46,10 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 					<b>MCP服务器改进：</b>新增闲置时启用/禁用开关，以及单个工具的自动审批选项
 				</li>
 				<li>
-					若您尚未知晓，我们现已支持检查点功能！{" "}
-					<VSCodeLink href="https://x.com/sdrzn/status/1876378124126236949" style={{ display: "inline" }}>
+					支持检查点功能！{" "}
+					{/* <VSCodeLink href="https://x.com/sdrzn/status/1876378124126236949" style={{ display: "inline" }}>
 						查看实际效果
-					</VSCodeLink>
+					</VSCodeLink> */}
 				</li>
 			</ul>
 			{/*<ul style={{ margin: "0 0 8px", paddingLeft: "12px" }}>
@@ -107,7 +107,7 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 					margin: "8px 0",
 				}}
 			/>
-			<p style={{ margin: "0" }}>
+			{/* <p style={{ margin: "0" }}>
 				Join our{" "}
 				<VSCodeLink style={{ display: "inline" }} href="https://discord.gg/cline">
 					discord
@@ -117,7 +117,7 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 					r/cline
 				</VSCodeLink>
 				for more updates!
-			</p>
+			</p> */}
 		</div>
 	)
 }
