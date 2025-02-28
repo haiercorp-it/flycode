@@ -2,7 +2,7 @@ import { memo } from "react"
 import { vscode } from "../../utils/vscode"
 
 const AccountOptions = () => {
-	const handleAccountClick = () => {
+	const handleAccountClick = async () => {
 		vscode.postMessage({ type: "accountLoginClicked" })
 	}
 

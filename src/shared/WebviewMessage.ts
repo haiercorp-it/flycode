@@ -44,6 +44,7 @@ export interface WebviewMessage {
 		| "accountLogoutClicked"
 		| "subscribeEmail"
 		| "searchCommits"
+		| "checkLoginStatus"
 	// | "relaunchChromeDebugMode"
 	text?: string
 	disabled?: boolean

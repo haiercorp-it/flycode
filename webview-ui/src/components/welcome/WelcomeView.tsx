@@ -1,4 +1,4 @@
-import { VSCodeButton, VSCodeLink, VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import { useEffect, useState, useCallback } from "react"
 import { useExtensionState } from "../../context/ExtensionStateContext"
 import { validateApiConfiguration } from "../../utils/validate"
@@ -13,7 +13,7 @@ const WelcomeView = () => {
 	const [apiErrorMessage, setApiErrorMessage] = useState<string | undefined>(undefined)
 	const [email, setEmail] = useState("")
 	const [isSubscribed, setIsSubscribed] = useState(false)
-
+	console.log("apiConfiguration", isSubscribed)
 	const disableLetsGoButton = apiErrorMessage != null
 
 	const handleSubmit = () => {
@@ -26,6 +26,7 @@ const WelcomeView = () => {
 			vscode.postMessage({ type: "subscribeEmail", text: email })
 		}
 	}
+	console.log("apiErrorMessage", handleSubscribe)
 
 	useEffect(() => {
 		const error = validateApiConfiguration(apiConfiguration)

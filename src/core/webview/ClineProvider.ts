@@ -29,7 +29,6 @@ import { AutoApprovalSettings, DEFAULT_AUTO_APPROVAL_SETTINGS } from "../../shar
 import { BrowserSettings, DEFAULT_BROWSER_SETTINGS } from "../../shared/BrowserSettings"
 import { ChatSettings, DEFAULT_CHAT_SETTINGS } from "../../shared/ChatSettings"
 import { searchCommits } from "../../utils/git"
-
 /*
 https://github.com/microsoft/vscode-webview-ui-toolkit-samples/blob/main/default/weather-webview/src/providers/WeatherViewProvider.ts
 
@@ -795,9 +794,14 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 
 						const uriScheme = vscode.env.uriScheme
 
+						// const authUrl = vscode.Uri.parse(
+						// 	`https://app.cline.bot/auth?state=${encodeURIComponent(nonce)}&callback_url=${encodeURIComponent(`${uriScheme || "vscode"}://saoudrizwan.claude-dev/auth`)}`,
+						// )
 						const authUrl = vscode.Uri.parse(
-							`https://app.cline.bot/auth?state=${encodeURIComponent(nonce)}&callback_url=${encodeURIComponent(`${uriScheme || "vscode"}://saoudrizwan.claude-dev/auth`)}`,
+							`http://localhost:3000/about?responseType=code&response_type=code&&redirect_uri=vscode%3A%2F%2FIT.generate-infinity%2Fauth`,
 						)
+						console.log("ssssss")
+						// const loginResult = await login()
 						vscode.env.openExternal(authUrl)
 						break
 					}
