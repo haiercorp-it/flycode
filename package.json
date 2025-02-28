@@ -55,42 +55,42 @@
 		},
 		"commands": [
 			{
-				"command": "cline.plusButtonClicked",
+				"command": "gi.plusButtonClicked",
 				"title": "新任务",
 				"icon": "$(add)"
 			},
 			{
-				"command": "cline.mcpButtonClicked",
+				"command": "gi.mcpButtonClicked",
 				"title": "MCP扩展",
 				"icon": "$(server)"
 			},
 			{
-				"command": "cline.historyButtonClicked",
+				"command": "gi.historyButtonClicked",
 				"title": "历史",
 				"icon": "$(history)"
 			},
 			{
-				"command": "cline.popoutButtonClicked",
+				"command": "gi.popoutButtonClicked",
 				"title": "在编辑区打开",
 				"icon": "$(link-external)"
 			},
 			{
-				"command": "cline.settingsButtonClicked",
+				"command": "gi.settingsButtonClicked",
 				"title": "设置",
 				"icon": "$(settings-gear)"
 			},
 			{
-				"command": "cline.haierRAGCountClicked",
+				"command": "gi.haierRAGCountClicked",
 				"title": "Open RAG ACCount",
 				"icon": "$(account)"
 			},
 			{
-				"command": "cline.accountLoginClicked",
+				"command": "gi.accountLoginClicked",
 				"title": "Open ACCount",
 				"icon": "$(account)"
 			},
 			{
-				"command": "cline.openInNewTab",
+				"command": "gi.openInNewTab",
 				"title": "打开新选项卡",
 				"category": "Cline"
 			}
@@ -98,37 +98,37 @@
 		"menus": {
 			"view/title": [
 				{
-					"command": "cline.plusButtonClicked",
+					"command": "gi.plusButtonClicked",
 					"group": "navigation@1",
 					"when": "view == claude-devS.SidebarProvider"
 				},
 				{
-					"command": "cline.mcpButtonClicked",
+					"command": "gi.mcpButtonClicked",
 					"group": "navigation@2",
 					"when": "view == claude-devS.SidebarProvider"
 				},
 				{
-					"command": "cline.historyButtonClicked",
+					"command": "gi.historyButtonClicked",
 					"group": "navigation@3",
 					"when": "view == claude-devS.SidebarProvider"
 				},
 				{
-					"command": "cline.popoutButtonClicked",
+					"command": "gi.popoutButtonClicked",
 					"group": "navigation@4",
 					"when": "view == claude-devS.SidebarProvider"
 				},
 				{
-					"command": "cline.settingsButtonClicked",
+					"command": "gi.settingsButtonClicked",
 					"group": "navigation@5",
 					"when": "view == claude-devS.SidebarProvider"
 				},
 				{
-					"command": "cline.accountLoginClicked",
+					"command": "gi.accountLoginClicked",
 					"group": "navigation@5",
 					"when": "view == claude-devS.SidebarProvider"
 				},
 				{
-					"command": "cline.haierRAGCountClicked",
+					"command": "gi.haierRAGCountClicked",
 					"group": "navigation@6",
 					"when": "view == claude-devS.SidebarProvider"
 				}
