@@ -7,6 +7,7 @@ import { Logger } from "./services/logging/Logger"
 import { createClineAPI } from "./exports"
 import "./utils/path" // necessary to have access to String.prototype.toPosix
 import { DIFF_VIEW_URI_SCHEME } from "./integrations/editor/DiffViewProvider"
+import { json } from "stream/consumers"
 
 /*
 Built using https://github.com/microsoft/vscode-webview-ui-toolkit
@@ -172,6 +173,7 @@ export function activate(context: vscode.ExtensionContext) {
 			case "/auth": {
 				const token = query.get("token")
 				const state = query.get("state")
+				const info = query.get("info")
 
 				console.log("Auth callback received:", {
 					token: token,
@@ -180,12 +182,24 @@ export function activate(context: vscode.ExtensionContext) {
 
 				// Validate state parameter
 				if (!(await visibleProvider.validateAuthState(state))) {
+					console.log("Invalid auth state")
 					vscode.window.showErrorMessage("Invalid auth state")
+					return
+				}
+				if (await visibleProvider.validateAuthState(state)) {
+					console.log("Invalid auth state=======")
+					vscode.window.showErrorMessage("valid auth state but break")
 					return
 				}
 
 				if (token) {
-					await visibleProvider.handleAuthCallback(token)
+					console.log("Token received:", token)
+					//   await visibleProvider.handleAuthCallback(token)
+					if (info) {
+						await visibleProvider.authCodedLogin(token, JSON.parse(info))
+					} else {
+						await visibleProvider.authCodedLogin(token, undefined)
+					}
 				}
 				break
 			}

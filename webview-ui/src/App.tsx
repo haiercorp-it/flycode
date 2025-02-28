@@ -12,7 +12,7 @@ import { vscode } from "./utils/vscode"
 import McpView from "./components/mcp/McpView"
 
 const AppContent = () => {
-	const { didHydrateState, showWelcome, shouldShowAnnouncement } = useExtensionState()
+	const { didHydrateState, showWelcome, shouldShowAnnouncement, isLoggedIn } = useExtensionState()
 	const [showSettings, setShowSettings] = useState(false)
 	const [showHistory, setShowHistory] = useState(false)
 	const [showMcp, setShowMcp] = useState(false)
@@ -87,7 +87,7 @@ const AppContent = () => {
 
 	return (
 		<>
-			{showWelcome ? (
+			{isLoggedIn === false ? (
 				<WelcomeView />
 			) : (
 				<>

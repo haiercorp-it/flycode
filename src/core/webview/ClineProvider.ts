@@ -29,6 +29,7 @@ import { AutoApprovalSettings, DEFAULT_AUTO_APPROVAL_SETTINGS } from "../../shar
 import { BrowserSettings, DEFAULT_BROWSER_SETTINGS } from "../../shared/BrowserSettings"
 import { ChatSettings, DEFAULT_CHAT_SETTINGS } from "../../shared/ChatSettings"
 import { searchCommits } from "../../utils/git"
+import { tuple } from "zod"
 /*
 https://github.com/microsoft/vscode-webview-ui-toolkit-samples/blob/main/default/weather-webview/src/providers/WeatherViewProvider.ts
 
@@ -168,8 +169,11 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 	// Auth methods
 	async handleSignOut() {
 		try {
+			await this.storeSecret("authToken", undefined)
+			await this.setUserInfo(undefined)
+			await this.postStateToWebview()
 			await this.authManager.signOut()
-			vscode.window.showInformationMessage("Successfully logged out of Cline")
+			vscode.window.showInformationMessage("Successfully logged out of GI")
 		} catch (error) {
 			vscode.window.showErrorMessage("Logout failed")
 		}
@@ -798,7 +802,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 						// 	`https://app.cline.bot/auth?state=${encodeURIComponent(nonce)}&callback_url=${encodeURIComponent(`${uriScheme || "vscode"}://saoudrizwan.claude-dev/auth`)}`,
 						// )
 						const authUrl = vscode.Uri.parse(
-							`http://localhost:3000/about?responseType=code&response_type=code&&redirect_uri=vscode%3A%2F%2FIT.generate-infinity%2Fauth`,
+							`http://10.250.7.73:34228/about?redirect_uri=vscode%3A%2F%2FIT.generate-infinity%2Fauth&nonce=${encodeURIComponent(nonce)}`,
 						)
 						console.log("ssssss")
 						// const loginResult = await login()
@@ -807,6 +811,12 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 					}
 					case "accountLogoutClicked": {
 						await this.handleSignOut()
+						// const authUrl = vscode.Uri.parse(
+						// 	`http://localhost:3000/about?redirect_uri=vscode%3A%2F%2FIT.generate-infinity%2Fauth&nonce=${encodeURIComponent(nonce)}`,
+						// )
+						// console.log("ssssss")
+						// // const loginResult = await login()
+						// vscode.env.openExternal(authUrl)
 						break
 					}
 					case "openMcpSettings": {
@@ -1047,10 +1057,10 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			// Then store the token securely
 			await this.storeSecret("authToken", token)
 			await this.postStateToWebview()
-			vscode.window.showInformationMessage("Successfully logged in to Cline")
+			vscode.window.showInformationMessage("Successfully logged in to GI")
 		} catch (error) {
 			console.error("Failed to handle auth callback:", error)
-			vscode.window.showErrorMessage("Failed to log in to Cline")
+			vscode.window.showErrorMessage("Failed to log in to GI")
 		}
 	}
 
@@ -1107,6 +1117,43 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			})
 		}
 		// await this.postMessageToWebview({ type: "action", action: "settingsButtonClicked" }) // bad ux if user is on welcome
+	}
+
+	async authCodedLogin(token: string, uerInfo: any): Promise<boolean | undefined> {
+		if (!token) {
+			return false
+		}
+		try {
+			const response = await axios.post(
+				"https://haixueh5-test.lanbenzi.cn/h5/v1/score/my_info",
+				{},
+				{
+					//  const response = await axios.post("http://39.105.29.12:8585/h5/v1/score/my_info",{}, {
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: "Bearer " + token,
+					},
+				},
+			)
+			console.log("authCodedLogin response:", response.data)
+			await this.storeSecret("authToken", token)
+			await this.setUserInfo({
+				displayName: uerInfo.nickName,
+				email: uerInfo.userName,
+				photoURL: uerInfo.avatar_url,
+			})
+			await this.postStateToWebview()
+			vscode.window.showInformationMessage("Successfully logged in to GI")
+			if (response.data) {
+			} else {
+				throw new Error("Invalid response from  API")
+			}
+		} catch (error) {
+			console.error("Error fetching  API:", error)
+			throw new Error("Invalid response from  API", error.message)
+			return false
+		}
+		return true
 	}
 
 	private async ensureCacheDirectoryExists(): Promise<string> {
@@ -1371,7 +1418,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			autoApprovalSettings,
 			browserSettings,
 			chatSettings,
-			isLoggedIn: !!authToken,
+			isLoggedIn: !!userInfo,
 			userInfo,
 		}
 	}

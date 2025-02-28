@@ -84,6 +84,10 @@ export const ExtensionStateContextProvider: React.FC<{
 					: false
 				console.log("hasKey", hasKey)
 				// setShowWelcome(!hasKey)
+				setState((prevState) => ({
+					...prevState,
+					isLoggedIn: message.state?.isLoggedIn ?? false,
+				}))
 				setShowWelcome(false)
 				setDidHydrateState(true)
 				break

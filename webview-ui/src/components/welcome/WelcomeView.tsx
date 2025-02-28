@@ -17,8 +17,9 @@ const WelcomeView = () => {
 	const disableLetsGoButton = apiErrorMessage != null
 
 	const handleSubmit = () => {
-		console.log("Submitting configuration:", apiConfiguration)
-		vscode.postMessage({ type: "apiConfiguration", apiConfiguration })
+		// console.log("Submitting configuration:", apiConfiguration)
+		// vscode.postMessage({ type: "apiConfiguration", apiConfiguration })
+		vscode.postMessage({ type: "accountLoginClicked" })
 	}
 
 	const handleSubscribe = () => {
@@ -60,7 +61,7 @@ const WelcomeView = () => {
 					padding: "0 20px",
 					overflow: "auto",
 				}}>
-				<h2>你好，我是GL</h2>
+				<h2>你好，我是GI</h2>
 				<p>
 					我能够调用集团IT提供的大模型和知识库，从而高效地完成代码编写、SDK引入以及调试工作。我可以根据您的需求来创建和编辑文件、探索复杂项目、使用浏览器以及执行终端命令。如有必要，您还可以编写MCP工具来进一步扩展我的能力。
 				</p>
@@ -103,9 +104,9 @@ const WelcomeView = () => {
 				</div> */}
 
 				<div style={{ marginTop: "15px" }}>
-					<ApiOptions showModelOptions={false} />
+					{/* <ApiOptions showModelOptions={false} /> */}
 					<VSCodeButton onClick={handleSubmit} disabled={disableLetsGoButton} style={{ marginTop: "3px" }}>
-						开始使用！
+						开始使用！请先登录
 					</VSCodeButton>
 				</div>
 			</div>

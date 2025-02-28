@@ -101,7 +101,7 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 			dataset_ids: ["64c57d52ef7011ef98164a389f6d0c5d"],
 			llm: {
 				temperature: 0,
-				max_token: 1000,
+				max_token: 2000,
 			},
 		}
 		const headers = {
@@ -172,7 +172,7 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 	public async converseWithchatassistant(question: string, chat_id: string) {
 		const url = this.url + `/api/v1/chats/${chat_id}/completions`
 		const payload = {
-			name: this.chatAssiantName,
+			// name: this.chatAssiantName,
 			question: question,
 			stream: false,
 		}
@@ -192,7 +192,9 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 				body: JSON.stringify(payload),
 			})
 			if (!response.ok) {
-				throw new Error(`RAG服务出问题了，@RAG功能暂无法从知识库获取到内容`)
+				let text = response.text()
+				console.log("text", text)
+				throw new Error(`RAG服务出问题了，@RAG功能暂无法从知识库获取到内容 ${text}`)
 			}
 			const result = await response.json()
 			console.log("Response:", result)

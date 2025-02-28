@@ -86,7 +86,7 @@
 			},
 			{
 				"command": "cline.accountLoginClicked",
-				"title": "Open RAG ACCount",
+				"title": "Open ACCount",
 				"icon": "$(account)"
 			},
 			{

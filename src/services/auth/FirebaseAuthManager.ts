@@ -23,11 +23,11 @@ export class FirebaseAuthManager {
 		console.log("Firebase app initialized", { appConfig: firebaseConfig })
 
 		// Auth state listener
-		onAuthStateChanged(this.auth, this.handleAuthStateChange.bind(this))
+		// onAuthStateChanged(this.auth, this.handleAuthStateChange.bind(this))
 		console.log("Auth state change listener added")
 
 		// Try to restore session
-		this.restoreSession()
+		// this.restoreSession()
 	}
 
 	private async restoreSession() {
