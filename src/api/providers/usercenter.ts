@@ -100,8 +100,14 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 			name: chatName,
 			dataset_ids: ["64c57d52ef7011ef98164a389f6d0c5d"],
 			llm: {
-				temperature: 0,
-				max_token: 2000,
+				// temperature: 0,
+				// max_token: 5000,
+				frequency_penalty: 0.7,
+				max_tokens: 3000,
+				model_name: "deepseek-R1",
+				presence_penalty: 0.4,
+				temperature: 0.1,
+				top_p: 0.3,
 			},
 		}
 		const headers = {
@@ -124,7 +130,7 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 				throw new Error(`RAG服务出问题了，@RAG功能暂无法从知识库获取到内容`)
 			}
 			const result = await response.json()
-			console.log("Response:", result)
+			console.log("Response11111:", result)
 			if (this.providerRef) {
 				await this.providerRef.deref()?.setSecret("chatAssitId", result.data.id)
 			}
