@@ -41,7 +41,7 @@ export class DeepSeekLocalHandler implements ApiHandler {
 		// }
 		console.log("DeepSeekLocalHandler: createMessage called", this.getModelInfo.id, this.getModelInfo.url)
 
-		const url = this.options.deepseekLocalUrl
+		const url = this.options.deepseekLocalUrl || ""
 		const headers = {
 			"Content-Type": "application/json",
 		}
@@ -52,17 +52,44 @@ export class DeepSeekLocalHandler implements ApiHandler {
 		console.log("Converted messages:", convertedMessages)
 		console.log("Converted messages:", JSON.stringify(convertedMessages))
 
-		// 将消息数组转换为字符串
-		const processedMessages = messages.map((msg) => {
+		const processedMessages = messages.map((msg, index) => {
 			if ("content" in msg && Array.isArray(msg.content)) {
+				let filteredContent = msg.content
+				// 处理倒数两个之前的消息
+				if (index < messages.length - 2) {
+					filteredContent = msg.content.filter((item) => {
+						// 过滤以 <environment_details> 开头的文本项
+						if ("text" in item) {
+							return !item.text.startsWith("<environment_details>")
+						}
+						return true // 保留非文本项
+					})
+				}
+				// 将处理后的内容数组转换为字符串
+				const contentStr = filteredContent
+					.map((item) => ("text" in item ? item.text : (item as any).image_url))
+					.join("\n")
 				return {
 					role: msg.role,
-					content: msg.content.map((item) => ("text" in item ? item.text : (item as any).image_url)).join("\n"),
+					content: contentStr,
 				}
 			}
 			return msg
 		})
 
+		// // 将消息数组转换为字符串
+		// const processedMessages = messages.map((msg,index) => {
+		// 	if ("content" in msg && Array.isArray(msg.content)) {
+
+		// 		return {
+		// 			role: msg.role,
+		// 			content: msg.content.map((item) => ("text" in item ? item.text : (item as any).image_url)).join("\n"),
+		// 		}
+		// 	}
+		// 	return msg
+		// })
+
+		console.log("processedMessages:", processedMessages)
 		const data = {
 			model: this.options.deepseekLocalModelId || "DeepSeek-R1",
 			messages: [
@@ -84,7 +111,7 @@ export class DeepSeekLocalHandler implements ApiHandler {
 				headers: headers,
 				body: JSON.stringify(data),
 			})
-
+			console.log("Response length:", JSON.stringify(data).length)
 			if (!response.ok) {
 				const errorText = await response.text()
 				console.error("Error response:", {
@@ -116,10 +143,13 @@ export class DeepSeekLocalHandler implements ApiHandler {
 				console.log("chunk-----:", chunk)
 				for (const line of lines) {
 					try {
-						const raw_line = line.replace(/^data:/, "").trim()
+						let raw_line = line.replace(/^data:/, "").trim()
 						// 直接解析整个 JSON 对象
+						if (!raw_line.startsWith("{")) {
+							continue // 忽略非 JSON 行，例如 "data: [DONE]" 或者空行
+						}
 						const dataw = JSON.parse(raw_line)
-						console.log("dataw:", dataw.choices[0].delta.content, raw_line)
+						console.log("dataw:========", dataw.choices[0].delta.content, raw_line)
 
 						// if (dataw?.choices[0].delta.content) {
 						// 	hasYieldedContent = true
@@ -147,6 +177,7 @@ export class DeepSeekLocalHandler implements ApiHandler {
 
 						if (dataw.usage) {
 							hasYieldedContent = true
+							console.log("dataw.usage:", dataw.usage)
 							yield {
 								type: "usage",
 								inputTokens: dataw.usage.prompt_tokens || 0, // (deepseek reports total input AND cache reads/writes, see context caching: https://api-docs.deepseek.com/guides/kv_cache) where the input tokens is the sum of the cache hits/misses, while anthropic reports them as separate tokens. This is important to know for 1) context management truncation algorithm, and 2) cost calculation (NOTE: we report both input and cache stats but for now set input price to 0 since all the cost calculation will be done using cache hits/misses)

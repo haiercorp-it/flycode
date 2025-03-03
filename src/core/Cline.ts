@@ -1346,7 +1346,24 @@ export class Cline {
 			const previousRequest = this.clineMessages[previousApiReqIndex]
 			if (previousRequest && previousRequest.text) {
 				const { tokensIn, tokensOut, cacheWrites, cacheReads }: ClineApiReqInfo = JSON.parse(previousRequest.text)
-				const totalTokens = (tokensIn || 0) + (tokensOut || 0) + (cacheWrites || 0) + (cacheReads || 0)
+				console.log(
+					"tokensIn",
+					tokensIn,
+					"tokensOut",
+					tokensOut,
+					"cacheWrites",
+					cacheWrites,
+					"cacheReads",
+					cacheReads,
+					"previousRequest====",
+					previousRequest.text,
+				)
+				let tempTokenIn = 0
+				if (tokensIn === 0) {
+					console.log("previousRequest.text", previousRequest.text.includes("api_req_failed"))
+					tempTokenIn = previousRequest.text.length * 0.6
+				}
+				const totalTokens = (tokensIn || tempTokenIn) + (tokensOut || 0) + (cacheWrites || 0) + (cacheReads || 0)
 				let contextWindow = this.api.getModel().info.contextWindow || 128_000
 				// FIXME: hack to get anyone using openai compatible with deepseek to have the proper context window instead of the default 128k. We need a way for the user to specify the context window for models they input through openai compatible
 				if (this.api instanceof OpenAiHandler && this.api.getModel().id.toLowerCase().includes("deepseek")) {
@@ -1355,7 +1372,7 @@ export class Cline {
 				let maxAllowedSize: number
 				switch (contextWindow) {
 					case 51_000: // deepseek local
-						maxAllowedSize = contextWindow - 30_000
+						maxAllowedSize = contextWindow - 40_000
 						break
 					case 64_000: // deepseek models
 						maxAllowedSize = contextWindow - 27_000

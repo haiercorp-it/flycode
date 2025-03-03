@@ -44,6 +44,7 @@ export class DeepSeekHandler implements ApiHandler {
 			...(model.id === "deepseek-reasoner" ? {} : { temperature: 0 }),
 		})
 
+		console.log("DeepSeek stream:", JSON.stringify(openAiMessages).length)
 		for await (const chunk of stream) {
 			const delta = chunk.choices[0]?.delta
 			if (delta?.content) {
