@@ -38,14 +38,14 @@
 		"viewsContainers": {
 			"activitybar": [
 				{
-					"id": "claude-dev-ActivityBarS",
+					"id": "claude-devS-ActivityBar",
 					"title": "GI",
 					"icon": "assets/icons/icon.svg"
 				}
 			]
 		},
 		"views": {
-			"claude-dev-ActivityBarS": [
+			"claude-devS-ActivityBar": [
 				{
 					"type": "webview",
 					"id": "claude-devS.SidebarProvider",
