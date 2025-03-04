@@ -207,6 +207,13 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 			if (result.data === null) {
 				throw new Error(`RAG服务出问题了，@RAG功能暂无法从知识库获取到内容`)
 			}
+			// 没有搜到内容会data 内容为 Sorry! No relevant content was found in the knowledge base!
+			if (
+				result.data.answer &&
+				result.data.answer.includes("Sorry! No relevant content was found in the knowledge base!")
+			) {
+				return ""
+			}
 			return result.data.answer
 		} catch (error) {
 			console.error("Error sending request:", error)
