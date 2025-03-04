@@ -82,7 +82,7 @@
 			{
 				"command": "gi.haierRAGCountClicked",
 				"title": "Open RAG ACCount",
-				"icon": "$(account)"
+				"icon": "$(database)"
 			},
 			{
 				"command": "gi.accountLoginClicked",
