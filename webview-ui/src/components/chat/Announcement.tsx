@@ -31,30 +31,26 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 			</h3>
 			<ul style={{ margin: "0 0 8px", paddingLeft: "12px" }}>
 				<li>
-					<b>Introducing MCP Marketplace:</b> Discover and install the best MCP servers right from the extension, with
-					new servers added regularly! Get started by going to the{" "}
+					<b>计划/执行模式切换：</b>
+					计划模式会转变为架构师角色：收集信息、提出澄清问题并设计方案。切换回执行模式来让其落实计划！{" "}
 					<span className="codicon codicon-extensions" style={{ marginRight: "4px", fontSize: 10 }}></span>
 					<VSCodeLink
 						onClick={() => {
 							vscode.postMessage({ type: "showMcpView" })
 						}}>
-						MCP Servers tab
+						MCP服务器Tab
 					</VSCodeLink>
-					.
 				</li>
 				<li>
-					<b>Mermaid diagrams in Plan mode!</b> Cline can now visualize his plans using flowcharts, sequences,
-					entity-relationships, and more. When he explains his approach using mermaid, you'll see a diagram right in
-					chat that you can click to expand.
+					<b>快速API/模型切换：</b>通过聊天框下方全新弹出菜单实现快速切换
 				</li>
 				<li>
-					Use <code>@terminal</code> to reference terminal contents, and <code>@git</code> to reference working changes
-					and commits!
+					<b>VS Code LM API：</b>支持使用其他扩展的模型（如GitHub Copilot）
 				</li>
 				<li>
-					New visual indicator for checkpoints after edits & commands, and automatic checkpoint at the start of each
-					task.
+					<b>MCP服务器改进：</b>新增闲置时启用/禁用开关，以及单个工具的自动审批选项
 				</li>
+				<li>支持检查点功能！</li>
 			</ul>
 			<VSCodeLink href="https://x.com/sdrzn/status/1892262424881090721" style={{ display: "inline" }}>
 				See a demo of the changes here!
@@ -114,7 +110,7 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 					margin: "8px 0",
 				}}
 			/>
-			<p style={{ margin: "0" }}>
+			{/* <p style={{ margin: "0" }}>
 				Join us on{" "}
 				<VSCodeLink style={{ display: "inline" }} href="https://x.com/cline">
 					X,
@@ -127,7 +123,7 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 					r/cline
 				</VSCodeLink>
 				for more updates!
-			</p>
+			</p> */}
 		</div>
 	)
 }

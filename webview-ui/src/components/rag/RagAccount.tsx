@@ -1,33 +1,27 @@
-import { VSCodeButton, VSCodeCheckbox, VSCodeLink, VSCodeTextArea } from "@vscode/webview-ui-toolkit/react"
+// import { VSCodeButton, VSCodeLink, VSCodeTextArea } from "@vscode/webview-ui-toolkit/react"
+import { VSCodeButton, VSCodeTextField, VSCodeTextArea } from "@vscode/webview-ui-toolkit/react"
 import { memo, useEffect, useState } from "react"
 import { useExtensionState } from "../../context/ExtensionStateContext"
 import { validateApiConfiguration, validateModelId } from "../../utils/validate"
 import { vscode } from "../../utils/vscode"
-import SettingsButton from "../common/SettingsButton"
-import ApiOptions from "./ApiOptions"
-const { IS_DEV } = process.env
+import { ApiConfiguration } from "../../../../src/shared/api"
+import { getAsVar, VSC_DESCRIPTION_FOREGROUND } from "../../utils/vscStyles"
+const IS_DEV = false // FIXME: use flags when packaging
 
 type SettingsViewProps = {
 	onDone: () => void
 }
 
-const SettingsView = ({ onDone }: SettingsViewProps) => {
-	const {
-		apiConfiguration,
-		version,
-		customInstructions,
-		setCustomInstructions,
-		openRouterModels,
-		telemetrySetting,
-		setTelemetrySetting,
-	} = useExtensionState()
+const RagAccountView = ({ onDone }: SettingsViewProps) => {
+	const { apiConfiguration, setApiConfiguration, customInstructions, setCustomInstructions, openRouterModels } =
+		useExtensionState()
 	const [apiErrorMessage, setApiErrorMessage] = useState<string | undefined>(undefined)
 	const [modelIdErrorMessage, setModelIdErrorMessage] = useState<string | undefined>(undefined)
 
 	const handleSubmit = () => {
 		const apiValidationResult = validateApiConfiguration(apiConfiguration)
 		const modelIdValidationResult = validateModelId(apiConfiguration, openRouterModels)
-
+		console.log("apiValidationResult", apiErrorMessage, modelIdErrorMessage)
 		setApiErrorMessage(apiValidationResult)
 		setModelIdErrorMessage(modelIdValidationResult)
 
@@ -36,10 +30,6 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 			vscode.postMessage({
 				type: "customInstructions",
 				text: customInstructions,
-			})
-			vscode.postMessage({
-				type: "telemetrySetting",
-				text: telemetrySetting,
 			})
 			onDone()
 		}
@@ -65,7 +55,12 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 	const handleResetState = () => {
 		vscode.postMessage({ type: "resetState" })
 	}
-
+	const handleInputChange = (field: keyof ApiConfiguration) => (event: any) => {
+		setApiConfiguration({
+			...apiConfiguration,
+			[field]: event.target.value,
+		})
+	}
 	return (
 		<div
 			style={{
@@ -87,7 +82,7 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 					marginBottom: "17px",
 					paddingRight: 17,
 				}}>
-				<h3 style={{ color: "var(--vscode-foreground)", margin: 0 }}>Settings</h3>
+				<h3 style={{ color: "var(--vscode-foreground)", margin: 0 }}>RAGAccount</h3>
 				<VSCodeButton onClick={handleSubmit}>Done</VSCodeButton>
 			</div>
 			<div
@@ -99,11 +94,66 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 					flexDirection: "column",
 				}}>
 				<div style={{ marginBottom: 5 }}>
-					<ApiOptions
-						showModelOptions={true}
-						apiErrorMessage={apiErrorMessage}
-						modelIdErrorMessage={modelIdErrorMessage}
-					/>
+					<div>
+						<VSCodeTextField
+							value={apiConfiguration?.haierragflowapiurl || ""}
+							style={{ width: "100%" }}
+							type="url"
+							onInput={handleInputChange("haierragflowapiurl")}
+							placeholder={"Enter base URL..."}>
+							<span style={{ fontWeight: 500 }}>RAG URL</span>
+						</VSCodeTextField>
+						<VSCodeTextField
+							value={apiConfiguration?.haierragflowapikey || ""}
+							style={{ width: "100%" }}
+							type="password"
+							onInput={handleInputChange("haierragflowapikey")}
+							placeholder="Enter API Key...">
+							<span style={{ fontWeight: 500 }}>RAG API Key</span>
+						</VSCodeTextField>
+						<VSCodeTextField
+							value={apiConfiguration?.haierragflowapidatasetid || ""}
+							style={{ width: "100%" }}
+							onInput={handleInputChange("haierragflowapidatasetid")}
+							placeholder={"Enter Model ID..."}>
+							<span style={{ fontWeight: 500 }}>RAG Dataset ID</span>
+						</VSCodeTextField>
+
+						<div
+							style={{
+								color: getAsVar(VSC_DESCRIPTION_FOREGROUND),
+								display: "flex",
+								margin: "10px 0",
+								cursor: "pointer",
+								alignItems: "center",
+							}}
+							onClick={() => {}}>
+							<span
+								className={`codicon ${1 ? "codicon-chevron-down" : "codicon-chevron-right"}`}
+								style={{
+									marginRight: "4px",
+								}}></span>
+							<span
+								style={{
+									fontWeight: 700,
+									textTransform: "uppercase",
+								}}>
+								Custom Configuration
+							</span>
+						</div>
+
+						<p
+							style={{
+								fontSize: "12px",
+								marginTop: 3,
+								color: "var(--vscode-descriptionForeground)",
+							}}>
+							{/* <span style={{ color: "var(--vscode-errorForeground)" }}>
+								(<span style={{ fontWeight: 500 }}>Note:</span>  uses complex prompts and works best with
+								Claude models. Less capable models may not work as expected.)
+							</span> */}
+						</p>
+					</div>
 				</div>
 
 				<div style={{ marginBottom: 5 }}>
@@ -114,43 +164,14 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 						rows={4}
 						placeholder={'e.g. "Run unit tests at the end", "Use TypeScript with async/await", "Speak in Spanish"'}
 						onInput={(e: any) => setCustomInstructions(e.target?.value ?? "")}>
-						<span style={{ fontWeight: "500" }}>自定义提示词</span>
+						<span style={{ fontWeight: "500" }}>Custom Instructions</span>
 					</VSCodeTextArea>
 					<p
 						style={{
 							fontSize: "12px",
 							marginTop: "5px",
 							color: "var(--vscode-descriptionForeground)",
-						}}>
-						这些指令会添加到随每个请求发送的系统提示的末尾。
-					</p>
-				</div>
-
-				<div style={{ marginBottom: 5 }}>
-					<VSCodeCheckbox
-						style={{ marginBottom: "5px" }}
-						checked={telemetrySetting === "enabled"}
-						onChange={(e: any) => {
-							const checked = e.target.checked === true
-							setTelemetrySetting(checked ? "enabled" : "disabled")
-						}}>
-						Allow anonymous error and usage reporting
-					</VSCodeCheckbox>
-					<p
-						style={{
-							fontSize: "12px",
-							marginTop: "5px",
-							color: "var(--vscode-descriptionForeground)",
-						}}>
-						Help improve Cline by sending anonymous usage data and error reports. No code, prompts, or personal
-						information is ever sent. See our{" "}
-						<VSCodeLink
-							href="https://github.com/cline/cline/blob/main/docs/PRIVACY.md"
-							style={{ fontSize: "inherit" }}>
-							privacy policy
-						</VSCodeLink>{" "}
-						for more details.
-					</p>
+						}}></p>
 				</div>
 
 				{IS_DEV && (
@@ -164,9 +185,7 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 								fontSize: "12px",
 								marginTop: "5px",
 								color: "var(--vscode-descriptionForeground)",
-							}}>
-							This will reset all global state and secret storage in the extension.
-						</p>
+							}}></p>
 					</>
 				)}
 
@@ -176,16 +195,7 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 						paddingRight: 8,
 						display: "flex",
 						justifyContent: "center",
-					}}>
-					<SettingsButton
-						onClick={() => vscode.postMessage({ type: "openExtensionSettings" })}
-						style={{
-							margin: "0 0 16px 0",
-						}}>
-						<i className="codicon codicon-settings-gear" />
-						更多设置
-					</SettingsButton>
-				</div>
+					}}></div>
 				<div
 					style={{
 						textAlign: "center",
@@ -194,29 +204,16 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 						lineHeight: "1.2",
 						padding: "0 8px 15px 0",
 					}}>
-					{/* <p
+					<p
 						style={{
 							wordWrap: "break-word",
 							margin: 0,
 							padding: 0,
-						}}>
-						If you have any questions or feedback, feel free to open an issue at{" "}
-						<VSCodeLink href="https://github.com/cline/cline" style={{ display: "inline" }}>
-							https://github.com/cline/cline
-						</VSCodeLink>
-					</p> */}
-					<p
-						style={{
-							fontStyle: "italic",
-							margin: "10px 0 0 0",
-							padding: 0,
-						}}>
-						GI v{version}
-					</p>
+						}}></p>
 				</div>
 			</div>
 		</div>
 	)
 }
 
-export default memo(SettingsView)
+export default memo(RagAccountView)

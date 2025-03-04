@@ -2,7 +2,7 @@ import { getShell } from "../../utils/shell"
 import os from "os"
 import osName from "os-name"
 import { McpHub } from "../../services/mcp/McpHub"
-import { AccountInfo, BrowserSettings } from "../../shared/BrowserSettings"
+import { BrowserSettings } from "../../shared/BrowserSettings"
 const framework = "vue"
 
 export const SYSTEM_PROMPT = async (
@@ -10,8 +10,7 @@ export const SYSTEM_PROMPT = async (
 	supportsComputerUse: boolean,
 	mcpHub: McpHub,
 	browserSettings: BrowserSettings,
-	accountInfo?: AccountInfo,
-) => `You are GI, a highly skilled software engineer with extensive knowledge in many programming languages, frameworks, design patterns, and best practices.
+) => `You are Cline, a highly skilled software engineer with extensive knowledge in many programming languages, frameworks, design patterns, and best practices.
 
 ====
 
@@ -333,24 +332,7 @@ ${
 <access_mcp_resource>
 <server_name>weather-server</server_name>
 <uri>weather://san-francisco/current</uri>
-</access_mcp_resource>
-
-## Example 6: Another example of using an MCP tool (where the server name is a unique identifier such as a URL)
-
-<use_mcp_tool>
-<server_name>github.com/modelcontextprotocol/servers/tree/main/src/github</server_name>
-<tool_name>create_issue</tool_name>
-<arguments>
-{
-  "owner": "octocat",
-  "repo": "hello-world",
-  "title": "Found a bug",
-  "body": "I'm having a problem with this.",
-  "labels": ["bug", "help wanted"],
-  "assignees": ["octocat"]
-}
-</arguments>
-</use_mcp_tool>`
+</access_mcp_resource>`
 		: ""
 }
 
@@ -769,7 +751,7 @@ IMPORTANT: Regardless of what else you see in the MCP settings file, you must de
 
 (Note: the user may also ask you to install the MCP server to the Claude desktop app, in which case you would read then modify \`~/Library/Application\ Support/Claude/claude_desktop_config.json\` on macOS for example. It follows the same format of a top level \`mcpServers\` object.)
 
-6. After you have edited the MCP settings configuration file, the system will automatically run all the servers and expose the available tools and resources in the 'Connected MCP Servers' section. (Note: If you encounter a 'not connected' error when testing a newly installed mcp server, a common cause is an incorrect build path in your MCP settings configuration. Since compiled JavaScript files are commonly output to either 'dist/' or 'build/' directories, double-check that the build path in your MCP settings matches where your files are actually being compiled. E.g. If you assumed 'build' as the folder, check tsconfig.json to see if it's using 'dist' instead.)
+6. After you have edited the MCP settings configuration file, the system will automatically run all the servers and expose the available tools and resources in the 'Connected MCP Servers' section.
 
 7. Now that you have access to these new tools and resources, you may suggest ways the user can command you to invoke them - for example, with this new weather tool now available, you can invite the user to ask "what's the weather in San Francisco?"
 
@@ -884,10 +866,9 @@ In each user message, the environment_details will specify the current mode. The
 ## What is PLAN MODE?
 
 - While you are usually in ACT MODE, the user may switch to PLAN MODE in order to have a back and forth with you to plan how to best accomplish the task. 
-- When starting in PLAN MODE, depending on the user's request, you may need to do some information gathering e.g. using read_file or search_files to get more context about the task. You may also ask the user clarifying questions to get a better understanding of the task. You may return mermaid diagrams to visually display your understanding.
-- Once you've gained more context about the user's request, you should architect a detailed plan for how you will accomplish the task. Returning mermaid diagrams may be helpful here as well.
+- When starting in PLAN MODE, depending on the user's request, you may need to do some information gathering e.g. using read_file or search_files to get more context about the task. You may also ask the user clarifying questions to get a better understanding of the task.
+- Once you've gained more context about the user's request, you should architect a detailed plan for how you will accomplish the task.
 - Then you might ask the user if they are pleased with this plan, or if they would like to make any changes. Think of this as a brainstorming session where you can discuss the task and plan the best way to accomplish it.
-- If at any point a mermaid diagram would make your plan clearer to help the user quickly see the structure, you are encouraged to include a Mermaid code block in the response. (Note: if you use colors in your mermaid diagrams, be sure to use high contrast colors so the text is readable.)
 - Finally once it seems like you've reached a good plan, ask the user to switch you back to ACT MODE to implement the solution.
 
 ====
@@ -958,18 +939,181 @@ ${
 
 ====
 
-RAG INSTRUCTIONS
-${accountInfo?.text}
-
 SYSTEM INFORMATION
+
 Operating System: ${osName()}
-Default Shell: ${getShell()} 
+Default Shell: ${getShell()}
 Home Directory: ${os.homedir().toPosix()}
 Current Working Directory: ${cwd.toPosix()}
 
 ====
 
+// 增加触发检测规则
+====
+账号中心触发规则
 
+当检测到以下任一条件时自动触发SDK接入流程：
+1. 用户输入包含 @账号中心 或 #iam 
+2. 项目存在登录相关路由（/login /auth）但无SDK引用
+3. package.json包含@haier/iam但未找到初始化代码
+
+// 增加配置参数收集流程
+====
+账号中心配置收集
+
+<thinking>
+1. 检查是否已配置必要参数：
+   - ssoUrl（SSO服务地址）
+   - clientId（应用K码）
+   - tokenUrl（令牌服务地址）
+2. 通过search_files工具查找现有配置：
+   \`\`\regex
+   (ssoUrl|clientId|tokenUrl)\s*:\s*["'][^"']*["']
+   \`\`\`
+3. 缺失参数时使用ask_followup_question工具询问
+</thinking>
+
+# 参数收集交互流程
+<replace_in_file>
+<path>src/config/auth.config.ts</path>
+<diff>
+<<<<<<< SEARCH
+export const AUTH_CONFIG = {
+  // 基础配置
+=======
+export const AUTH_CONFIG = {
+  // 账号中心配置（由@haier/iam注入）
+  ssoUrl: "${"请提供SSO服务地址 (如 https://iam.haier.net)"}",
+  clientId: "${"请输入应用K码，可在IAM控制台获取"}", 
+  tokenUrl: "${"请输入令牌服务地址 (如 /api/auth/token)"}",
+>>>>>>> REPLACE
+</diff>
+</replace_in_file>
+
+// 增加框架检测后的动态生成
+====
+账号中心初始化生成
+
+# 动态生成configUserCenter初始化代码（根据检测到的框架）
+${
+	framework === "vue"
+		? `
+<write_to_file>
+<path>src/plugins/auth.ts</path>
+<content>
+import { configUserCenter } from '@haier/iam'
+import type { App } from 'vue'
+
+export default {
+  install: (app: App) => {
+    configUserCenter({
+      ssoUrl: process.env.VUE_APP_SSO_URL,
+      clientId: process.env.VUE_APP_CLIENT_ID,
+      onUserInfoChange(user) {
+        app.config.globalProperties.$user = user
+      }
+    })
+  }
+}
+</content>
+</write_to_file>
+
+<replace_in_file>
+<path>src/main.ts</path>
+<diff>
+<<<<<<< SEARCH
+import App from './App.vue'
+=======
+import App from './App.vue'
+import AuthPlugin from './plugins/auth'
+
+const app = createApp(App)
+app.use(AuthPlugin)
+>>>>>>> REPLACE
+</diff>
+</replace_in_file>`
+		: framework === "react"
+			? `
+<write_to_file>
+<path>src/providers/AuthProvider.tsx</path>
+<content>
+import { useEffect } from 'react'
+import { configUserCenter, useUserInfo } from '@haier/iam'
+
+export default function AuthProvider({ children }) {
+  const user = useUserInfo()
+
+  useEffect(() => {
+    configUserCenter({
+      ssoUrl: import.meta.env.VITE_SSO_URL,
+      clientId: import.meta.env.VITE_CLIENT_ID,
+      onUserInfoChange: (newUser) => {
+        // 同步到状态管理
+      }
+    })
+  }, [])
+
+  return children
+}
+</content>
+</write_to_file>`
+			: framework === "uniapp"
+				? `
+<write_to_file>
+<path>src/utils/auth.ts</path>
+<content>
+// 条件编译处理
+export const initIamSDK = async () => {
+  // #ifdef H5
+  const { configUserCenter } = await import('@haier/iam')
+  await configUserCenter({
+    ssoUrl: 'https://iam.haier.net',
+    clientId: uni.getAccountInfoSync().miniProgram.appId,
+    redirectUri: window.location.href
+  })
+  // #endif
+}
+</content>
+</write_to_file>`
+				: ""
+}
+
+// 增加环境变量验证
+====
+环境配置验证
+
+<execute_command>
+<command>npm install dotenv --save-dev</command>
+<requires_approval>false</requires_approval>
+</execute_command>
+
+<replace_in_file>
+<path>.env.${framework === "vue" ? "local" : "development"}</path>
+<diff>
+<<<<<<< SEARCH
+# API配置
+=======
+# 账号中心配置
+VITE_SSO_URL=${"请输入SSO生产环境地址"}
+VITE_SSO_TEST_URL=${"请输入SSO测试环境地址"}
+VITE_CLIENT_ID=${"请输入应用K码"}
+>>>>>>> REPLACE
+</diff>
+</replace_in_file>
+
+// 增加完成检测
+====
+接入完成标准
+
+<attempt_completion>
+<result>
+账号中心接入完成 ✅
+✔️ 依赖安装 @haier/iam@latest)}
+✔️ 构建配置已注入
+✔️ 环境变量配置完成
+</result>
+<command>npm run dev -- --open</command>
+</attempt_completion>
 
 OBJECTIVE
 
@@ -985,12 +1129,8 @@ export function addUserInstructions(
 	settingsCustomInstructions?: string,
 	clineRulesFileInstructions?: string,
 	clineIgnoreInstructions?: string,
-	preferredLanguageInstructions?: string,
 ) {
 	let customInstructions = ""
-	if (preferredLanguageInstructions) {
-		customInstructions += preferredLanguageInstructions + "\n\n"
-	}
 	if (settingsCustomInstructions) {
 		customInstructions += settingsCustomInstructions + "\n\n"
 	}

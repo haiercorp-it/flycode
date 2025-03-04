@@ -42,6 +42,7 @@ export interface ExtensionMessage {
 		| "didBecomeVisible"
 		| "accountLoginClicked"
 		| "accountLogoutClicked"
+		| "haierRAGCountClicked"
 	invoke?: "sendMessage" | "primaryButtonClick" | "secondaryButtonClick"
 	state?: ExtensionState
 	images?: string[]

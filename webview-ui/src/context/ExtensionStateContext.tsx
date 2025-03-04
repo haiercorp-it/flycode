@@ -56,11 +56,13 @@ export const ExtensionStateContextProvider: React.FC<{
 	const [mcpServers, setMcpServers] = useState<McpServer[]>([])
 	const [mcpMarketplaceCatalog, setMcpMarketplaceCatalog] = useState<McpMarketplaceCatalog>({ items: [] })
 	const handleMessage = useCallback((event: MessageEvent) => {
+		console.log("llllllllllllllllllllllllllllllllllll")
 		const message: ExtensionMessage = event.data
 		switch (message.type) {
 			case "state": {
 				setState(message.state!)
 				const config = message.state?.apiConfiguration
+				console.log("config1111111111", config)
 				const hasKey = config
 					? [
 							config.apiKey,
@@ -78,12 +80,22 @@ export const ExtensionStateContextProvider: React.FC<{
 							config.togetherApiKey,
 							config.qwenApiKey,
 							config.mistralApiKey,
+							config.haierinternalAiBaseUrl,
+							config.haierinternalModelId,
 							config.vsCodeLmModelSelector,
+							config.haierragflowapiurl,
+							config.haierragflowapikey,
 							config.asksageApiKey,
 							config.xaiApiKey,
 						].some((key) => key !== undefined)
 					: false
-				setShowWelcome(!hasKey)
+				console.log("hasKey", hasKey)
+				// setShowWelcome(!hasKey)
+				setState((prevState) => ({
+					...prevState,
+					isLoggedIn: message.state?.isLoggedIn ?? false,
+				}))
+				setShowWelcome(false)
 				setDidHydrateState(true)
 				break
 			}

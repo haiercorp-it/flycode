@@ -8,7 +8,7 @@ import pWaitFor from "p-wait-for"
 import * as path from "path"
 import { serializeError } from "serialize-error"
 import * as vscode from "vscode"
-import { ApiHandler, buildApiHandler } from "../api"
+import { ApiHandler, buildApiHandler, ApiRAGHandler, buildApiRAGHandler } from "../api"
 import { OpenAiHandler } from "../api/providers/openai"
 import { OpenRouterHandler } from "../api/providers/openrouter"
 import { ApiStream } from "../api/transform/stream"
@@ -53,6 +53,7 @@ import { arePathsEqual, getReadablePath } from "../utils/path"
 import { fixModelHtmlEscaping, removeInvalidChars } from "../utils/string"
 import { AssistantMessageContent, parseAssistantMessage, ToolParamName, ToolUseName } from "./assistant-message"
 import { constructNewFileContent } from "./assistant-message/diff"
+import { isHaierDoc, hasAccountCenter, replaceRAG, RAGOBJInterface, processRAGText } from "./assistant-message/haier"
 import { ClineIgnoreController, LOCK_TEXT_SYMBOL } from "./ignore/ClineIgnoreController"
 import { parseMentions } from "./mentions"
 import { formatResponse } from "./prompts/responses"
@@ -70,6 +71,7 @@ type UserContent = Array<Anthropic.ContentBlockParam>
 export class Cline {
 	readonly taskId: string
 	api: ApiHandler
+	usercenterApi: ApiRAGHandler
 	private terminalManager: TerminalManager
 	private urlContentFetcher: UrlContentFetcher
 	browserSession: BrowserSession
@@ -86,6 +88,7 @@ export class Cline {
 	private askResponseImages?: string[]
 	private lastMessageTs?: number
 	private consecutiveAutoApprovedRequestsCount: number = 0
+	private accountInfo?: any
 	private consecutiveMistakeCount: number = 0
 	private providerRef: WeakRef<ClineProvider>
 	private abort: boolean = false
@@ -112,7 +115,8 @@ export class Cline {
 	private didAlreadyUseTool = false
 	private didCompleteReadingStream = false
 	private didAutomaticallyRetryFailedApiRequest = false
-
+	private didUserCenterApi = false
+	apiConfigRation: ApiConfiguration = {}
 	constructor(
 		provider: ClineProvider,
 		apiConfiguration: ApiConfiguration,
@@ -124,12 +128,15 @@ export class Cline {
 		images?: string[],
 		historyItem?: HistoryItem,
 	) {
+		this.apiConfigRation = apiConfiguration
 		this.clineIgnoreController = new ClineIgnoreController(cwd)
 		this.clineIgnoreController.initialize().catch((error) => {
 			console.error("Failed to initialize ClineIgnoreController:", error)
 		})
 		this.providerRef = new WeakRef(provider)
 		this.api = buildApiHandler(apiConfiguration)
+		this.usercenterApi = buildApiRAGHandler({ ...apiConfiguration, apiProvider: "usercenter" })
+		this.usercenterApi.setProvider(provider)
 		this.terminalManager = new TerminalManager()
 		this.urlContentFetcher = new UrlContentFetcher(provider.context)
 		this.browserSession = new BrowserSession(provider.context, browserSettings)
@@ -138,15 +145,30 @@ export class Cline {
 		this.autoApprovalSettings = autoApprovalSettings
 		this.browserSettings = browserSettings
 		this.chatSettings = chatSettings
+
 		if (historyItem) {
 			this.taskId = historyItem.id
 			this.conversationHistoryDeletedRange = historyItem.conversationHistoryDeletedRange
 			this.resumeTaskFromHistory()
 		} else if (task || images) {
+			// if (task && hasAccountCenter(task!)){
+			// 	this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
+			// }
+			this.didUserCenterApi = true
 			this.taskId = Date.now().toString()
 			this.startTask(task, images)
 		} else {
 			throw new Error("Either historyItem or task/images must be provided")
+		}
+	}
+	get currentApi(): ApiHandler {
+		if (this.didUserCenterApi === false) {
+			if (!this.api) {
+				this.api = buildApiHandler(this.apiConfigRation)
+			}
+			return this.api
+		} else {
+			return buildApiHandler({ apiProvider: "usercenter" })
 		}
 	}
 
@@ -250,6 +272,8 @@ export class Cline {
 			} catch (error) {
 				console.error("Failed to get task directory size:", taskDir, error)
 			}
+			console.log("task-first-message=======", taskMessage.text)
+
 			await this.providerRef.deref()?.updateTaskHistory({
 				id: this.taskId,
 				ts: lastRelevantMessage.ts,
@@ -264,7 +288,7 @@ export class Cline {
 				conversationHistoryDeletedRange: this.conversationHistoryDeletedRange,
 			})
 		} catch (error) {
-			console.error("Failed to save cline messages:", error)
+			console.error("Failed to save messages:", error)
 		}
 	}
 
@@ -288,7 +312,7 @@ export class Cline {
 						this.checkpointTracker = await CheckpointTracker.create(this.taskId, this.providerRef.deref())
 						this.checkpointTrackerErrorMessage = undefined
 					} catch (error) {
-						const errorMessage = error instanceof Error ? error.message : "Unknown error"
+						const errorMessage = error instanceof Error ? error.message : "未知错误"
 						console.error("Failed to initialize checkpoint tracker:", errorMessage)
 						this.checkpointTrackerErrorMessage = errorMessage
 						await this.providerRef.deref()?.postStateToWebview()
@@ -300,7 +324,7 @@ export class Cline {
 					try {
 						await this.checkpointTracker.resetHead(message.lastCheckpointHash)
 					} catch (error) {
-						const errorMessage = error instanceof Error ? error.message : "Unknown error"
+						const errorMessage = error instanceof Error ? error.message : "未知错误"
 						vscode.window.showErrorMessage("Failed to restore checkpoint: " + errorMessage)
 						didWorkspaceRestoreFail = true
 					}
@@ -401,7 +425,7 @@ export class Cline {
 				this.checkpointTracker = await CheckpointTracker.create(this.taskId, this.providerRef.deref())
 				this.checkpointTrackerErrorMessage = undefined
 			} catch (error) {
-				const errorMessage = error instanceof Error ? error.message : "Unknown error"
+				const errorMessage = error instanceof Error ? error.message : "未知错误"
 				console.error("Failed to initialize checkpoint tracker:", errorMessage)
 				this.checkpointTrackerErrorMessage = errorMessage
 				await this.providerRef.deref()?.postStateToWebview()
@@ -453,7 +477,7 @@ export class Cline {
 				}
 			}
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : "Unknown error"
+			const errorMessage = error instanceof Error ? error.message : "未知错误"
 			vscode.window.showErrorMessage("Failed to retrieve diff set: " + errorMessage)
 			relinquishButton()
 			return
@@ -505,7 +529,7 @@ export class Cline {
 				this.checkpointTracker = await CheckpointTracker.create(this.taskId, this.providerRef.deref())
 				this.checkpointTrackerErrorMessage = undefined
 			} catch (error) {
-				const errorMessage = error instanceof Error ? error.message : "Unknown error"
+				const errorMessage = error instanceof Error ? error.message : "未知错误"
 				console.error("Failed to initialize checkpoint tracker:", errorMessage)
 				return false
 			}
@@ -546,7 +570,7 @@ export class Cline {
 	}> {
 		// If this Cline instance was aborted by the provider, then the only thing keeping us alive is a promise still running in the background, in which case we don't want to send its result to the webview as it is attached to a new instance of Cline now. So we can safely ignore the result of any active promises, and this class will be deallocated. (Although we set Cline = undefined in provider, that simply removes the reference to this instance, but the instance is still alive until this promise resolves or rejects.)
 		if (this.abort) {
-			throw new Error("Cline instance aborted")
+			throw new Error("  instance aborted")
 		}
 		let askTs: number
 		if (partial !== undefined) {
@@ -664,7 +688,7 @@ export class Cline {
 
 	async say(type: ClineSay, text?: string, images?: string[], partial?: boolean): Promise<undefined> {
 		if (this.abort) {
-			throw new Error("Cline instance aborted")
+			throw new Error("  instance aborted")
 		}
 
 		if (partial !== undefined) {
@@ -744,9 +768,7 @@ export class Cline {
 	async sayAndCreateMissingParamError(toolName: ToolUseName, paramName: string, relPath?: string) {
 		await this.say(
 			"error",
-			`Cline tried to use ${toolName}${
-				relPath ? ` for '${relPath.toPosix()}'` : ""
-			} without value for required parameter '${paramName}'. Retrying...`,
+			`我们尝试使用 ${toolName}${relPath ? ` 用于 '${relPath.toPosix()}'` : ""} 缺少必需参数 '${paramName}'的值. 重试...`,
 		)
 		return formatResponse.toolError(formatResponse.missingToolParameterError(paramName))
 	}
@@ -769,6 +791,14 @@ export class Cline {
 		this.apiConversationHistory = []
 
 		await this.providerRef.deref()?.postStateToWebview()
+
+		// away 如果task 有@账号中心则执行
+		// if (task && !this.accountInfo) {
+		// 	const userInfo = await this.usercenterApi?.getAccountInfoNew(task)
+		// 	console.log(userInfo)
+		// 	this.accountInfo = userInfo
+		// 	// this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
+		// }
 
 		await this.say("text", task, images)
 
@@ -1270,11 +1300,31 @@ export class Cline {
 
 		const disableBrowserTool = vscode.workspace.getConfiguration("cline").get<boolean>("disableBrowserTool") ?? false
 		const modelSupportsComputerUse = this.api.getModel().info.supportsComputerUse ?? false
-
 		const supportsComputerUse = modelSupportsComputerUse && !disableBrowserTool // only enable computer use if the model supports it and the user hasn't disabled it
+		const lastApiReqIndex = findLastIndex(this.clineMessages, (m) => m.say === "api_req_started")
+		const lastUserFeedBackApiReqIndex = findLastIndex(this.clineMessages, (m) => m.say === "user_feedback")
 
-		let systemPrompt = await SYSTEM_PROMPT(cwd, supportsComputerUse, mcpHub, this.browserSettings)
+		let taskMessage: any
+		if (lastUserFeedBackApiReqIndex === -1) {
+			taskMessage = this.clineMessages[0] // first message is always the task say
+		} else {
+			taskMessage = this.clineMessages[lastUserFeedBackApiReqIndex] // first message is always the task sa
+		}
+		// history.filter((message:any) => message.role == "user")[0].content
+		if (taskMessage.text) {
+			let objResponse: RAGOBJInterface = processRAGText(taskMessage.text)
+			if (objResponse.isRag === true) {
+				if (!this.accountInfo || this.accountInfo.type !== objResponse.text) {
+					console.log("text", taskMessage.text)
+					const userInfo = await this.usercenterApi?.getAccountInfoNew(objResponse.text)
+					console.log(userInfo)
+					this.accountInfo = userInfo
+				}
+			}
+			// this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
+		}
 
+		let systemPrompt = await SYSTEM_PROMPT(cwd, supportsComputerUse, mcpHub, this.browserSettings, this.accountInfo)
 		let settingsCustomInstructions = this.customInstructions?.trim()
 		const preferredLanguage = getLanguageKey(
 			vscode.workspace.getConfiguration("cline").get<LanguageDisplay>("preferredLanguage"),
@@ -1322,7 +1372,24 @@ export class Cline {
 			const previousRequest = this.clineMessages[previousApiReqIndex]
 			if (previousRequest && previousRequest.text) {
 				const { tokensIn, tokensOut, cacheWrites, cacheReads }: ClineApiReqInfo = JSON.parse(previousRequest.text)
-				const totalTokens = (tokensIn || 0) + (tokensOut || 0) + (cacheWrites || 0) + (cacheReads || 0)
+				console.log(
+					"tokensIn",
+					tokensIn,
+					"tokensOut",
+					tokensOut,
+					"cacheWrites",
+					cacheWrites,
+					"cacheReads",
+					cacheReads,
+					"previousRequest====",
+					previousRequest.text,
+				)
+				let tempTokenIn = 0
+				if (tokensIn === 0) {
+					console.log("previousRequest.text", previousRequest.text.includes("api_req_failed"))
+					tempTokenIn = previousRequest.text.length * 0.6
+				}
+				const totalTokens = (tokensIn || tempTokenIn) + (tokensOut || 0) + (cacheWrites || 0) + (cacheReads || 0)
 				let contextWindow = this.api.getModel().info.contextWindow || 128_000
 				// FIXME: hack to get anyone using openai compatible with deepseek to have the proper context window instead of the default 128k. We need a way for the user to specify the context window for models they input through openai compatible
 				if (this.api instanceof OpenAiHandler && this.api.getModel().id.toLowerCase().includes("deepseek")) {
@@ -1330,6 +1397,9 @@ export class Cline {
 				}
 				let maxAllowedSize: number
 				switch (contextWindow) {
+					case 51_000: // deepseek local
+						maxAllowedSize = contextWindow - 40_000
+						break
 					case 64_000: // deepseek models
 						maxAllowedSize = contextWindow - 27_000
 						break
@@ -1362,16 +1432,26 @@ export class Cline {
 			}
 		}
 
+		// away 发送消息 最终发送的是 this.apiConversationHistory + 删除区间进行消息提纯
 		// conversationHistoryDeletedRange is updated only when we're close to hitting the context window, so we don't continuously break the prompt cache
 		const truncatedConversationHistory = getTruncatedMessages(
 			this.apiConversationHistory,
 			this.conversationHistoryDeletedRange,
 		)
-
-		let stream = this.api.createMessage(systemPrompt, truncatedConversationHistory)
-
-		const iterator = stream[Symbol.asyncIterator]()
-
+		let stream
+		// if (!this.accountInfo && taskMessage.text) {
+		// 	let objResponse: RAGOBJInterface = processRAGText(taskMessage.text)
+		// 	if (objResponse.isRag === true) {
+		// 		console.log("text", taskMessage.text)
+		// 		await this.usercenterApi?.createMessagePreaper()
+		// 		stream = this.usercenterApi?.createMessage(objResponse.text, truncatedConversationHistory)
+		// 	}
+		// 	// this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
+		// } else {
+		// 	stream = this.api.createMessage(systemPrompt, truncatedConversationHistory)
+		// }
+		stream = this.api.createMessage(systemPrompt, truncatedConversationHistory)
+		const iterator = stream![Symbol.asyncIterator]()
 		try {
 			// awaiting first chunk to see if it will throw an error
 			this.isWaitingForFirstChunk = true
@@ -1409,9 +1489,9 @@ export class Cline {
 
 	async presentAssistantMessage() {
 		if (this.abort) {
-			throw new Error("Cline instance aborted")
+			throw new Error("  instance aborted")
 		}
-
+		console.log("presentAssistantMessage======")
 		if (this.presentAssistantMessageLocked) {
 			this.presentAssistantMessageHasPendingUpdates = true
 			return
@@ -1422,6 +1502,7 @@ export class Cline {
 		if (this.currentStreamingContentIndex >= this.assistantMessageContent.length) {
 			// this may happen if the last content block was completed before streaming could finish. if streaming is finished, and we're out of bounds then this means we already presented/executed the last content block and are ready to continue to next request
 			if (this.didCompleteReadingStream) {
+				// away 循环次数大于解析的assistantMessageContent.length 导致此处跳出 进行下次循环获取数据
 				this.userMessageContentReady = true
 			}
 			// console.log("no more content blocks to stream! this shouldn't happen?")
@@ -1608,7 +1689,7 @@ export class Cline {
 				const showNotificationForApprovalIfAutoApprovalEnabled = (message: string) => {
 					if (this.autoApprovalSettings.enabled && this.autoApprovalSettings.enableNotifications) {
 						showSystemNotification({
-							subtitle: "Approval Required",
+							subtitle: "批准请求",
 							message,
 						})
 					}
@@ -1832,7 +1913,7 @@ export class Cline {
 								} else {
 									// If auto-approval is enabled but this tool wasn't auto-approved, send notification
 									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to ${fileExists ? "edit" : "create"} ${path.basename(relPath)}`,
+										`我们需要 ${fileExists ? "修改" : "新建"} ${path.basename(relPath)}`,
 									)
 									this.removeLastPartialMessageIfExistsWithType("say", "tool")
 									// const didApprove = await askApproval("tool", completeMessage)
@@ -1973,7 +2054,7 @@ export class Cline {
 									this.consecutiveAutoApprovedRequestsCount++
 								} else {
 									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to read ${path.basename(absolutePath)}`,
+										`我们需要读取 ${path.basename(absolutePath)}`,
 									)
 									this.removeLastPartialMessageIfExistsWithType("say", "tool")
 									const didApprove = await askApproval("tool", completeMessage)
@@ -2044,7 +2125,7 @@ export class Cline {
 									this.consecutiveAutoApprovedRequestsCount++
 								} else {
 									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to view directory ${path.basename(absolutePath)}/`,
+										`我们需要查看目录 ${path.basename(absolutePath)}/`,
 									)
 									this.removeLastPartialMessageIfExistsWithType("say", "tool")
 									const didApprove = await askApproval("tool", completeMessage)
@@ -2107,9 +2188,7 @@ export class Cline {
 									await this.say("tool", completeMessage, undefined, false)
 									this.consecutiveAutoApprovedRequestsCount++
 								} else {
-									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to view source code definitions in ${path.basename(absolutePath)}/`,
-									)
+									showNotificationForApprovalIfAutoApprovalEnabled(`我们需要在 ${path.basename(absolutePath)}/`)
 									this.removeLastPartialMessageIfExistsWithType("say", "tool")
 									const didApprove = await askApproval("tool", completeMessage)
 									if (!didApprove) {
@@ -2184,7 +2263,7 @@ export class Cline {
 									this.consecutiveAutoApprovedRequestsCount++
 								} else {
 									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to search files in ${path.basename(absolutePath)}/`,
+										`我们需要在 ${path.basename(absolutePath)}/ 中搜索内容`,
 									)
 									this.removeLastPartialMessageIfExistsWithType("say", "tool")
 									const didApprove = await askApproval("tool", completeMessage)
@@ -2267,9 +2346,7 @@ export class Cline {
 										await this.say("browser_action_launch", url, undefined, false)
 										this.consecutiveAutoApprovedRequestsCount++
 									} else {
-										showNotificationForApprovalIfAutoApprovalEnabled(
-											`Cline wants to use a browser and launch ${url}`,
-										)
+										showNotificationForApprovalIfAutoApprovalEnabled(`我们需要使用浏览器打开 ${url}`)
 										this.removeLastPartialMessageIfExistsWithType("say", "browser_action_launch")
 										const didApprove = await askApproval("browser_action_launch", url)
 										if (!didApprove) {
@@ -2425,9 +2502,7 @@ export class Cline {
 									this.consecutiveAutoApprovedRequestsCount++
 									didAutoApprove = true
 								} else {
-									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to execute a command: ${command}`,
-									)
+									showNotificationForApprovalIfAutoApprovalEnabled(`我们需要执行一条命令: ${command}`)
 									// this.removeLastPartialMessageIfExistsWithType("say", "command")
 									const didApprove = await askApproval(
 										"command",
@@ -2521,10 +2596,7 @@ export class Cline {
 										parsedArguments = JSON.parse(mcp_arguments)
 									} catch (error) {
 										this.consecutiveMistakeCount++
-										await this.say(
-											"error",
-											`Cline tried to use ${tool_name} with an invalid JSON argument. Retrying...`,
-										)
+										await this.say("error", `尝试使用 ${tool_name} 时，提供了无效的 JSON 参数。重试...`)
 										pushToolResult(
 											formatResponse.toolError(
 												formatResponse.invalidMcpToolArgumentError(server_name, tool_name),
@@ -2553,7 +2625,7 @@ export class Cline {
 									this.consecutiveAutoApprovedRequestsCount++
 								} else {
 									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to use ${tool_name} on ${server_name}`,
+										`我们需要在 ${server_name} 服务中使用工具 ${tool_name}`,
 									)
 									this.removeLastPartialMessageIfExistsWithType("say", "use_mcp_server")
 									const didApprove = await askApproval("use_mcp_server", completeMessage)
@@ -2643,7 +2715,7 @@ export class Cline {
 									this.consecutiveAutoApprovedRequestsCount++
 								} else {
 									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to access ${uri} on ${server_name}`,
+										`我们需要在${server_name} 服务中访问 ${uri}  `,
 									)
 									this.removeLastPartialMessageIfExistsWithType("say", "use_mcp_server")
 									const didApprove = await askApproval("use_mcp_server", completeMessage)
@@ -2693,7 +2765,7 @@ export class Cline {
 
 								if (this.autoApprovalSettings.enabled && this.autoApprovalSettings.enableNotifications) {
 									showSystemNotification({
-										subtitle: "Cline has a question...",
+										subtitle: "请问...",
 										message: question.replace(/\n/g, " "),
 									})
 								}
@@ -2932,6 +3004,25 @@ export class Cline {
 				}
 				break
 		}
+		// away 注意 控制单位 userMessageContentReady 控制递归获取数据
+		// away 一次block is finished, 现在我们要循环下一个block 了 this.presentAssistantMessageLocked = false
+		// 这里要进行判断 如果这个block.partial== false 说明这个语句块没有结束  this.userMessageContentReady = true  .进行获取
+		// if (this.currentStreamingContentIndex === this.assistantMessageContent.length - 1) {
+		// its okay that we increment if !didCompleteReadingStream, it'll just return bc out of bounds and as streaming continues it will call presentAssistantMessage if a new block is ready. if streaming is finished then we set userMessageContentReady to true when out of bounds. This gracefully allows the stream to continue on and all potential content blocks be presented.
+		// last block is complete and it is finished executing
+		//this.userMessageContentReady = true // will allow pwaitfor to continue
+		//}
+		//  否则继续执行 presentAssistantMessage
+		// if (this.currentStreamingContentIndex < this.assistantMessageContent.length) {
+		// 	// there are already more content blocks to stream, so we'll call this function ourselves
+		// 	// await this.presentAssistantContent()
+
+		// 	this.presentAssistantMessage()
+		// 	return
+		// }
+
+		// 如果这个条件判断就是获取的消息块已经结束了 就说明这个消息块已经结束了
+		// away 3289 等待for userMessageContentReady to be true  recursivelyMakeClineRequests 进行循环发送数据
 
 		/*
 		Seeing out of bounds is fine, it means that the next too call is being built up and ready to add to assistantMessageContent to present. 
@@ -2970,21 +3061,23 @@ export class Cline {
 		isNewTask: boolean = false,
 	): Promise<boolean> {
 		if (this.abort) {
-			throw new Error("Cline instance aborted")
+			throw new Error("instance aborted")
 		}
 
+		// away 请求3次进行失败返回请求询问询问用户是否继续执行任务 ask 3次后，重置mistake_limit_reached计数器
 		if (this.consecutiveMistakeCount >= 3) {
 			if (this.autoApprovalSettings.enabled && this.autoApprovalSettings.enableNotifications) {
 				showSystemNotification({
 					subtitle: "Error",
-					message: "Cline is having trouble. Would you like to continue the task?",
+					message: "遇到问题，你希望继续执行吗?",
 				})
 			}
 			const { response, text, images } = await this.ask(
 				"mistake_limit_reached",
-				this.api.getModel().id.includes("claude")
-					? `This may indicate a failure in his thought process or inability to use a tool properly, which can be mitigated with some user guidance (e.g. "Try breaking down the task into smaller steps").`
-					: "Cline uses complex prompts and iterative task execution that may be challenging for less capable models. For best results, it's recommended to use Claude 3.7 Sonnet for its advanced agentic coding capabilities.",
+				`大模型思考出了点问题，或者是大模型未能正确使用工具。你可以尝试添加适当的指导来重试，比如可以建议他“尝试将任务拆解成更小的步骤”来逐步推进。").`,
+				// "mistake_limit_reached",  this.api.getModel().id.includes("claude")
+				// 	? `This may indicate a failure in his thought process or inability to use a tool properly, which can be mitigated with some user guidance (e.g. "Try breaking down the task into smaller steps").`
+				// 	: "Cline uses complex prompts and iterative task execution that may be challenging for less capable models. For best results, it's recommended to use Claude 3.5 Sonnet for its advanced agentic coding capabilities.",
 			)
 			if (response === "messageResponse") {
 				userContent.push(
@@ -3000,6 +3093,7 @@ export class Cline {
 			this.consecutiveMistakeCount = 0
 		}
 
+		// away 正常执行  自动批准 且 自动批准有默认系数 20次=====1
 		if (
 			this.autoApprovalSettings.enabled &&
 			this.consecutiveAutoApprovedRequestsCount >= this.autoApprovalSettings.maxRequests
@@ -3007,17 +3101,18 @@ export class Cline {
 			if (this.autoApprovalSettings.enableNotifications) {
 				showSystemNotification({
 					subtitle: "Max Requests Reached",
-					message: `Cline has auto-approved ${this.autoApprovalSettings.maxRequests.toString()} API requests.`,
+					message: `我们自动批准了 ${this.autoApprovalSettings.maxRequests.toString()} API 请求.`,
 				})
 			}
 			await this.ask(
 				"auto_approval_max_req_reached",
-				`Cline has auto-approved ${this.autoApprovalSettings.maxRequests.toString()} API requests. Would you like to reset the count and proceed with the task?`,
+				`我们自动批准了 ${this.autoApprovalSettings.maxRequests.toString()} API 请求. 您是否希望重置计数并继续执行任务？`,
 			)
 			// if we get past the promise it means the user approved and did not start a new task
 			this.consecutiveAutoApprovedRequestsCount = 0
 		}
 
+		// away 检索消息 如果没有 api_req_started 则认为是第一次执行建立检查点
 		// get previous api req's index to check token usage and determine if we need to truncate conversation history
 		const previousApiReqIndex = findLastIndex(this.clineMessages, (m) => m.say === "api_req_started")
 
@@ -3044,8 +3139,8 @@ export class Cline {
 				this.checkpointTracker = await CheckpointTracker.create(this.taskId, this.providerRef.deref())
 				this.checkpointTrackerErrorMessage = undefined
 			} catch (error) {
-				const errorMessage = error instanceof Error ? error.message : "Unknown error"
-				console.error("Failed to initialize checkpoint tracker:", errorMessage)
+				const errorMessage = error instanceof Error ? error.message : "未知错误"
+				console.error("无法初始化检查点跟踪器 Failed to initialize checkpoint tracker:", errorMessage)
 				this.checkpointTrackerErrorMessage = errorMessage // will be displayed right away since we saveClineMessages next which posts state to webview
 			}
 		}
@@ -3061,7 +3156,9 @@ export class Cline {
 		}
 
 		const [parsedUserContent, environmentDetails] = await this.loadContext(userContent, includeFileDetails)
+		console.log("parsedUserContent-------------", parsedUserContent)
 		userContent = parsedUserContent
+		// away 创建user 消息 添加 环境消息  addToApiConversationHistory 最终赋值给 apiConversationHistory
 		// add environment details as its own text block, separate from tool results
 		userContent.push({ type: "text", text: environmentDetails })
 
@@ -3192,8 +3289,10 @@ export class Cline {
 							assistantMessage += chunk.text
 							// parse raw assistant message into content blocks
 							const prevLength = this.assistantMessageContent.length
+							// away 增加this.assistantMessageContent to avoid infinite loop 增加了this.assistantMessageContent to avoid infinite loop 去进行增量更新助理的消息内容，避免无限循环
 							this.assistantMessageContent = parseAssistantMessage(assistantMessage)
 							if (this.assistantMessageContent.length > prevLength) {
+								// 停止循环 if we have new content to present
 								this.userMessageContentReady = false // new content we need to present, reset to false in case previous content set this to true
 							}
 							// present content to user
@@ -3244,7 +3343,7 @@ export class Cline {
 
 			// need to call here in case the stream was aborted
 			if (this.abort) {
-				throw new Error("Cline instance aborted")
+				throw new Error("instance aborted")
 			}
 
 			this.didCompleteReadingStream = true
@@ -3280,7 +3379,7 @@ export class Cline {
 				// if (this.currentStreamingContentIndex >= completeBlocks.length) {
 				// 	this.userMessageContentReady = true
 				// }
-
+				// away 等待for userMessageContentReady to be true  recursivelyMakeClineRequests 进行循环发送数据
 				await pWaitFor(() => this.userMessageContentReady)
 
 				// if the model did not tool use, then we need to tell it to either use a tool or attempt_completion

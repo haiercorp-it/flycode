@@ -49,6 +49,7 @@ export interface WebviewMessage {
 		| "downloadMcp"
 		| "silentlyRefreshMcpMarketplace"
 		| "searchCommits"
+		| "checkLoginStatus"
 		| "showMcpView"
 		| "fetchLatestMcpServersFromHub"
 		| "telemetrySetting"

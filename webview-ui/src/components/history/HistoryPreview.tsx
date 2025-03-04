@@ -150,7 +150,7 @@ const HistoryPreview = ({ showHistoryView }: HistoryPreviewProps) => {
 								fontSize: "var(--vscode-font-size)",
 								color: "var(--vscode-descriptionForeground)",
 							}}>
-							View all history
+							全部历史记录
 						</div>
 					</VSCodeButton>
 				</div>

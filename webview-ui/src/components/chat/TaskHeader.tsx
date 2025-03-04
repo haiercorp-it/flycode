@@ -135,7 +135,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
 						}}>
 						<span style={{ fontWeight: "bold" }}>
 							{/* {windowWidth > 280 && windowWidth < 310 ? "Context:" : "Context Window:"} */}
-							Context Window:
+							上下文:
 						</span>
 					</div>
 					<div
@@ -437,7 +437,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
 										alignItems: "center",
 										height: 17,
 									}}>
-									<div
+									{/* <div
 										style={{
 											display: "flex",
 											alignItems: "center",
@@ -445,7 +445,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
 										}}>
 										<span style={{ fontWeight: "bold" }}>API Cost:</span>
 										<span>${totalCost?.toFixed(4)}</span>
-									</div>
+									</div> */}
 									<DeleteButton taskSize={formatSize(currentTaskItem?.size)} taskId={currentTaskItem?.id} />
 								</div>
 							)}

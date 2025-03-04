@@ -18,6 +18,8 @@ export class GeminiHandler implements ApiHandler {
 		this.client = new GoogleGenerativeAI(options.geminiApiKey)
 	}
 
+	getAccountInfo() {}
+
 	@withRetry()
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
 		const model = this.client.getGenerativeModel({

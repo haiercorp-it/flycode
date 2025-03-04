@@ -17,6 +17,8 @@ export class LiteLlmHandler implements ApiHandler {
 		})
 	}
 
+	getAccountInfo() {}
+
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
 		const formattedMessages = convertToOpenAiMessages(messages)
 		const systemMessage: OpenAI.Chat.ChatCompletionSystemMessageParam = {

@@ -2,18 +2,21 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import { memo } from "react"
 import { useExtensionState } from "../../context/ExtensionStateContext"
 import { vscode } from "../../utils/vscode"
+
 type AccountViewProps = {
 	onDone: () => void
 }
 
-const AccountView = ({ onDone }: AccountViewProps) => {
+const AccountLocalView = ({ onDone }: AccountViewProps) => {
 	const { isLoggedIn, userInfo } = useExtensionState()
 
-	const handleLogin = async () => {
-		console.log("123", window.location.href)
-
+	const handleLogin = () => {
 		vscode.postMessage({ type: "accountLoginClicked" })
 	}
+	const checkLoginStatus = () => {
+		vscode.postMessage({ type: "checkLoginStatus" })
+	}
+	console.log("isLoggedIn", checkLoginStatus)
 
 	const handleLogout = () => {
 		vscode.postMessage({ type: "accountLogoutClicked" })
@@ -68,12 +71,12 @@ const AccountView = ({ onDone }: AccountViewProps) => {
 							)}
 							<div style={{ fontSize: "14px", marginBottom: 10 }}>
 								{userInfo?.displayName && <div>Name: {userInfo.displayName}</div>}
-								{userInfo?.email && <div>Number: {userInfo.email}</div>}
+								{userInfo?.email && <div>Email: {userInfo.email}</div>}
 							</div>
 							<VSCodeButton onClick={handleLogout}>Log out</VSCodeButton>
 						</>
 					) : (
-						<VSCodeButton onClick={handleLogin}>Login UserCenter</VSCodeButton>
+						<VSCodeButton onClick={handleLogin}>Log in to Cline</VSCodeButton>
 					)}
 				</div>
 			</div>
@@ -81,4 +84,4 @@ const AccountView = ({ onDone }: AccountViewProps) => {
 	)
 }
 
-export default memo(AccountView)
+export default memo(AccountLocalView)

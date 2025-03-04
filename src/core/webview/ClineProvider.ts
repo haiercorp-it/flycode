@@ -35,7 +35,7 @@ import { getUri } from "./getUri"
 import { telemetryService } from "../../services/telemetry/TelemetryService"
 import { TelemetrySetting } from "../../shared/TelemetrySetting"
 import { validateThinkingBudget } from "../../utils/validation"
-
+import { tuple } from "zod"
 /*
 https://github.com/microsoft/vscode-webview-ui-toolkit-samples/blob/main/default/weather-webview/src/providers/WeatherViewProvider.ts
 
@@ -59,6 +59,7 @@ type SecretKey =
 	| "liteLlmApiKey"
 	| "authToken"
 	| "authNonce"
+	| "chatAssitId"
 	| "asksageApiKey"
 	| "xaiApiKey"
 type GlobalStateKey =
@@ -99,6 +100,17 @@ type GlobalStateKey =
 	| "qwenApiLine"
 	| "requestyModelId"
 	| "togetherModelId"
+	| "haierinternalAiBaseUrl"
+	/* 	| "haierinternalApiKey" */
+	| "haierinternalModelId"
+	| "haierragflowapikey"
+	| "haierragflowapiid"
+	| "haierragflowapiurl"
+	| "haierragflowapidatasetid"
+	| "deepseekLocalModelId"
+	| "deepseekLocalUrl"
+	| "deepseekLocalDefaultUrl"
+	| "apiProviderSelect"
 	| "mcpMarketplaceCatalog"
 	| "telemetrySetting"
 	| "asksageApiUrl"
@@ -113,8 +125,8 @@ export const GlobalFileNames = {
 }
 
 export class ClineProvider implements vscode.WebviewViewProvider {
-	public static readonly sideBarId = "claude-dev.SidebarProvider" // used in package.json as the view's id. This value cannot be changed due to how vscode caches views based on their id, and updating the id would break existing instances of the extension.
-	public static readonly tabPanelId = "claude-dev.TabPanelProvider"
+	public static readonly sideBarId = "claude-devS.SidebarProvider" // used in package.json as the view's id. This value cannot be changed due to how vscode caches views based on their id, and updating the id would break existing instances of the extension.
+	public static readonly tabPanelId = "claude-devS.TabPanelProvider"
 	private static activeInstances: Set<ClineProvider> = new Set()
 	private disposables: vscode.Disposable[] = []
 	private view?: vscode.WebviewView | vscode.WebviewPanel
@@ -133,6 +145,10 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 		this.workspaceTracker = new WorkspaceTracker(this)
 		this.mcpHub = new McpHub(this)
 		this.authManager = new FirebaseAuthManager(this)
+		this.updateGlobalState("haierragflowapikey", "ragflow-E5NmNjOTY2ZWZmMTExZWY4MGUxNjI3MD")
+		this.updateGlobalState("haierragflowapiid", "0645c520e9f311efa5ac2a35a7cb74c2")
+		this.updateGlobalState("haierragflowapiurl", "https://ikm.haier.net")
+		this.updateGlobalState("deepseekLocalDefaultUrl", "http://120.222.7.189:1025/v1/chat/completions")
 	}
 
 	/*
@@ -166,8 +182,11 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 	// Auth methods
 	async handleSignOut() {
 		try {
+			await this.storeSecret("authToken", undefined)
+			await this.setUserInfo(undefined)
+			await this.postStateToWebview()
 			await this.authManager.signOut()
-			vscode.window.showInformationMessage("Successfully logged out of Cline")
+			vscode.window.showInformationMessage("Successfully logged out of GI")
 		} catch (error) {
 			vscode.window.showErrorMessage("Logout failed")
 		}
@@ -599,6 +618,12 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 								liteLlmModelId,
 								liteLlmApiKey,
 								qwenApiLine,
+								haierinternalAiBaseUrl,
+								/* haierinternalApiKey, */
+								haierinternalModelId,
+
+								deepseekLocalUrl,
+								deepseekLocalModelId,
 								asksageApiKey,
 								asksageApiUrl,
 								xaiApiKey,
@@ -645,6 +670,15 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 							await this.updateGlobalState("qwenApiLine", qwenApiLine)
 							await this.updateGlobalState("requestyModelId", requestyModelId)
 							await this.updateGlobalState("togetherModelId", togetherModelId)
+							await this.updateGlobalState("haierinternalAiBaseUrl", haierinternalAiBaseUrl)
+							/* 							await this.updateGlobalState("haierinternalApiKey", haierinternalApiKey) */
+							await this.updateGlobalState("haierinternalModelId", haierinternalModelId)
+							await this.updateGlobalState("deepseekLocalUrl", deepseekLocalUrl)
+							await this.updateGlobalState("deepseekLocalModelId", deepseekLocalModelId)
+							await this.updateGlobalState("haierragflowapikey", "ragflow-E5NmNjOTY2ZWZmMTExZWY4MGUxNjI3MD")
+							await this.updateGlobalState("haierragflowapiid", "0645c520e9f311efa5ac2a35a7cb74c2")
+							await this.updateGlobalState("haierragflowapiurl", "https://ikm.haier.net")
+							await this.updateGlobalState("apiProviderSelect", apiProvider)
 							await this.storeSecret("asksageApiKey", asksageApiKey)
 							await this.updateGlobalState("asksageApiUrl", asksageApiUrl)
 							await this.updateGlobalState("thinkingBudgetTokens", thinkingBudgetTokens)
@@ -818,14 +852,25 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 
 						const uriScheme = vscode.env.uriScheme
 
+						// const authUrl = vscode.Uri.parse(
+						// 	`https://app.cline.bot/auth?state=${encodeURIComponent(nonce)}&callback_url=${encodeURIComponent(`${uriScheme || "vscode"}://saoudrizwan.claude-dev/auth`)}`,
+						// )
 						const authUrl = vscode.Uri.parse(
-							`https://app.cline.bot/auth?state=${encodeURIComponent(nonce)}&callback_url=${encodeURIComponent(`${uriScheme || "vscode"}://saoudrizwan.claude-dev/auth`)}`,
+							`http://10.250.7.73:34228/about?redirect_uri=vscode%3A%2F%2FIT.generate-infinity%2Fauth&nonce=${encodeURIComponent(nonce)}`,
 						)
+						console.log("ssssss")
+						// const loginResult = await login()
 						vscode.env.openExternal(authUrl)
 						break
 					}
 					case "accountLogoutClicked": {
 						await this.handleSignOut()
+						// const authUrl = vscode.Uri.parse(
+						// 	`http://localhost:3000/about?redirect_uri=vscode%3A%2F%2FIT.generate-infinity%2Fauth&nonce=${encodeURIComponent(nonce)}`,
+						// )
+						// console.log("ssssss")
+						// // const loginResult = await login()
+						// vscode.env.openExternal(authUrl)
 						break
 					}
 					case "showMcpView": {
@@ -965,7 +1010,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 						const settingsFilter = message.text || ""
 						await vscode.commands.executeCommand(
 							"workbench.action.openSettings",
-							`@ext:saoudrizwan.claude-dev ${settingsFilter}`.trim(), // trim whitespace if no settings filter
+							`@ext:IT.generate-infinity ${settingsFilter}`.trim(), // trim whitespace if no settings filter
 						)
 						break
 					}
@@ -1297,10 +1342,10 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			// Then store the token securely
 			await this.storeSecret("authToken", token)
 			await this.postStateToWebview()
-			vscode.window.showInformationMessage("Successfully logged in to Cline")
+			vscode.window.showInformationMessage("Successfully logged in to GI")
 		} catch (error) {
 			console.error("Failed to handle auth callback:", error)
-			vscode.window.showErrorMessage("Failed to log in to Cline")
+			vscode.window.showErrorMessage("Failed to log in to GI ")
 		}
 	}
 
@@ -1525,6 +1570,43 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 			})
 		}
 		// await this.postMessageToWebview({ type: "action", action: "settingsButtonClicked" }) // bad ux if user is on welcome
+	}
+
+	async authCodedLogin(token: string, uerInfo: any): Promise<boolean | undefined> {
+		if (!token) {
+			return false
+		}
+		try {
+			const response = await axios.post(
+				"https://haixueh5-test.lanbenzi.cn/h5/v1/score/my_info",
+				{},
+				{
+					//  const response = await axios.post("http://39.105.29.12:8585/h5/v1/score/my_info",{}, {
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: "Bearer " + token,
+					},
+				},
+			)
+			console.log("authCodedLogin response:", response.data)
+			await this.storeSecret("authToken", token)
+			await this.setUserInfo({
+				displayName: uerInfo.nickName,
+				email: uerInfo.userName,
+				photoURL: uerInfo.avatar_url,
+			})
+			await this.postStateToWebview()
+			vscode.window.showInformationMessage("Successfully logged in to GI")
+			if (response.data) {
+			} else {
+				throw new Error("Invalid response from  API")
+			}
+		} catch (error) {
+			console.error("Error fetching  API:", error)
+			throw new Error("Invalid response from  API", error.message)
+			return false
+		}
+		return true
 	}
 
 	private async ensureCacheDirectoryExists(): Promise<string> {
@@ -1799,7 +1881,7 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 			autoApprovalSettings,
 			browserSettings,
 			chatSettings,
-			isLoggedIn: !!authToken,
+			isLoggedIn: !!userInfo,
 			userInfo,
 			mcpMarketplaceEnabled,
 			telemetrySetting,
@@ -1912,6 +1994,20 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 			previousModeThinkingBudgetTokens,
 			qwenApiLine,
 			liteLlmApiKey,
+			haierinternalAiBaseUrl,
+			/* 			haierinternalApiKey, */
+			haierinternalModelId,
+			haierragflowapikey,
+			haierragflowapiid,
+			haierragflowapiurl,
+			haierragflowapidatasetid,
+
+			// 获取loal
+			deepseekLocalUrl,
+			deepseekLocalModelId,
+
+			// 获取是否选择provider
+			apiProviderSelect,
 			telemetrySetting,
 			asksageApiKey,
 			asksageApiUrl,
@@ -1970,6 +2066,16 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 			this.getGlobalState("previousModeThinkingBudgetTokens") as Promise<number | undefined>,
 			this.getGlobalState("qwenApiLine") as Promise<string | undefined>,
 			this.getSecret("liteLlmApiKey") as Promise<string | undefined>,
+			this.getGlobalState("haierinternalAiBaseUrl") as Promise<string | undefined>,
+			/* 			this.getGlobalState("haierinternalApiKey") as Promise<string | undefined>, */
+			this.getGlobalState("haierinternalModelId") as Promise<string | undefined>,
+			this.getGlobalState("haierragflowapikey") as Promise<string | undefined>,
+			this.getGlobalState("haierragflowapiid") as Promise<string | undefined>,
+			this.getGlobalState("haierragflowapiurl") as Promise<string | undefined>,
+			this.getGlobalState("haierragflowapidatasetid") as Promise<string | undefined>,
+			this.getGlobalState("deepseekLocalUrl") as Promise<string | undefined>,
+			this.getGlobalState("deepseekLocalModelId") as Promise<string | undefined>,
+			this.getGlobalState("apiProviderSelect") as Promise<string | undefined>,
 			this.getGlobalState("telemetrySetting") as Promise<TelemetrySetting | undefined>,
 			this.getSecret("asksageApiKey") as Promise<string | undefined>,
 			this.getGlobalState("asksageApiUrl") as Promise<string | undefined>,
@@ -1983,12 +2089,13 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 		} else {
 			// Either new user or legacy user that doesn't have the apiProvider stored in state
 			// (If they're using OpenRouter or Bedrock, then apiProvider state will exist)
-			if (apiKey) {
-				apiProvider = "anthropic"
-			} else {
-				// New users should default to openrouter
-				apiProvider = "openrouter"
-			}
+			// if (apiKey) {
+			// 	apiProvider = "anthropic"
+			// } else {
+			// 	// New users should default to openrouter
+			// 	apiProvider = "openrouter"
+			// }
+			apiProvider = "deepseek_local"
 		}
 
 		const o3MiniReasoningEffort = vscode.workspace
@@ -2041,6 +2148,17 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 				liteLlmBaseUrl,
 				liteLlmModelId,
 				liteLlmApiKey,
+				haierinternalAiBaseUrl,
+				/* 				haierinternalApiKey, */
+				haierinternalModelId,
+				// away 增加 haierragflowapikey 和 haierragflowmodelid 字段
+				haierragflowapikey,
+				haierragflowapiid,
+				haierragflowapidatasetid,
+				haierragflowapiurl,
+				deepseekLocalModelId,
+				deepseekLocalUrl,
+				apiProviderSelect,
 				asksageApiKey,
 				asksageApiUrl,
 				xaiApiKey,
@@ -2116,6 +2234,10 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 
 	async getSecret(key: SecretKey) {
 		return await this.context.secrets.get(key)
+	}
+
+	async setSecret(key: SecretKey, value: string | undefined) {
+		await this.storeSecret(key, value)
 	}
 
 	// Open Graph Data

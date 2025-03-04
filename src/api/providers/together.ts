@@ -18,7 +18,7 @@ export class TogetherHandler implements ApiHandler {
 			apiKey: this.options.togetherApiKey,
 		})
 	}
-
+	getAccountInfo() {}
 	@withRetry()
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
 		const modelId = this.options.togetherModelId ?? ""

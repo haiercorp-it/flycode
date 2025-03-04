@@ -24,7 +24,7 @@ export class OpenAiNativeHandler implements ApiHandler {
 			apiKey: this.options.openAiNativeApiKey,
 		})
 	}
-
+	getAccountInfo() {}
 	private async *yieldUsage(info: ModelInfo, usage: OpenAI.Completions.CompletionUsage | undefined): ApiStream {
 		const inputTokens = usage?.prompt_tokens || 0
 		const outputTokens = usage?.completion_tokens || 0

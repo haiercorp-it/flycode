@@ -47,13 +47,15 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 	const renderOptionContent = (option: ContextMenuQueryItem) => {
 		switch (option.type) {
 			case ContextMenuOptionType.Problems:
-				return <span>Problems</span>
+				return <span>问题</span>
 			case ContextMenuOptionType.Terminal:
-				return <span>Terminal</span>
+				return <span>终端</span>
 			case ContextMenuOptionType.URL:
-				return <span>Paste URL to fetch contents</span>
+				return <span>粘贴URL来获取内容</span>
 			case ContextMenuOptionType.NoResults:
-				return <span>No results found</span>
+				return <span>未找到结果</span>
+			case ContextMenuOptionType.RAG:
+				return <span>RAG</span>
 			case ContextMenuOptionType.Git:
 				if (option.value) {
 					return (
@@ -73,7 +75,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 						</div>
 					)
 				} else {
-					return <span>Git Commits</span>
+					return <span>GIT提交记录</span>
 				}
 			case ContextMenuOptionType.File:
 			case ContextMenuOptionType.Folder:
@@ -95,7 +97,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 						</>
 					)
 				} else {
-					return <span>Add {option.type === ContextMenuOptionType.File ? "File" : "Folder"}</span>
+					return <span>添加{option.type === ContextMenuOptionType.File ? "文件" : "目录"}</span>
 				}
 		}
 	}
@@ -116,6 +118,8 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 				return "git-commit"
 			case ContextMenuOptionType.NoResults:
 				return "info"
+			case ContextMenuOptionType.RAG:
+				return "database"
 			default:
 				return "file"
 		}
@@ -203,6 +207,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 							)}
 						{(option.type === ContextMenuOptionType.Problems ||
 							option.type === ContextMenuOptionType.Terminal ||
+							option.type === ContextMenuOptionType.RAG ||
 							((option.type === ContextMenuOptionType.File ||
 								option.type === ContextMenuOptionType.Folder ||
 								option.type === ContextMenuOptionType.Git) &&

@@ -15,6 +15,9 @@ export type ApiProvider =
 	| "mistral"
 	| "vscode-lm"
 	| "litellm"
+	| "haierinternal"
+	| "usercenter"
+	| "deepseek_local"
 	| "asksage"
 	| "xai"
 
@@ -59,6 +62,15 @@ export interface ApiHandlerOptions {
 	vsCodeLmModelSelector?: any
 	o3MiniReasoningEffort?: string
 	qwenApiLine?: string
+	haierinternalAiBaseUrl?: string
+	/* 	haierinternalApiKey?: string */
+	haierinternalModelId?: string
+	haierragflowapikey?: string
+	haierragflowapiid?: string
+	haierragflowapiurl?: string
+	haierragflowapidatasetid?: string
+	deepseekLocalUrl?: string
+	deepseekLocalModelId?: string
 	asksageApiUrl?: string
 	asksageApiKey?: string
 	xaiApiKey?: string
@@ -375,6 +387,14 @@ export const openAiModelInfoSaneDefaults: ModelInfo = {
 	contextWindow: 128_000,
 	supportsImages: true,
 	supportsPromptCache: false,
+	inputPrice: 0,
+	outputPrice: 0,
+}
+export const deepseekModelInfoSaneDefaults: ModelInfo = {
+	maxTokens: 8_000,
+	contextWindow: 51_000,
+	supportsImages: false,
+	supportsPromptCache: true,
 	inputPrice: 0,
 	outputPrice: 0,
 }
@@ -878,6 +898,19 @@ export const liteLlmModelInfoSaneDefaults: ModelInfo = {
 	maxTokens: -1,
 	contextWindow: 128_000,
 	supportsImages: true,
+	supportsPromptCache: false,
+	inputPrice: 0,
+	outputPrice: 0,
+}
+
+// 克江提供
+// https://ihaier.feishu.cn/docx/GcafdtMiSo5c2ixoUPfck6b2nqb?from=from_copylink
+export type HaierinternalMModelId = string
+export const HaierinternalDefaultModelId = "deepseek-r1:32b"
+export const HaierinternalModelInfoSaneDefaults: ModelInfo = {
+	maxTokens: 4096,
+	contextWindow: 8192,
+	supportsImages: false,
 	supportsPromptCache: false,
 	inputPrice: 0,
 	outputPrice: 0,

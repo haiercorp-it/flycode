@@ -6,7 +6,11 @@ tmp
 *.vsix
 
 .DS_Store
-
+localreademe.md
 pnpm-lock.yaml
+README-zh_cn.md
+assets/icons/icon_dark.png
+assets/icons/icon_blue.png
+
 
 .clineignore

@@ -36,6 +36,7 @@ import {
 	qwenModels,
 	vertexDefaultModelId,
 	vertexModels,
+	deepseekModelInfoSaneDefaults,
 	askSageModels,
 	askSageDefaultModelId,
 	askSageDefaultURL,
@@ -175,7 +176,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 		<div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: isPopup ? -10 : 0 }}>
 			<DropdownContainer className="dropdown-container">
 				<label htmlFor="api-provider">
-					<span style={{ fontWeight: 500 }}>API Provider</span>
+					<span style={{ fontWeight: 500 }}>大模型</span>
 				</label>
 				<VSCodeDropdown
 					id="api-provider"
@@ -185,6 +186,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						minWidth: 130,
 						position: "relative",
 					}}>
+					<VSCodeOption value="deepseek_local">deepseek_local</VSCodeOption>
 					<VSCodeOption value="openrouter">OpenRouter</VSCodeOption>
 					<VSCodeOption value="anthropic">Anthropic</VSCodeOption>
 					<VSCodeOption value="bedrock">AWS Bedrock</VSCodeOption>
@@ -201,6 +203,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 					<VSCodeOption value="lmstudio">LM Studio</VSCodeOption>
 					<VSCodeOption value="ollama">Ollama</VSCodeOption>
 					<VSCodeOption value="litellm">LiteLLM</VSCodeOption>
+					{/* <VSCodeOption value="haierinternal">haierinternal</VSCodeOption> */}
 					<VSCodeOption value="asksage">AskSage</VSCodeOption>
 					<VSCodeOption value="xai">X AI</VSCodeOption>
 				</VSCodeDropdown>
@@ -277,7 +280,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: 3,
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						This key is stored locally and only used to make API requests from this extension.
+						您的密钥将存储于本地，仅会用于此扩展发起API请求。
 						{!apiConfiguration?.apiKey && (
 							<VSCodeLink
 								href="https://console.anthropic.com/settings/keys"
@@ -308,7 +311,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: 3,
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						This key is stored locally and only used to make API requests from this extension.
+						您的密钥将存储于本地，仅会用于此扩展发起API请求。
 						{!apiConfiguration?.openAiNativeApiKey && (
 							<VSCodeLink
 								href="https://platform.openai.com/api-keys"
@@ -339,7 +342,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: 3,
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						This key is stored locally and only used to make API requests from this extension.
+						您的密钥将存储于本地，仅会用于此扩展发起API请求。
 						{!apiConfiguration?.deepSeekApiKey && (
 							<VSCodeLink
 								href="https://www.deepseek.com/"
@@ -395,7 +398,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: 3,
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						This key is stored locally and only used to make API requests from this extension.
+						您的密钥将存储于本地，仅会用于此扩展发起API请求。
 						{!apiConfiguration?.qwenApiKey && (
 							<VSCodeLink
 								href="https://bailian.console.aliyun.com/"
@@ -426,7 +429,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: 3,
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						This key is stored locally and only used to make API requests from this extension.
+						您的密钥将存储于本地，仅会用于此扩展发起API请求。
 						{!apiConfiguration?.mistralApiKey && (
 							<VSCodeLink
 								href="https://console.mistral.ai/codestral"
@@ -465,7 +468,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: "5px",
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						This key is stored locally and only used to make API requests from this extension.{" "}
+						您的密钥将存储于本地，仅会用于此扩展发起API请求。{" "}
 						{/* {!apiConfiguration?.openRouterApiKey && (
 							<span style={{ color: "var(--vscode-charts-green)" }}>
 								(<span style={{ fontWeight: 500 }}>Note:</span> OpenRouter is recommended for high rate
@@ -689,7 +692,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: 3,
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						This key is stored locally and only used to make API requests from this extension.
+						您的密钥将存储于本地，仅会用于此扩展发起API请求。
 						{!apiConfiguration?.geminiApiKey && (
 							<VSCodeLink
 								href="https://ai.google.dev/"
@@ -770,7 +773,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 								fontWeight: 700,
 								textTransform: "uppercase",
 							}}>
-							Model Configuration
+							大模型配置
 						</span>
 					</div>
 					{modelConfigurationSelected && (
@@ -879,8 +882,8 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							color: "var(--vscode-descriptionForeground)",
 						}}>
 						<span style={{ color: "var(--vscode-errorForeground)" }}>
-							(<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works best with Claude
-							models. Less capable models may not work as expected.)
+							(<span style={{ fontWeight: 500 }}>Note:</span>本插件使用复杂的提示语，最适合与 Claude
+							模型配合使用。能力较弱的模型可能无法达到预期效果。)
 						</span>
 					</p>
 				</div>
@@ -910,8 +913,8 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							color: "var(--vscode-descriptionForeground)",
 						}}>
 						<span style={{ color: "var(--vscode-errorForeground)" }}>
-							(<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works best with Claude
-							models. Less capable models may not work as expected.)
+							(<span style={{ fontWeight: 500 }}>Note:</span>本插件使用复杂的提示语，最适合与 Claude
+							模型配合使用。能力较弱的模型可能无法达到预期效果。)
 						</span>
 					</p>
 				</div>
@@ -941,8 +944,8 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							color: "var(--vscode-descriptionForeground)",
 						}}>
 						<span style={{ color: "var(--vscode-errorForeground)" }}>
-							(<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works best with Claude
-							models. Less capable models may not work as expected.)
+							(<span style={{ fontWeight: 500 }}>Note:</span>本插件使用复杂的提示语，最适合与 Claude
+							模型配合使用。能力较弱的模型可能无法达到预期效果。)
 						</span>
 					</p>
 				</div>
@@ -1069,8 +1072,8 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						</VSCodeLink>{" "}
 						feature to use it with this extension.{" "}
 						<span style={{ color: "var(--vscode-errorForeground)" }}>
-							(<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works best with Claude
-							models. Less capable models may not work as expected.)
+							(<span style={{ fontWeight: 500 }}>Note:</span>本插件使用复杂的提示语，最适合与 Claude
+							模型配合使用。能力较弱的模型可能无法达到预期效果。)
 						</span>
 					</p>
 				</div>
@@ -1170,9 +1173,75 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							quickstart guide.
 						</VSCodeLink>
 						<span style={{ color: "var(--vscode-errorForeground)" }}>
-							(<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works best with Claude
-							models. Less capable models may not work as expected.)
+							(<span style={{ fontWeight: 500 }}>Note:</span>本插件使用复杂的提示语，最适合与 Claude
+							模型配合使用。能力较弱的模型可能无法达到预期效果。)
 						</span>
+					</p>
+				</div>
+			)}
+
+			{selectedProvider === "haierinternal" && (
+				<div>
+					<VSCodeTextField
+						value={apiConfiguration?.haierinternalAiBaseUrl || ""}
+						style={{ width: "100%" }}
+						type="url"
+						onInput={handleInputChange("haierinternalAiBaseUrl")}
+						placeholder={"Default: http://10.250.66.28:2025/deepseek-r1-70b"}>
+						<span style={{ fontWeight: 500 }}>Base URL (optional)</span>
+					</VSCodeTextField>
+					<VSCodeTextField
+						value={apiConfiguration?.haierinternalModelId || ""}
+						style={{ width: "100%" }}
+						onInput={handleInputChange("haierinternalModelId")}
+						placeholder={"e.g. geepseek-r1:70b"}>
+						<span style={{ fontWeight: 500 }}>Model ID</span>
+					</VSCodeTextField>
+					<p
+						style={{
+							fontSize: "12px",
+							marginTop: "5px",
+							color: "var(--vscode-descriptionForeground)",
+						}}>
+						由集团IT搭建的大模型，有问题联系夏克江. See their{" "}
+						<VSCodeLink
+							href="https://ihaier.feishu.cn/docx/GcafdtMiSo5c2ixoUPfck6b2nqb?from=from_copylink"
+							style={{ display: "inline", fontSize: "inherit" }}>
+							quickstart guide
+						</VSCodeLink>{" "}
+						for more information.
+					</p>
+				</div>
+			)}
+			{selectedProvider === "deepseek_local" && (
+				<div>
+					<VSCodeTextField
+						value={apiConfiguration?.deepseekLocalUrl || ""}
+						style={{ width: "100%" }}
+						type="url"
+						onInput={handleInputChange("deepseekLocalUrl")}
+						placeholder={""}>
+						<span style={{ fontWeight: 500 }}>Base URL (optional)</span>
+					</VSCodeTextField>
+					<VSCodeTextField
+						value={apiConfiguration?.deepseekLocalModelId || ""}
+						style={{ width: "100%" }}
+						onInput={handleInputChange("deepseekLocalModelId")}
+						placeholder={""}>
+						<span style={{ fontWeight: 500 }}>Model ID</span>
+					</VSCodeTextField>
+					<p
+						style={{
+							fontSize: "12px",
+							marginTop: "5px",
+							color: "var(--vscode-descriptionForeground)",
+						}}>
+						<VSCodeLink
+							href="https://ihaier.feishu.cn/docx/GcafdtMiSo5c2ixoUPfck6b2nqb?from=from_copylink"
+							style={{ display: "inline", fontSize: "inherit" }}>
+							quickstart guide
+						</VSCodeLink>{" "}
+						for more information.
 					</p>
 				</div>
 			)}
@@ -1286,7 +1355,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 }
 
 export function getOpenRouterAuthUrl(uriScheme?: string) {
-	return `https://openrouter.ai/auth?callback_url=${uriScheme || "vscode"}://saoudrizwan.claude-dev/openrouter`
+	return `https://openrouter.ai/auth?callback_url=${uriScheme || "vscode"}://IT.generate-infinity/openrouter`
 }
 
 export const formatPrice = (price: number) => {
@@ -1463,6 +1532,12 @@ export function normalizeApiConfiguration(apiConfiguration?: ApiConfiguration): 
 			return getProviderData(openAiNativeModels, openAiNativeDefaultModelId)
 		case "deepseek":
 			return getProviderData(deepSeekModels, deepSeekDefaultModelId)
+		case "deepseek_local":
+			return {
+				selectedProvider: provider,
+				selectedModelId: apiConfiguration?.deepseekLocalModelId || "",
+				selectedModelInfo: deepseekModelInfoSaneDefaults,
+			}
 		case "qwen":
 			return getProviderData(qwenModels, qwenDefaultModelId)
 		case "mistral":
@@ -1508,6 +1583,12 @@ export function normalizeApiConfiguration(apiConfiguration?: ApiConfiguration): 
 			return {
 				selectedProvider: provider,
 				selectedModelId: apiConfiguration?.liteLlmModelId || "",
+				selectedModelInfo: openAiModelInfoSaneDefaults,
+			}
+		case "haierinternal":
+			return {
+				selectedProvider: provider,
+				selectedModelId: apiConfiguration?.haierinternalModelId || "",
 				selectedModelInfo: openAiModelInfoSaneDefaults,
 			}
 		case "xai":

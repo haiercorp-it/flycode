@@ -1,8 +1,8 @@
 {
-	"name": "claude-dev",
-	"displayName": "Cline",
-	"description": "Autonomous coding agent right in your IDE, capable of creating/editing files, running commands, using the browser, and more with your permission every step of the way.",
-	"version": "3.5.1",
+	"name": "generate-infinity",
+	"displayName": "GI",
+	"description": "Empowering developers to build beyond boundaries with AI-driven automation and future-ready architectures. Turn complex code into limitless innovation—where every line scales infinitely.",
+	"version": "1.0.2",
 	"icon": "assets/icons/icon.png",
 	"galleryBanner": {
 		"color": "#617A91",
@@ -12,10 +12,10 @@
 		"vscode": "^1.84.0"
 	},
 	"author": {
-		"name": "Cline Bot Inc."
+		"name": "IT Group."
 	},
 	"license": "Apache-2.0",
-	"publisher": "saoudrizwan",
+	"publisher": "IT",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/cline/cline"
@@ -25,23 +25,12 @@
 		"AI",
 		"Chat",
 		"Programming Languages",
-		"Education",
-		"Snippets",
 		"Testing"
 	],
 	"keywords": [
-		"cline",
-		"claude",
-		"dev",
-		"mcp",
-		"openrouter",
-		"coding",
-		"agent",
-		"autonomous",
-		"chatgpt",
-		"sonnet",
 		"ai",
-		"llama"
+		"coding",
+		"test"
 	],
 	"activationEvents": [],
 	"main": "./dist/extension.js",
@@ -49,100 +38,115 @@
 		"viewsContainers": {
 			"activitybar": [
 				{
-					"id": "claude-dev-ActivityBar",
-					"title": "Cline",
+					"id": "claude-devS-ActivityBar",
+					"title": "GI",
 					"icon": "assets/icons/icon.svg"
 				}
 			]
 		},
 		"views": {
-			"claude-dev-ActivityBar": [
+			"claude-devS-ActivityBar": [
 				{
 					"type": "webview",
-					"id": "claude-dev.SidebarProvider",
+					"id": "claude-devS.SidebarProvider",
 					"name": ""
 				}
 			]
 		},
 		"commands": [
 			{
-				"command": "cline.plusButtonClicked",
-				"title": "New Task",
+				"command": "gi.plusButtonClicked",
+				"title": "新任务",
 				"icon": "$(add)"
 			},
 			{
-				"command": "cline.mcpButtonClicked",
-				"title": "MCP Servers",
-				"icon": "$(extensions)"
+				"command": "gi.mcpButtonClicked",
+				"title": "MCP扩展",
+				"icon": "$(server)"
 			},
 			{
-				"command": "cline.historyButtonClicked",
-				"title": "History",
+				"command": "gi.historyButtonClicked",
+				"title": "历史",
 				"icon": "$(history)"
 			},
 			{
-				"command": "cline.popoutButtonClicked",
-				"title": "Open in Editor",
+				"command": "gi.popoutButtonClicked",
+				"title": "在编辑区打开",
 				"icon": "$(link-external)"
 			},
 			{
-				"command": "cline.settingsButtonClicked",
-				"title": "Settings",
+				"command": "gi.settingsButtonClicked",
+				"title": "设置",
 				"icon": "$(settings-gear)"
 			},
 			{
-				"command": "cline.openInNewTab",
-				"title": "Open In New Tab",
+				"command": "gi.haierRAGCountClicked",
+				"title": "Open RAG ACCount",
+				"icon": "$(account)"
+			},
+			{
+				"command": "gi.accountLoginClicked",
+				"title": "Open ACCount",
+				"icon": "$(account)"
+			},
+			{
+				"command": "gi.openInNewTab",
+				"title": "打开新选项卡",
 				"category": "Cline"
 			}
 		],
 		"menus": {
 			"view/title": [
 				{
-					"command": "cline.plusButtonClicked",
+					"command": "gi.plusButtonClicked",
 					"group": "navigation@1",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == claude-devS.SidebarProvider"
 				},
 				{
-					"command": "cline.mcpButtonClicked",
+					"command": "gi.mcpButtonClicked",
 					"group": "navigation@2",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == claude-devS.SidebarProvider"
 				},
 				{
-					"command": "cline.historyButtonClicked",
+					"command": "gi.historyButtonClicked",
 					"group": "navigation@3",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == claude-devS.SidebarProvider"
 				},
 				{
-					"command": "cline.popoutButtonClicked",
+					"command": "gi.popoutButtonClicked",
 					"group": "navigation@4",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == claude-devS.SidebarProvider"
 				},
 				{
-					"command": "cline.settingsButtonClicked",
+					"command": "gi.settingsButtonClicked",
 					"group": "navigation@5",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == claude-devS.SidebarProvider"
+				},
+				{
+					"command": "gi.accountLoginClicked",
+					"group": "navigation@5",
+					"when": "view == claude-devS.SidebarProvider"
 				}
 			]
 		},
 		"configuration": {
-			"title": "Cline",
+			"title": "GI",
 			"properties": {
-				"cline.vsCodeLmModelSelector": {
+				"GI.vsCodeLmModelSelector": {
 					"type": "object",
 					"properties": {
 						"vendor": {
 							"type": "string",
-							"description": "The vendor of the language model (e.g. copilot)"
+							"description": "语言模型的供应商（例如 copilot）"
 						},
 						"family": {
 							"type": "string",
-							"description": "The family of the language model (e.g. gpt-4)"
+							"description": "语言模型的系列（例如 gpt-4）"
 						}
 					},
-					"description": "Settings for VSCode Language Model API"
+					"description": "VSCode 语言模型 API 的设置"
 				},
-				"cline.mcp.mode": {
+				"GI.mcp.mode": {
 					"type": "string",
 					"enum": [
 						"full",
@@ -150,24 +154,24 @@
 						"off"
 					],
 					"enumDescriptions": [
-						"Enable all MCP functionality (server use and build instructions)",
-						"Enable MCP server use only (excludes instructions about building MCP servers)",
-						"Disable all MCP functionality"
+						"启用所有 MCP 功能（服务器使用和构建说明）",
+						"仅启用 MCP 服务器使用（不包括构建 MCP 服务器的说明）",
+						"禁用所有 MCP 功能"
 					],
 					"default": "full",
-					"description": "Controls MCP inclusion in prompts, reduces token usage if you only need access to certain functionality."
+					"description": "控制提示中的 MCP 包含内容，如果您只需要访问特定功能，可以减少令牌使用量。"
 				},
-				"cline.enableCheckpoints": {
+				"GI.enableCheckpoints": {
 					"type": "boolean",
 					"default": true,
-					"description": "Enables extension to save checkpoints of workspace throughout the task."
+					"description": "允许扩展在任务过程中保存工作区的检查点。"
 				},
-				"cline.disableBrowserTool": {
+				"GI.disableBrowserTool": {
 					"type": "boolean",
 					"default": false,
-					"description": "Disables extension from spawning browser session."
+					"description": "禁用扩展启动浏览器会话的功能。"
 				},
-				"cline.modelSettings.o3Mini.reasoningEffort": {
+				"GI.modelSettings.o3Mini.reasoningEffort": {
 					"type": "string",
 					"enum": [
 						"low",
@@ -175,42 +179,12 @@
 						"high"
 					],
 					"default": "medium",
-					"description": "Controls the reasoning effort when using the o3-mini model. Higher values may result in more thorough but slower responses."
+					"description": "控制使用 o3-mini 模型时的推理努力程度。较高的值可能会产生更全面但响应更慢的结果。"
 				},
-				"cline.chromeExecutablePath": {
+				"GI.chromeExecutablePath": {
 					"type": "string",
 					"default": null,
-					"description": "Path to Chrome executable for browser use functionality. If not set, the extension will attempt to find or download it automatically."
-				},
-				"cline.preferredLanguage": {
-					"type": "string",
-					"enum": [
-						"English",
-						"Arabic - العربية",
-						"Portuguese - Português (Brasil)",
-						"Czech - Čeština",
-						"French - Français",
-						"German - Deutsch",
-						"Hindi - हिन्दी",
-						"Hungarian - Magyar",
-						"Italian - Italiano",
-						"Japanese - 日本語",
-						"Korean - 한국어",
-						"Polish - Polski",
-						"Portuguese - Português (Portugal)",
-						"Russian - Русский",
-						"Simplified Chinese - 简体中文",
-						"Spanish - Español",
-						"Traditional Chinese - 繁體中文",
-						"Turkish - Türkçe"
-					],
-					"default": "English",
-					"description": "The language that Cline should use for communication."
-				},
-				"cline.mcpMarketplace.enabled": {
-					"type": "boolean",
-					"default": true,
-					"description": "Controls whether the MCP Marketplace is enabled."
+					"description": "Chrome 可执行文件的路径，用于浏览器功能。如果未设置，扩展将尝试自动查找或下载。"
 				}
 			}
 		}
@@ -220,6 +194,7 @@
 		"compile": "npm run check-types && npm run lint && node esbuild.js",
 		"watch": "npm-run-all -p watch:*",
 		"watch:esbuild": "node esbuild.js --watch",
+		"vsec": "npm i && vsce package && ovsx publish",
 		"watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
 		"package": "npm run build:webview && npm run check-types && npm run lint && node esbuild.js --production",
 		"compile-tests": "tsc -p ./tsconfig.test.json --outDir out",
@@ -267,6 +242,7 @@
 		"@anthropic-ai/vertex-sdk": "^0.6.4",
 		"@google-cloud/vertexai": "^1.9.3",
 		"@google/generative-ai": "^0.18.0",
+		"@haier/iam": "^1.6.0",
 		"@mistralai/mistralai": "^1.5.0",
 		"@modelcontextprotocol/sdk": "^1.0.1",
 		"@types/clone-deep": "^4.0.4",
@@ -277,6 +253,7 @@
 		"axios": "^1.7.4",
 		"cheerio": "^1.0.0",
 		"chokidar": "^4.0.1",
+		"claude-dev": "file:",
 		"clone-deep": "^4.0.1",
 		"default-shell": "^2.2.0",
 		"delay": "^6.0.0",
@@ -286,10 +263,12 @@
 		"firebase": "^11.2.0",
 		"get-folder-size": "^5.0.0",
 		"globby": "^14.0.2",
+		"i": "^0.3.7",
 		"ignore": "^7.0.3",
 		"isbinaryfile": "^5.0.2",
 		"mammoth": "^1.8.0",
 		"monaco-vscode-textmate-theme-converter": "^0.1.7",
+		"npm": "^11.1.0",
 		"open-graph-scraper": "^6.9.0",
 		"openai": "^4.83.0",
 		"os-name": "^6.0.0",
@@ -303,6 +282,7 @@
 		"strip-ansi": "^7.1.0",
 		"tree-sitter-wasms": "^0.1.11",
 		"turndown": "^7.2.0",
+		"vsce": "^2.15.0",
 		"web-tree-sitter": "^0.22.6",
 		"zod": "^3.24.2"
 	}

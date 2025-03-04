@@ -183,7 +183,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							color: errorColor,
 							marginBottom: "-1.5px",
 						}}></span>,
-					<span style={{ color: errorColor, fontWeight: "bold" }}>Error</span>,
+					<span style={{ color: errorColor, fontWeight: "bold" }}>错误</span>,
 				]
 			case "mistake_limit_reached":
 				return [
@@ -193,7 +193,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							color: errorColor,
 							marginBottom: "-1.5px",
 						}}></span>,
-					<span style={{ color: errorColor, fontWeight: "bold" }}>Cline is having trouble...</span>,
+					<span style={{ color: errorColor, fontWeight: "bold" }}> 遇到问题...</span>,
 				]
 			case "auto_approval_max_req_reached":
 				return [
@@ -203,7 +203,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							color: errorColor,
 							marginBottom: "-1.5px",
 						}}></span>,
-					<span style={{ color: errorColor, fontWeight: "bold" }}>Maximum Requests Reached</span>,
+					<span style={{ color: errorColor, fontWeight: "bold" }}>达到最大请求数</span>,
 				]
 			case "command":
 				return [
@@ -217,7 +217,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 								marginBottom: "-1.5px",
 							}}></span>
 					),
-					<span style={{ color: normalColor, fontWeight: "bold" }}>Cline wants to execute this command:</span>,
+					<span style={{ color: normalColor, fontWeight: "bold" }}>我们需要执行这条命令:</span>,
 				]
 			case "use_mcp_server":
 				const mcpServerUse = JSON.parse(message.text || "{}") as ClineAskUseMcpServer
@@ -233,11 +233,11 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							}}></span>
 					),
 					<span style={{ color: normalColor, fontWeight: "bold", wordBreak: "break-word" }}>
-						Cline wants to {mcpServerUse.type === "use_mcp_tool" ? "use a tool" : "access a resource"} on the{" "}
+						我们需要在 中 {mcpServerUse.type === "use_mcp_tool" ? "使用工具" : "获取资源"}
 						<code style={{ wordBreak: "break-all" }}>
 							{getMcpServerDisplayName(mcpServerUse.serverName, mcpMarketplaceCatalog)}
 						</code>{" "}
-						MCP server:
+						MCP扩展服务
 					</span>,
 				]
 			case "completion_result":
@@ -248,7 +248,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							color: successColor,
 							marginBottom: "-1.5px",
 						}}></span>,
-					<span style={{ color: successColor, fontWeight: "bold" }}>Task Completed</span>,
+					<span style={{ color: successColor, fontWeight: "bold" }}>任务完成</span>,
 				]
 			case "api_req_started":
 				const getIconSpan = (iconName: string, color: string) => (
@@ -290,7 +290,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 									color: normalColor,
 									fontWeight: "bold",
 								}}>
-								API Request Cancelled
+								API 请求取消
 							</span>
 						) : (
 							<span
@@ -298,15 +298,15 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 									color: errorColor,
 									fontWeight: "bold",
 								}}>
-								API Streaming Failed
+								API 流请求失败
 							</span>
 						)
 					) : cost != null ? (
-						<span style={{ color: normalColor, fontWeight: "bold" }}>API Request</span>
+						<span style={{ color: normalColor, fontWeight: "bold" }}>API请求</span>
 					) : apiRequestFailedMessage ? (
-						<span style={{ color: errorColor, fontWeight: "bold" }}>API Request Failed</span>
+						<span style={{ color: errorColor, fontWeight: "bold" }}>API请求失败</span>
 					) : (
-						<span style={{ color: normalColor, fontWeight: "bold" }}>API Request...</span>
+						<span style={{ color: normalColor, fontWeight: "bold" }}>API请求...</span>
 					),
 				]
 			case "followup":
@@ -317,7 +317,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							color: normalColor,
 							marginBottom: "-1.5px",
 						}}></span>,
-					<span style={{ color: normalColor, fontWeight: "bold" }}>Cline has a question:</span>,
+					<span style={{ color: normalColor, fontWeight: "bold" }}>请问:</span>,
 				]
 			default:
 				return [null, null]
@@ -361,7 +361,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 					<>
 						<div style={headerStyle}>
 							{toolIcon("edit")}
-							<span style={{ fontWeight: "bold" }}>Cline wants to edit this file:</span>
+							<span style={{ fontWeight: "bold" }}>我们需要编辑这个文件:</span>
 						</div>
 						<CodeAccordian
 							// isLoading={message.partial}
@@ -377,7 +377,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 					<>
 						<div style={headerStyle}>
 							{toolIcon("new-file")}
-							<span style={{ fontWeight: "bold" }}>Cline wants to create a new file:</span>
+							<span style={{ fontWeight: "bold" }}>我们需要创建一个新文件:</span>
 						</div>
 						<CodeAccordian
 							isLoading={message.partial}
@@ -395,7 +395,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							{toolIcon("file-code")}
 							<span style={{ fontWeight: "bold" }}>
 								{/* {message.type === "ask" ? "" : "Cline read this file:"} */}
-								Cline wants to read this file:
+								我们需要读取这个文件:
 							</span>
 						</div>
 						<div
@@ -452,9 +452,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 						<div style={headerStyle}>
 							{toolIcon("folder-opened")}
 							<span style={{ fontWeight: "bold" }}>
-								{message.type === "ask"
-									? "Cline wants to view the top level files in this directory:"
-									: "Cline viewed the top level files in this directory:"}
+								{message.type === "ask" ? "我们需要查看这个目录中的顶级文件:" : "我们查看了此目录中的顶层文件:"}
 							</span>
 						</div>
 						<CodeAccordian
@@ -473,8 +471,8 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							{toolIcon("folder-opened")}
 							<span style={{ fontWeight: "bold" }}>
 								{message.type === "ask"
-									? "Cline wants to recursively view all files in this directory:"
-									: "Cline recursively viewed all files in this directory:"}
+									? "我们需要递归查看这个目录中的所有文件:"
+									: "我们在这个目录递归到以下文件:"}
 							</span>
 						</div>
 						<CodeAccordian
@@ -493,8 +491,8 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							{toolIcon("file-code")}
 							<span style={{ fontWeight: "bold" }}>
 								{message.type === "ask"
-									? "Cline wants to view source code definition names used in this directory:"
-									: "Cline viewed source code definition names used in this directory:"}
+									? "我们需要查看这个目录中使用的源代码定义名称:"
+									: "我们在这个目录查看了以下源代码定义:"}
 							</span>
 						</div>
 						<CodeAccordian
@@ -511,7 +509,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 						<div style={headerStyle}>
 							{toolIcon("search")}
 							<span style={{ fontWeight: "bold" }}>
-								Cline wants to search this directory for <code>{tool.regex}</code>:
+								我们需要在这个目录中搜索 <code>{tool.regex}</code>:
 							</span>
 						</div>
 						<CodeAccordian
@@ -523,6 +521,32 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 						/>
 					</>
 				)
+			// case "inspectSite":
+			// 	const isInspecting =
+			// 		isLast && lastModifiedMessage?.say === "inspect_site_result" && !lastModifiedMessage?.images
+			// 	return (
+			// 		<>
+			// 			<div style={headerStyle}>
+			// 				{isInspecting ? <ProgressIndicator /> : toolIcon("inspect")}
+			// 				<span style={{ fontWeight: "bold" }}>
+			// 					{message.type === "ask" ? (
+			// 						<>我们需要 inspect this website:</>
+			// 					) : (
+			// 						<>Cline is inspecting this website:</>
+			// 					)}
+			// 				</span>
+			// 			</div>
+			// 			<div
+			// 				style={{
+			// 					borderRadius: 3,
+			// 					border: "1px solid var(--vscode-editorGroup-border)",
+			// 					overflow: "hidden",
+			// 					backgroundColor: CODE_BLOCK_BG_COLOR,
+			// 				}}>
+			// 				<CodeBlock source={`${"```"}shell\n${tool.path}\n${"```"}`} forceWrap={true} />
+			// 			</div>
+			// 		</>
+			// 	)
 			default:
 				return null
 		}
@@ -591,7 +615,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 									padding: `2px 8px ${isExpanded ? 0 : 8}px 8px`,
 								}}>
 								<span className={`codicon codicon-chevron-${isExpanded ? "down" : "right"}`}></span>
-								<span style={{ fontSize: "0.8em" }}>Command Output</span>
+								<span style={{ fontSize: "0.8em" }}>终端输出</span>
 							</div>
 							{isExpanded && <CodeBlock source={`${"```"}shell\n${output}\n${"```"}`} />}
 						</div>
@@ -608,7 +632,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							color: "var(--vscode-editorWarning-foreground)",
 						}}>
 						<i className="codicon codicon-warning"></i>
-						<span>The model has determined this command requires explicit approval.</span>
+						<span>模型已判定此命令需要批准。</span>
 					</div>
 				)}
 			</>
@@ -827,7 +851,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 									{isExpanded ? (
 										<div style={{ marginTop: -3 }}>
 											<span style={{ fontWeight: "bold", display: "block", marginBottom: "4px" }}>
-												Thinking
+												推理
 												<span
 													className="codicon codicon-chevron-down"
 													style={{
@@ -841,7 +865,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 										</div>
 									) : (
 										<div style={{ display: "flex", alignItems: "center" }}>
-											<span style={{ fontWeight: "bold", marginRight: "4px" }}>Thinking:</span>
+											<span style={{ fontWeight: "bold", marginRight: "4px" }}>推理:</span>
 											<span
 												style={{
 													whiteSpace: "nowrap",
@@ -947,13 +971,10 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 											fontWeight: 500,
 											color: "#FFA500",
 										}}>
-										Diff Edit Failed
+										差异编辑失败
 									</span>
 								</div>
-								<div>
-									This usually happens when the model uses search patterns that don't match anything in the
-									file. Retrying...
-								</div>
+								<div>这通常发生在模型使用的搜索模式与文件中的任何内容都不匹配时。正在重试……</div>
 							</div>
 						</>
 					)
@@ -987,13 +1008,11 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 											fontWeight: 500,
 											color: "#FFA500",
 										}}>
-										Access Denied
+										访问被拒绝
 									</span>
 								</div>
 								<div>
-									Cline tried to access <code>{message.text}</code> which is blocked by the{" "}
-									<code>.clineignore</code>
-									file.
+									我们尝试访问文件 <code>{message.text}</code> 但被以下文件禁止了: <code>.clineignore</code>.
 								</div>
 							</div>
 						</>
@@ -1076,21 +1095,20 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 											fontWeight: 500,
 											color: "#FFA500",
 										}}>
-										Shell Integration Unavailable
+										Shell 集成不可用
 									</span>
 								</div>
 								<div>
-									Cline won't be able to view the command's output. Please update VSCode (
-									<code>CMD/CTRL + Shift + P</code> → "Update") and make sure you're using a supported shell:
-									zsh, bash, fish, or PowerShell (<code>CMD/CTRL + Shift + P</code> → "Terminal: Select Default
-									Profile").{" "}
+									我们无法查看命令的输出。请更新VSCode (<code>CMD/CTRL + Shift + P</code> → "Update")
+									并确保您使用的是支持的终端程序: zsh, bash, fish, or PowerShell (
+									<code>CMD/CTRL + Shift + P</code> → "Terminal: Select Default Profile").{" "}
 									<a
 										href="https://github.com/cline/cline/wiki/Troubleshooting-%E2%80%90-Shell-Integration-Unavailable"
 										style={{
 											color: "inherit",
 											textDecoration: "underline",
 										}}>
-										Still having trouble?
+										仍有问题?
 									</a>
 								</div>
 							</div>
@@ -1184,7 +1202,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 														cursor: seeNewChangesDisabled ? "wait" : "pointer",
 													}}
 												/>
-												See new changes
+												查看变更
 											</SuccessButton>
 										</div>
 									)}

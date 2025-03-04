@@ -40,7 +40,7 @@ The Cline extension exposes an API that can be used by other extensions. To use 
     	// Simulate pressing the secondary button in the chat interface (e.g. 'Reject')
     	await cline.pressSecondaryButton()
     } else {
-    	console.error("Cline API is not available")
+    	console.error("API is not available")
     }
     ```
 

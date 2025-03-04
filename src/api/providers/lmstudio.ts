@@ -17,6 +17,8 @@ export class LmStudioHandler implements ApiHandler {
 		})
 	}
 
+	getAccountInfo() {}
+
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
 		const openAiMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
 			{ role: "system", content: systemPrompt },

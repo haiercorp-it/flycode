@@ -19,7 +19,7 @@ export class DeepSeekHandler implements ApiHandler {
 			apiKey: this.options.deepSeekApiKey,
 		})
 	}
-
+	getAccountInfo() {}
 	private async *yieldUsage(info: ModelInfo, usage: OpenAI.Completions.CompletionUsage | undefined): ApiStream {
 		// Deepseek reports total input AND cache reads/writes,
 		// see context caching: https://api-docs.deepseek.com/guides/kv_cache)
@@ -76,6 +76,7 @@ export class DeepSeekHandler implements ApiHandler {
 			...(model.id === "deepseek-reasoner" ? {} : { temperature: 0 }),
 		})
 
+		console.log("DeepSeek stream:", JSON.stringify(openAiMessages).length)
 		for await (const chunk of stream) {
 			const delta = chunk.choices[0]?.delta
 			if (delta?.content) {

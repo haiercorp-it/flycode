@@ -22,6 +22,7 @@ export class RequestyHandler implements ApiHandler {
 		})
 	}
 
+	getAccountInfo() {}
 	@withRetry()
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
 		const modelId = this.options.requestyModelId ?? ""

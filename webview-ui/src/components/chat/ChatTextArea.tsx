@@ -277,6 +277,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 			return [
 				{ type: ContextMenuOptionType.Problems, value: "problems" },
 				{ type: ContextMenuOptionType.Terminal, value: "terminal" },
+				{ type: ContextMenuOptionType.RAG, value: "RAG" },
 				...gitCommits,
 				...filePaths
 					.map((file) => "/" + file)
@@ -334,12 +335,13 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 						insertValue = "problems"
 					} else if (type === ContextMenuOptionType.Terminal) {
 						insertValue = "terminal"
+					} else if (type === ContextMenuOptionType.RAG) {
+						insertValue = "RAG"
 					} else if (type === ContextMenuOptionType.Git) {
 						insertValue = value || ""
 					}
 
 					const { newValue, mentionIndex } = insertMention(textAreaRef.current.value, cursorPosition, insertValue)
-
 					setInputValue(newValue)
 					const newCursorPosition = newValue.indexOf(" ", mentionIndex + insertValue.length) + 1
 					setCursorPosition(newCursorPosition)
@@ -1131,21 +1133,21 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 					</ButtonGroup>
 					<Tooltip
 						visible={shownTooltipMode !== null}
-						tipText={`In ${shownTooltipMode === "act" ? "Act" : "Plan"}  mode, Cline will ${shownTooltipMode === "act" ? "complete the task immediately" : "gather information to architect a plan"}`}
-						hintText={`Toggle w/ ${metaKeyChar}+Shift+A`}>
+						tipText={`处于 ${shownTooltipMode === "act" ? "执行" : "计划"}  模式时, 我将${shownTooltipMode === "act" ? "立刻执行任务" : "收集信息以制定计划"}`}
+						hintText={`切换 w/ ${metaKeyChar}+Shift+A`}>
 						<SwitchContainer data-testid="mode-switch" disabled={false} onClick={onModeToggle}>
 							<Slider isAct={chatSettings.mode === "act"} isPlan={chatSettings.mode === "plan"} />
 							<SwitchOption
 								isActive={chatSettings.mode === "plan"}
 								onMouseOver={() => setShownTooltipMode("plan")}
 								onMouseLeave={() => setShownTooltipMode(null)}>
-								Plan
+								计划
 							</SwitchOption>
 							<SwitchOption
 								isActive={chatSettings.mode === "act"}
 								onMouseOver={() => setShownTooltipMode("act")}
 								onMouseLeave={() => setShownTooltipMode(null)}>
-								Act
+								执行
 							</SwitchOption>
 						</SwitchContainer>
 					</Tooltip>
