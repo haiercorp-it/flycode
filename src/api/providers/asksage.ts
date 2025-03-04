@@ -44,6 +44,7 @@ export class AskSageHandler implements ApiHandler {
 			throw new Error("AskSage API key is required")
 		}
 	}
+	getAccountInfo() {}
 
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
 		try {

@@ -16,6 +16,7 @@ export class XAIHandler implements ApiHandler {
 			apiKey: this.options.xaiApiKey,
 		})
 	}
+	getAccountInfo() {}
 
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
 		const stream = await this.client.chat.completions.create({
