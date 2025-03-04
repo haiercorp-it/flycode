@@ -985,18 +985,18 @@ The following additional instructions are provided by the user, and should be fo
 ${customInstructions.trim()}`
 }
 
-export function addRagInstructions(userRagCustomInstructions?: string) {
-	let ragCustomInstructions = ""
-	if (userRagCustomInstructions) {
-		ragCustomInstructions += userRagCustomInstructions + "\n\n"
+export function addRagContexts(userRagCustomContexts?: string) {
+	let ragCustomContexts = ""
+	if (userRagCustomContexts) {
+		ragCustomContexts += userRagCustomContexts + "\n\n"
 	}
 	return `
 ====
 
-Retrieval Augmented Generation INSTRUCTIONS
+RETRIEVAL AUGMENTED GENERATION CONTEXTS
 
-The following additional instructions are provided by the user's internal company repository and should be followed to the best of their ability without affecting the tool usage guidelines.
+The following additional contexts are provided by the user's internal company repository and should be followed to the best of their ability without affecting the tool usage guidelines.
 
 
-${ragCustomInstructions.trim()}`
+${ragCustomContexts.trim()}`
 }
