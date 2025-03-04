@@ -41,7 +41,7 @@ export class DeepSeekLocalHandler implements ApiHandler {
 		// }
 		console.log("DeepSeekLocalHandler: createMessage called", this.getModelInfo.id, this.getModelInfo.url)
 
-		const url = this.options.deepseekLocalUrl || ""
+		const url = this.options.deepseekLocalUrl || "http://120.222.7.189:1025/v1/chat/completions"
 		const headers = {
 			"Content-Type": "application/json",
 		}
