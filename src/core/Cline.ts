@@ -1361,7 +1361,7 @@ export class Cline {
 				let tempTokenIn = 0
 				if (tokensIn === 0) {
 					console.log("previousRequest.text", previousRequest.text.includes("api_req_failed"))
-					tempTokenIn = previousRequest.text.length * 0.6
+					tempTokenIn = parseInt(`${previousRequest.text.length * 0.6}`)
 				}
 				const totalTokens = (tokensIn || tempTokenIn) + (tokensOut || 0) + (cacheWrites || 0) + (cacheReads || 0)
 				let contextWindow = this.api.getModel().info.contextWindow || 128_000
