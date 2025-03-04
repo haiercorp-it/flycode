@@ -2,7 +2,7 @@ import { getShell } from "../../utils/shell"
 import os from "os"
 import osName from "os-name"
 import { McpHub } from "../../services/mcp/McpHub"
-import { AccountInfo, BrowserSettings } from "../../shared/BrowserSettings"
+import { BrowserSettings } from "../../shared/BrowserSettings"
 const framework = "vue"
 
 export const SYSTEM_PROMPT = async (
@@ -10,7 +10,6 @@ export const SYSTEM_PROMPT = async (
 	supportsComputerUse: boolean,
 	mcpHub: McpHub,
 	browserSettings: BrowserSettings,
-	accountInfo?: AccountInfo,
 ) => `You are GI, a highly skilled software engineer with extensive knowledge in many programming languages, frameworks, design patterns, and best practices.
 
 ====
@@ -940,9 +939,6 @@ ${
 
 ====
 
-RAG INSTRUCTIONS
-${accountInfo?.text}
-
 SYSTEM INFORMATION
 Operating System: ${osName()}
 Default Shell: ${getShell()} 
@@ -987,4 +983,20 @@ USER'S CUSTOM INSTRUCTIONS
 The following additional instructions are provided by the user, and should be followed to the best of your ability without interfering with the TOOL USE guidelines.
 
 ${customInstructions.trim()}`
+}
+
+export function addRagInstructions(userRagCustomInstructions?: string) {
+	let ragCustomInstructions = ""
+	if (userRagCustomInstructions) {
+		ragCustomInstructions += userRagCustomInstructions + "\n\n"
+	}
+	return `
+====
+
+Retrieval Augmented Generation INSTRUCTIONS
+
+The following additional instructions are provided by the user's internal company repository and should be followed to the best of their ability without affecting the tool usage guidelines.
+
+
+${ragCustomInstructions.trim()}`
 }

@@ -57,7 +57,7 @@ import { isHaierDoc, hasAccountCenter, replaceRAG, RAGOBJInterface, processRAGTe
 import { ClineIgnoreController, LOCK_TEXT_SYMBOL } from "./ignore/ClineIgnoreController"
 import { parseMentions } from "./mentions"
 import { formatResponse } from "./prompts/responses"
-import { addUserInstructions, SYSTEM_PROMPT } from "./prompts/system"
+import { addUserInstructions, SYSTEM_PROMPT, addRagInstructions } from "./prompts/system"
 import { getNextTruncationRange, getTruncatedMessages } from "./sliding-window"
 import { ClineProvider, GlobalFileNames } from "./webview/ClineProvider"
 
@@ -1315,7 +1315,14 @@ export class Cline {
 			// this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
 		}
 
-		let systemPrompt = await SYSTEM_PROMPT(cwd, supportsComputerUse, mcpHub, this.browserSettings, this.accountInfo)
+		let systemPrompt = await SYSTEM_PROMPT(cwd, supportsComputerUse, mcpHub, this.browserSettings)
+
+		let userRagCustomInstructions = this.accountInfo?.text?.trim()
+		if (userRagCustomInstructions) {
+			// altering the system prompt mid-task will break the prompt cache, but in the grand scheme this will not change often so it's better to not pollute user messages with it the way we have to with <potentially relevant details>
+			systemPrompt += addRagInstructions(userRagCustomInstructions)
+		}
+
 		let settingsCustomInstructions = this.customInstructions?.trim()
 		const clineRulesFilePath = path.resolve(cwd, GlobalFileNames.clineRules)
 		let clineRulesFileInstructions: string | undefined
