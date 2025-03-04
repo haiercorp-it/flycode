@@ -31,7 +31,7 @@ export class DeepSeekLocalHandler implements ApiHandler {
 	public get getModelInfo(): { id: string; url: string } {
 		return {
 			id: this.options.deepseekLocalModelId || "DeepSeek-R1",
-			url: this.options.deepseekLocalUrl || "http://120.222.7.189:1025/v1/chat/completions",
+			url: this.options.deepseekLocalUrl || "",
 		}
 	}
 	@withRetry()
