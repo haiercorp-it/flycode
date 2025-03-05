@@ -134,7 +134,7 @@ export function convertGeminiResponseToAnthropic(response: EnhancedGenerateConte
 	// Add the main text response
 	const text = response.text()
 	if (text) {
-		content.push({ type: "text", text,citations:null })
+		content.push({ type: "text", text, citations: null })
 	}
 
 	// Add function calls as tool_use blocks

@@ -376,7 +376,7 @@ export function convertO1ResponseToAnthropicMessage(
 			{
 				type: "text",
 				text: normalText,
-				citations:null
+				citations: null,
 			},
 		],
 		model: completion.model,
