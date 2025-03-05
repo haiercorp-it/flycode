@@ -11,7 +11,7 @@ export const hasAccountCenter = (text: string): boolean => {
 }
 
 export const hasRAG = (text: string): boolean => {
-	const flag = /@RAG/.test(text) // 移除单词边界符
+	const flag = /@rag/.test(text) // 移除单词边界符
 	return flag
 }
 export interface RAGOBJInterface {
@@ -19,9 +19,9 @@ export interface RAGOBJInterface {
 	isRag: boolean
 }
 export const replaceRAG = (text: string): RAGOBJInterface => {
-	const flag = /@RAG/.test(text) // 移除单词边界符
+	const flag = /@rag/.test(text) // 移除单词边界符
 	if (flag) {
-		let newText = text.replace(/@RAG/, "")
+		let newText = text.replace(/@rag/, "")
 		return {
 			text: newText.trim(),
 			isRag: true,
