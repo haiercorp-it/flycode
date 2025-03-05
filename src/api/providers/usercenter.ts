@@ -532,7 +532,8 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 			}
 
 			let hasYieldedContent = false // 添加标志来跟踪是否有输出内容
-
+			let tempLine = ""
+			let complete = false
 			// 处理流式响应
 			while (true) {
 				const { done, value } = await reader.read()
@@ -542,20 +543,48 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 				// 解码响应数据
 				const chunk = new TextDecoder().decode(value)
 				const lines = chunk.split("\n").filter((line) => line.trim())
-				console.log("chunk-----:", chunk)
+
 				for (const line of lines) {
 					try {
 						// 直接解析整个 JSON 对象
-						const raw_line = line.replace(/^data:/, "").trim()
+						let raw_line = line.replace(/^data:/, "").trim()
+						console.log("rawline------------:", raw_line)
+						const regex = /data:\s*true/i // i 表示不区分大小写
+						if (!raw_line.endsWith("}}") && raw_line !== `{"code": 0, "data": true}`) {
+							tempLine += raw_line
+							continue // 忽略非 JSON 行，例如 "data: [DONE]" 或者空行
+						}
+						if (!raw_line.startsWith("{") && raw_line.endsWith("}")) {
+							tempLine += raw_line
+							raw_line = tempLine
+							complete = true
+							tempLine = ""
+						}
+						if (!raw_line.startsWith("{") && complete === false) {
+							continue
+						}
+						complete = false
 						const data = JSON.parse(raw_line)
+
+						console.log("data------------:", data)
 						if (data.data?.answer) {
 							hasYieldedContent = true
 							yield {
-								type: "text",
+								type: "rag",
 								text: data.data.answer,
+							}
+						} else if (data.data === true) {
+							hasYieldedContent = true
+							yield {
+								type: "rag",
+								text: "",
+								question: question,
+								done: true,
 							}
 						}
 					} catch (e) {
+						const raw_line = line.replace(/^data:/, "").trim()
+						console.log("Error parsing chunk:", raw_line)
 						console.error("Error parsing chunk:", e)
 					}
 				}
