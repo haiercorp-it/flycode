@@ -1438,7 +1438,7 @@ export class Cline {
 			await this.usercenterApi?.createMessagePreaper()
 			stream = this.usercenterApi?.createMessage(objResponse.text, truncatedConversationHistory)
 		} else {
-			console.log("normal message",systemPrompt,truncatedConversationHistory)
+			console.log("normal message", systemPrompt, truncatedConversationHistory)
 			stream = this.api.createMessage(systemPrompt, truncatedConversationHistory)
 		}
 		const iterator = stream![Symbol.asyncIterator]()
@@ -3255,6 +3255,7 @@ export class Cline {
 			let assistantMessage = ""
 			let reasoningMessage = ""
 			let ragMessage = ""
+			let isRagMessage = false
 			this.isStreaming = true
 			try {
 				for await (const chunk of stream) {
@@ -3275,23 +3276,23 @@ export class Cline {
 							reasoningMessage += chunk.reasoning
 							await this.say("reasoning", reasoningMessage, undefined, true)
 							break
-							case "rag":
-								if (chunk.done) {
-									assistantMessage = this.extractAfterThinks(ragMessage) || ""
-									this.accountInfo = {
-										type: chunk.question,
-										text: assistantMessage,
-									}
-									this.userMessageContentReady = true
-									assistantMessage = "continue input prompt"
-								} else {
-									ragMessage = chunk.text
+						case "rag":
+							if (chunk.done) {
+								assistantMessage = this.extractAfterThinks(ragMessage) || ""
+								this.accountInfo = {
+									type: chunk.question,
+									text: assistantMessage,
 								}
-	
-								await this.say("reasoning", ragMessage, undefined, true)
-	
-								break
-							
+								isRagMessage = true
+								this.userMessageContentReady = true
+								assistantMessage = "continue input prompt"
+							} else {
+								ragMessage = chunk.text
+							}
+
+							await this.say("reasoning", ragMessage, undefined, true)
+
+							break
 
 						case "text":
 							if (reasoningMessage && assistantMessage.length === 0) {
@@ -3397,7 +3398,7 @@ export class Cline {
 				// if the model did not tool use, then we need to tell it to either use a tool or attempt_completion
 				const didToolUse = this.assistantMessageContent.some((block) => block.type === "tool_use")
 
-				if (!didToolUse) {
+				if (!didToolUse && isRagMessage === false) {
 					// normal request where tool use is required
 					this.userMessageContent.push({
 						type: "text",
