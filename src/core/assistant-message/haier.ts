@@ -43,12 +43,12 @@ export function processRAGText(text: string): RAGOBJInterface {
 	}
 
 	// 使用正则表达式匹配 @RAG 或 @Rag（不区分大小写）
-	const ragRegex = /@RAG|@Rag/gi
+	const ragRegex = /@rag|@RAG/gi
 	// 检查是否包含 @RAG 或 @Rag
 	const isRag = ragRegex.test(text)
 	// 如果包含，则删除所有 @RAG 或 @Rag
 	// 注意：需要重新创建正则表达式，因为 test() 会改变 lastIndex
-	const cleanedText = isRag ? text.replace(/@RAG|@Rag/gi, "").trim() : text
+	const cleanedText = isRag ? text.replace(/@rag|@RAG/gi, "").trim() : text
 	return {
 		isRag: isRag,
 		text: cleanedText,
