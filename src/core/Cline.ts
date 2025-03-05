@@ -3306,6 +3306,7 @@ export class Cline {
 									text: assistantMessage,
 								}
 								this.userMessageContentReady = true
+								assistantMessage = "continue input prompt"
 							} else {
 								ragMessage = chunk.text
 							}

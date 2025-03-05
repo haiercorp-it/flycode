@@ -566,6 +566,7 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 								text: data.data.answer,
 							}
 						} else if (data.data === true) {
+							hasYieldedContent = true
 							yield {
 								type: "rag",
 								text: "",
