@@ -1302,18 +1302,18 @@ export class Cline {
 			taskMessage = this.clineMessages[lastUserFeedBackApiReqIndex] // first message is always the task sa
 		}
 		// history.filter((message:any) => message.role == "user")[0].content
-		if (taskMessage.text) {
-			let objResponse: RAGOBJInterface = processRAGText(taskMessage.text)
-			if (objResponse.isRag === true) {
-				if (!this.accountInfo || this.accountInfo.type !== objResponse.text) {
-					console.log("text", taskMessage.text)
-					const userInfo = await this.usercenterApi?.getAccountInfoNew(objResponse.text)
-					console.log(userInfo)
-					this.accountInfo = userInfo
-				}
-			}
-			// this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
-		}
+		// if (taskMessage.text) {
+		// 	let objResponse: RAGOBJInterface = processRAGText(taskMessage.text)
+		// 	if (objResponse.isRag === true) {
+		// 		if (!this.accountInfo || this.accountInfo.type !== objResponse.text) {
+		// 			console.log("text", taskMessage.text)
+		// 			const userInfo = await this.usercenterApi?.getAccountInfoNew(objResponse.text)
+		// 			console.log(userInfo)
+		// 			this.accountInfo = userInfo
+		// 		}
+		// 	}
+		// 	// this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
+		// }
 
 		let systemPrompt = await SYSTEM_PROMPT(cwd, supportsComputerUse, mcpHub, this.browserSettings)
 
@@ -1419,19 +1419,28 @@ export class Cline {
 			this.apiConversationHistory,
 			this.conversationHistoryDeletedRange,
 		)
+		let crossUserMessage = false
 		let stream
-		// if (!this.accountInfo && taskMessage.text) {
-		// 	let objResponse: RAGOBJInterface = processRAGText(taskMessage.text)
-		// 	if (objResponse.isRag === true) {
-		// 		console.log("text", taskMessage.text)
-		// 		await this.usercenterApi?.createMessagePreaper()
-		// 		stream = this.usercenterApi?.createMessage(objResponse.text, truncatedConversationHistory)
-		// 	}
-		// 	// this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
-		// } else {
-		// 	stream = this.api.createMessage(systemPrompt, truncatedConversationHistory)
-		// }
-		stream = this.api.createMessage(systemPrompt, truncatedConversationHistory)
+		if (taskMessage.text) {
+			let objResponse: RAGOBJInterface = processRAGText(taskMessage.text)
+			if (objResponse.isRag === true) {
+				if (!this.accountInfo || this.accountInfo.type !== objResponse.text) {
+					crossUserMessage = true
+				}
+			}
+			// this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
+		} else {
+			crossUserMessage = false
+			// stream = this.api.createMessage(systemPrompt, truncatedConversationHistory)
+		}
+		if (crossUserMessage) {
+			let objResponse: RAGOBJInterface = processRAGText(taskMessage.text)
+			await this.usercenterApi?.createMessagePreaper()
+			stream = this.usercenterApi?.createMessage(objResponse.text, truncatedConversationHistory)
+		} else {
+			console.log("normal message",systemPrompt,truncatedConversationHistory)
+			stream = this.api.createMessage(systemPrompt, truncatedConversationHistory)
+		}
 		const iterator = stream![Symbol.asyncIterator]()
 		try {
 			// awaiting first chunk to see if it will throw an error
@@ -3038,6 +3047,11 @@ export class Cline {
 			this.presentAssistantMessage()
 		}
 	}
+	extractAfterThinks(str: string) {
+		// 匹配 </thinks> 后的所有内容（直到表情符号或结尾）
+		const match = str.match(/<\/think>([^\u{1F000}-\u{1FAFF}]+)/u)
+		return match ? match[1].trim() : null
+	}
 
 	async recursivelyMakeClineRequests(
 		userContent: UserContent,
@@ -3240,6 +3254,7 @@ export class Cline {
 			const stream = this.attemptApiRequest(previousApiReqIndex) // yields only if the first chunk is successful, otherwise will allow the user to retry the request (most likely due to rate limit error, which gets thrown on the first chunk)
 			let assistantMessage = ""
 			let reasoningMessage = ""
+			let ragMessage = ""
 			this.isStreaming = true
 			try {
 				for await (const chunk of stream) {
@@ -3260,6 +3275,24 @@ export class Cline {
 							reasoningMessage += chunk.reasoning
 							await this.say("reasoning", reasoningMessage, undefined, true)
 							break
+							case "rag":
+								if (chunk.done) {
+									assistantMessage = this.extractAfterThinks(ragMessage) || ""
+									this.accountInfo = {
+										type: chunk.question,
+										text: assistantMessage,
+									}
+									this.userMessageContentReady = true
+									assistantMessage = "continue input prompt"
+								} else {
+									ragMessage = chunk.text
+								}
+	
+								await this.say("reasoning", ragMessage, undefined, true)
+	
+								break
+							
+
 						case "text":
 							if (reasoningMessage && assistantMessage.length === 0) {
 								// complete reasoning message

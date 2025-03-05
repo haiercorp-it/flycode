@@ -140,7 +140,6 @@ export class DeepSeekLocalHandler implements ApiHandler {
 				// 解码响应数据
 				const chunk = new TextDecoder().decode(value)
 				const lines = chunk.split("\n").filter((line) => line.trim())
-				console.log("chunk-----:", chunk)
 				for (const line of lines) {
 					try {
 						let raw_line = line.replace(/^data:/, "").trim()
@@ -149,7 +148,6 @@ export class DeepSeekLocalHandler implements ApiHandler {
 							continue // 忽略非 JSON 行，例如 "data: [DONE]" 或者空行
 						}
 						const dataw = JSON.parse(raw_line)
-						console.log("dataw:========", dataw.choices[0].delta.content, raw_line)
 
 						// if (dataw?.choices[0].delta.content) {
 						// 	hasYieldedContent = true

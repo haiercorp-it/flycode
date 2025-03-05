@@ -280,7 +280,6 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 				// 解码响应数据
 				const chunk = new TextDecoder().decode(value)
 				const lines = chunk.split("\n").filter((line) => line.trim())
-				console.log("chunk-----:", chunk)
 				for (const line of lines) {
 					try {
 						// 直接解析整个 JSON 对象
@@ -756,7 +755,6 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 					// 解码响应数据
 					const chunk = new TextDecoder().decode(value)
 					const lines = chunk.split("\n").filter((line) => line.trim())
-					console.log("chunk-----:", chunk)
 					for (const line of lines) {
 						try {
 							// 直接解析整个 JSON 对象
