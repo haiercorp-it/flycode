@@ -3065,6 +3065,11 @@ export class Cline {
 			this.presentAssistantMessage()
 		}
 	}
+	extractAfterThinks(str: string) {
+		// 匹配 </thinks> 后的所有内容（直到表情符号或结尾）
+		const match = str.match(/<\/think>([^\u{1F000}-\u{1FAFF}]+)/u)
+		return match ? match[1].trim() : null
+	}
 
 	async recursivelyMakeClineRequests(
 		userContent: UserContent,
@@ -3295,11 +3300,11 @@ export class Cline {
 							break
 						case "rag":
 							if (chunk.done) {
+								assistantMessage = this.extractAfterThinks(ragMessage) || ""
 								this.accountInfo = {
 									type: chunk.question,
-									text: ragMessage,
+									text: assistantMessage,
 								}
-								assistantMessage = ragMessage
 								this.userMessageContentReady = true
 							} else {
 								ragMessage = chunk.text
