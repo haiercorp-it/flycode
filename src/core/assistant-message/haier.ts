@@ -11,7 +11,7 @@ export const hasAccountCenter = (text: string): boolean => {
 }
 
 export const hasRAG = (text: string): boolean => {
-	const flag = /@RAG/.test(text) // 移除单词边界符
+	const flag = /@rag/.test(text) // 移除单词边界符
 	return flag
 }
 export interface RAGOBJInterface {
@@ -19,9 +19,9 @@ export interface RAGOBJInterface {
 	isRag: boolean
 }
 export const replaceRAG = (text: string): RAGOBJInterface => {
-	const flag = /@RAG/.test(text) // 移除单词边界符
+	const flag = /@rag/.test(text) // 移除单词边界符
 	if (flag) {
-		let newText = text.replace(/@RAG/, "")
+		let newText = text.replace(/@rag/, "")
 		return {
 			text: newText.trim(),
 			isRag: true,
@@ -43,12 +43,12 @@ export function processRAGText(text: string): RAGOBJInterface {
 	}
 
 	// 使用正则表达式匹配 @RAG 或 @Rag（不区分大小写）
-	const ragRegex = /@RAG|@Rag/gi
+	const ragRegex = /@rag|@RAG/gi
 	// 检查是否包含 @RAG 或 @Rag
 	const isRag = ragRegex.test(text)
 	// 如果包含，则删除所有 @RAG 或 @Rag
 	// 注意：需要重新创建正则表达式，因为 test() 会改变 lastIndex
-	const cleanedText = isRag ? text.replace(/@RAG|@Rag/gi, "").trim() : text
+	const cleanedText = isRag ? text.replace(/@rag|@RAG/gi, "").trim() : text
 	return {
 		isRag: isRag,
 		text: cleanedText,

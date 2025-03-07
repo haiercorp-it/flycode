@@ -51,7 +51,7 @@ export enum ContextMenuOptionType {
 	URL = "url",
 	Git = "git",
 	NoResults = "noResults",
-	RAG = "RAG",
+	RAG = "rag",
 }
 
 export interface ContextMenuQueryItem {
