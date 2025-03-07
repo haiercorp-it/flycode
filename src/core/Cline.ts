@@ -1728,7 +1728,7 @@ export class Cline {
 							// wait so we can determine if it's a new file or editing an existing file
 							break
 						}
-
+						console.log("Handling write_to_file or replace_in_file", relPath, content, diff)
 						const accessAllowed = this.clineIgnoreController.validateAccess(relPath)
 						if (!accessAllowed) {
 							await this.say("clineignore_error", relPath)
@@ -1998,6 +1998,12 @@ export class Cline {
 
 							break
 						}
+					}
+					case "fetch_url_content": {
+						const url: string | undefined = block.params.url
+						const respondWithContent = block.params.content
+						console.log("fetch_url_content", url, respondWithContent)
+						break
 					}
 					case "read_file": {
 						const relPath: string | undefined = block.params.path

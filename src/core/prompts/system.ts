@@ -71,6 +71,19 @@ Your file content here
 </content>
 </write_to_file>
 
+## fetch_url_content 
+Description: Request to fetch and return the content of a webpage from the specified URL. The tool will handle HTTP/HTTPS requests and return the raw response body. If the URL is invalid or the request fails (e.g., network errors, timeout), it will return an error message. This tool should be used when you want get content from a webpage without having to worry about the specifics of the webpage's structure. 
+Parameters: 
+- url: (required) The target URL to fetch content from. Must include the protocol (e.g., "http://" or "https://"). 
+- content: (required) The content of the webpage fetched from the specified URL.
+Usage: 
+<fetch_url_content> 
+<url> Target URL here </url> 
+<content>
+The content of a webpage from the specified URL 
+</content>
+</fetch_url_content>
+
 ## replace_in_file
 Description: Request to replace sections of content in an existing file using SEARCH/REPLACE blocks that define exact changes to specific parts of the file. This tool should be used when you need to make targeted changes to specific parts of a file.
 Parameters:
