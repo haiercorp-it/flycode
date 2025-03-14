@@ -100,6 +100,7 @@ type GlobalStateKey =
 	| "haierragflowapidatasetid"
 	| "deepseekLocalModelId"
 	| "deepseekLocalUrl"
+	| "deepseekLocalModelKey"
 	| "deepseekLocalDefaultUrl"
 	| "apiProviderSelect"
 
@@ -135,7 +136,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 		this.updateGlobalState("haierragflowapikey", "ragflow-E5NmNjOTY2ZWZmMTExZWY4MGUxNjI3MD")
 		this.updateGlobalState("haierragflowapiid", "0645c520e9f311efa5ac2a35a7cb74c2")
 		this.updateGlobalState("haierragflowapiurl", "https://ikm.haier.net")
-		this.updateGlobalState("deepseekLocalDefaultUrl", "http://120.222.7.189:1025/v1/chat/completions")
+		this.updateGlobalState("deepseekLocalDefaultUrl", "https://mgallery.haier.net/v1/chat/completions")
 	}
 
 	/*
@@ -494,6 +495,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 
 								deepseekLocalUrl,
 								deepseekLocalModelId,
+								deepseekLocalModelKey,
 							} = message.apiConfiguration
 							await this.updateGlobalState("apiProvider", apiProvider)
 							await this.updateGlobalState("apiModelId", apiModelId)
@@ -539,6 +541,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 							await this.updateGlobalState("haierinternalModelId", haierinternalModelId)
 							await this.updateGlobalState("deepseekLocalUrl", deepseekLocalUrl)
 							await this.updateGlobalState("deepseekLocalModelId", deepseekLocalModelId)
+							await this.updateGlobalState("deepseekLocalModelKey", deepseekLocalModelKey)
 							await this.updateGlobalState("haierragflowapikey", "ragflow-E5NmNjOTY2ZWZmMTExZWY4MGUxNjI3MD")
 							await this.updateGlobalState("haierragflowapiid", "0645c520e9f311efa5ac2a35a7cb74c2")
 							await this.updateGlobalState("haierragflowapiurl", "https://ikm.haier.net")
@@ -1537,6 +1540,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			// 获取loal
 			deepseekLocalUrl,
 			deepseekLocalModelId,
+			deepseekLocalModelKey,
 
 			// 获取是否选择provider
 			apiProviderSelect,
@@ -1600,6 +1604,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			this.getGlobalState("haierragflowapidatasetid") as Promise<string | undefined>,
 			this.getGlobalState("deepseekLocalUrl") as Promise<string | undefined>,
 			this.getGlobalState("deepseekLocalModelId") as Promise<string | undefined>,
+			this.getGlobalState("deepseekLocalModelKey") as Promise<string | undefined>,
 			this.getGlobalState("apiProviderSelect") as Promise<string | undefined>,
 		])
 
@@ -1673,6 +1678,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 				haierragflowapidatasetid,
 				haierragflowapiurl,
 				deepseekLocalModelId,
+				deepseekLocalModelKey,
 				deepseekLocalUrl,
 				apiProviderSelect,
 			},

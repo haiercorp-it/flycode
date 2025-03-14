@@ -23,6 +23,8 @@ export const toolUseNames = [
 	"plan_mode_response",
 	"attempt_completion",
 	"fetch_url_content",
+	"search_rag",
+	"search_ragflow",
 ] as const
 
 // Converts array of tool call names into a union type ("execute_command" | "read_file" | ...)
@@ -48,6 +50,7 @@ export const toolParamNames = [
 	"question",
 	"response",
 	"result",
+	"rag_question",
 ] as const
 
 export type ToolParamName = (typeof toolParamNames)[number]

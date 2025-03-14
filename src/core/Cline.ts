@@ -1481,10 +1481,12 @@ export class Cline {
 		if (this.abort) {
 			throw new Error("  instance aborted")
 		}
-		console.log("presentAssistantMessage======")
 		if (this.presentAssistantMessageLocked) {
 			this.presentAssistantMessageHasPendingUpdates = true
+			console.log("presentAssistantMessage====== forbid")
 			return
+		} else {
+			console.log("presentAssistantMessage====== allow")
 		}
 		this.presentAssistantMessageLocked = true
 		this.presentAssistantMessageHasPendingUpdates = false
@@ -1502,6 +1504,7 @@ export class Cline {
 		}
 
 		const block = cloneDeep(this.assistantMessageContent[this.currentStreamingContentIndex]) // need to create copy bc while stream is updating the array, it could be updating the reference block properties too
+		console.log("presentAssistantMessage====== allow", block)
 		switch (block.type) {
 			case "text": {
 				if (this.didRejectTool || this.didAlreadyUseTool) {
@@ -1589,6 +1592,8 @@ export class Cline {
 						case "plan_mode_response":
 							return `[${block.name}]`
 						case "attempt_completion":
+							return `[${block.name}]`
+						default:
 							return `[${block.name}]`
 					}
 				}
@@ -2003,6 +2008,25 @@ export class Cline {
 						const url: string | undefined = block.params.url
 						const respondWithContent = block.params.content
 						console.log("fetch_url_content", url, respondWithContent)
+						break
+					}
+					case "search_ragflow": {
+						console.log("search_ragflow--------", block.params.path)
+						if (block.params.path) {
+							const sharedMessageProps: ClineSayTool = {
+								tool: "search_ragflow",
+								ragContent: block.params.path,
+							}
+							const partialMessage = JSON.stringify({
+								...sharedMessageProps,
+								content: undefined,
+							} satisfies ClineSayTool)
+							await this.say("tool", partialMessage, undefined, block.partial)
+
+							// const content = await this.usercenterApi.getAccountInfoNew(block.params.path)
+							pushToolResult("completed search_ragflow")
+						}
+
 						break
 					}
 					case "read_file": {

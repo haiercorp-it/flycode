@@ -68,6 +68,7 @@ export interface ApiHandlerOptions {
 	haierragflowapidatasetid?: string
 	deepseekLocalUrl?: string
 	deepseekLocalModelId?: string
+	deepseekLocalModelKey?: string
 }
 
 export type ApiConfiguration = ApiHandlerOptions & {

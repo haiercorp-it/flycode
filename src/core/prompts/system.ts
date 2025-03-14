@@ -144,6 +144,38 @@ Usage:
 <recursive>true or false (optional)</recursive>
 </list_files>
 
+## search_ragflow
+Description: 当用户提出的问题以@haier开头时，必须调用本工具。 该工具专用于查询海尔相关的产品知识库，会从本地结构化知识库中检索最新最准确的产品参数、使用说明和售后政策。 参数要求:path参数必须完整包含@haier前缀后的全部问题内容
+Parameters:
+- path: (required) The question or query to send to the RAGflow knowledge base.
+Usage:
+<search_ragflow>
+<path>@haier集成账号中心</path>
+</search_ragflow>
+
+## open_browser
+Description: Request to open a browser and navigate to a specified URL. This tool allows for programmatic navigation and interaction with web pages based on knowledge gathered from RAGflow data. The tool provides a way to open URLs and navigate to websites based on summarized information from the knowledge base.
+Parameters:
+- url: (required) The URL to open in the browser. Must be a valid URL with protocol (http:// or https://).
+Usage:
+<open_browser>
+<url>The target URL to open</url>
+</open_browser>
+
+## interact_with_webpage
+Description: Request to interact with an already opened webpage. This tool allows for manipulating web content such as filling forms, clicking buttons, or extracting data from the current web page. Can only be used after open_browser has been called.
+Parameters:
+- action: (required) The type of action to perform on the webpage. Valid values are 'click', 'type', 'select', 'extract', 'scroll', or 'navigate'.
+- selector: (required) CSS selector for the element to interact with.
+- value: (optional) Value to use when the action is 'type' or 'select'.
+Usage:
+<interact_with_webpage>
+<action>The action to perform (click, type, select, extract, scroll, or navigate)</action>
+<selector>CSS selector for the target element</selector>
+<value>Value to use for type or select actions (optional)</value>
+</interact_with_webpage>
+
+
 ## list_code_definition_names
 Description: Request to list definition names (classes, functions, methods, etc.) used in source code files at the top level of the specified directory. This tool provides insights into the codebase structure and important constructs, encapsulating high-level concepts and relationships that are crucial for understanding the overall architecture.
 Parameters:

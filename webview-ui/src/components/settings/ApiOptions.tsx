@@ -86,6 +86,9 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 	const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
 
 	const handleInputChange = (field: keyof ApiConfiguration) => (event: any) => {
+		console.log("field", apiConfiguration)
+		console.log("field1222", field)
+		console.log("field1222", event.target.value)
 		setApiConfiguration({
 			...apiConfiguration,
 			[field]: event.target.value,
@@ -1160,21 +1163,45 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 			)}
 			{selectedProvider === "deepseek_local" && (
 				<div>
+					{1 > 2 ? (
+						<VSCodeTextField
+							value={apiConfiguration?.deepseekLocalUrl || ""}
+							style={{ width: "100%" }}
+							type="url"
+							onInput={handleInputChange("deepseekLocalUrl")}
+							placeholder={""}>
+							<span style={{ fontWeight: 500 }}>Base URL (optional)</span>
+						</VSCodeTextField>
+					) : (
+						""
+					)}
+					{/* <span style={{ fontWeight: 500 }}>Input Model key</span> */}
 					<VSCodeTextField
-						value={apiConfiguration?.deepseekLocalUrl || ""}
+						value={apiConfiguration?.deepseekLocalModelKey || ""}
 						style={{ width: "100%" }}
-						type="url"
-						onInput={handleInputChange("deepseekLocalUrl")}
+						onInput={handleInputChange("deepseekLocalModelKey")}
 						placeholder={""}>
-						<span style={{ fontWeight: 500 }}>Base URL (optional)</span>
+						<span style={{ fontWeight: 500 }}>Input Model key</span>
 					</VSCodeTextField>
-					<VSCodeTextField
-						value={apiConfiguration?.deepseekLocalModelId || ""}
-						style={{ width: "100%" }}
-						onInput={handleInputChange("deepseekLocalModelId")}
-						placeholder={""}>
-						<span style={{ fontWeight: 500 }}>Model ID</span>
-					</VSCodeTextField>
+					<span style={{ fontWeight: 500 }}>Select Model ID</span>
+					<DropdownContainer>
+						<VSCodeDropdown
+							id="awss-region-dropdown"
+							value={apiConfiguration?.deepseekLocalModelId || "Deepseek-R1"}
+							style={{ width: "100%" }}
+							onChange={handleInputChange("deepseekLocalModelId")}>
+							<VSCodeOption key={"Deepseek-R1"} value="Deepseek-R1">
+								Deepseek-R1
+							</VSCodeOption>
+							<VSCodeOption key={"Qwen2.5-72B-Instruct"} value="Qwen2.5-72B-Instruct">
+								Qwen2.5-72B-Instruct
+							</VSCodeOption>
+							<VSCodeOption key={"llama3_70b"} value="llama3_70b">
+								llama3_70b
+							</VSCodeOption>
+						</VSCodeDropdown>
+					</DropdownContainer>
+
 					<p
 						style={{
 							fontSize: "12px",
