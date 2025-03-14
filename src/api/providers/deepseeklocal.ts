@@ -48,9 +48,7 @@ export class DeepSeekLocalHandler implements ApiHandler {
 		}
 		// 打印转换前的消息，检查格式
 		console.log("Original messages:", headers)
-		const convertedMessages = convertToOpenAiMessages(messages)
-		console.log("Converted messages:", convertedMessages)
-		console.log("Converted messages:", JSON.stringify(convertedMessages))
+		// const convertedMessages = convertToOpenAiMessages(messages)
 
 		const processedMessages = messages.map((msg, index) => {
 			if ("content" in msg && Array.isArray(msg.content)) {
@@ -90,6 +88,7 @@ export class DeepSeekLocalHandler implements ApiHandler {
 		// })
 
 		console.log("processedMessages:", processedMessages)
+		//
 		const data = {
 			model: this.options.deepseekLocalModelId,
 			messages: [

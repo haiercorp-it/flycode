@@ -1379,7 +1379,7 @@ export class Cline {
 				let maxAllowedSize: number
 				switch (contextWindow) {
 					case 51_000: // deepseek local
-						maxAllowedSize = contextWindow - 40_000
+						maxAllowedSize = contextWindow - 20_000
 						break
 					case 64_000: // deepseek models
 						maxAllowedSize = contextWindow - 27_000
@@ -1438,7 +1438,7 @@ export class Cline {
 			await this.usercenterApi?.createMessagePreaper()
 			stream = this.usercenterApi?.createMessage(objResponse.text, truncatedConversationHistory)
 		} else {
-			console.log("normal message", systemPrompt, truncatedConversationHistory)
+			console.log("normal message", truncatedConversationHistory)
 			stream = this.api.createMessage(systemPrompt, truncatedConversationHistory)
 		}
 		const iterator = stream![Symbol.asyncIterator]()
@@ -1504,7 +1504,6 @@ export class Cline {
 		}
 
 		const block = cloneDeep(this.assistantMessageContent[this.currentStreamingContentIndex]) // need to create copy bc while stream is updating the array, it could be updating the reference block properties too
-		console.log("presentAssistantMessage====== allow", block)
 		switch (block.type) {
 			case "text": {
 				if (this.didRejectTool || this.didAlreadyUseTool) {
