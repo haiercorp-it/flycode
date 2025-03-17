@@ -144,6 +144,7 @@ export interface ClineSayTool {
 		| "listCodeDefinitionNames"
 		| "searchFiles"
 		| "search_ragflow"
+		| "open_browser"
 	path?: string
 	diff?: string
 	content?: string

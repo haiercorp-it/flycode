@@ -19,7 +19,7 @@ export const DEFAULT_BROWSER_SETTINGS: BrowserSettings = {
 		width: 900,
 		height: 600,
 	},
-	headless: true,
+	headless: false,
 	// chromeType: "chromium",
 }
 

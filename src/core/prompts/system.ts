@@ -71,19 +71,6 @@ Your file content here
 </content>
 </write_to_file>
 
-## fetch_url_content 
-Description: Request to fetch and return the content of a webpage from the specified URL. The tool will handle HTTP/HTTPS requests and return the raw response body. If the URL is invalid or the request fails (e.g., network errors, timeout), it will return an error message. This tool should be used when you want get content from a webpage without having to worry about the specifics of the webpage's structure. 
-Parameters: 
-- url: (required) The target URL to fetch content from. Must include the protocol (e.g., "http://" or "https://"). 
-- content: (required) The content of the webpage fetched from the specified URL.
-Usage: 
-<fetch_url_content> 
-<url> Target URL here </url> 
-<content>
-The content of a webpage from the specified URL 
-</content>
-</fetch_url_content>
-
 ## replace_in_file
 Description: Request to replace sections of content in an existing file using SEARCH/REPLACE blocks that define exact changes to specific parts of the file. This tool should be used when you need to make targeted changes to specific parts of a file.
 Parameters:
@@ -144,38 +131,6 @@ Usage:
 <recursive>true or false (optional)</recursive>
 </list_files>
 
-## search_ragflow
-Description: 当用户提出的问题以@haier开头时，必须调用本工具。 该工具专用于查询海尔相关的产品知识库，会从本地结构化知识库中检索最新最准确的产品参数、使用说明和售后政策。 参数要求:path参数必须完整包含@haier前缀后的全部问题内容
-Parameters:
-- path: (required) The question or query to send to the RAGflow knowledge base.
-Usage:
-<search_ragflow>
-<path>@haier集成账号中心</path>
-</search_ragflow>
-
-## open_browser
-Description: Request to open a browser and navigate to a specified URL. This tool allows for programmatic navigation and interaction with web pages based on knowledge gathered from RAGflow data. The tool provides a way to open URLs and navigate to websites based on summarized information from the knowledge base.
-Parameters:
-- url: (required) The URL to open in the browser. Must be a valid URL with protocol (http:// or https://).
-Usage:
-<open_browser>
-<url>The target URL to open</url>
-</open_browser>
-
-## interact_with_webpage
-Description: Request to interact with an already opened webpage. This tool allows for manipulating web content such as filling forms, clicking buttons, or extracting data from the current web page. Can only be used after open_browser has been called.
-Parameters:
-- action: (required) The type of action to perform on the webpage. Valid values are 'click', 'type', 'select', 'extract', 'scroll', or 'navigate'.
-- selector: (required) CSS selector for the element to interact with.
-- value: (optional) Value to use when the action is 'type' or 'select'.
-Usage:
-<interact_with_webpage>
-<action>The action to perform (click, type, select, extract, scroll, or navigate)</action>
-<selector>CSS selector for the target element</selector>
-<value>Value to use for type or select actions (optional)</value>
-</interact_with_webpage>
-
-
 ## list_code_definition_names
 Description: Request to list definition names (classes, functions, methods, etc.) used in source code files at the top level of the specified directory. This tool provides insights into the codebase structure and important constructs, encapsulating high-level concepts and relationships that are crucial for understanding the overall architecture.
 Parameters:
@@ -188,7 +143,7 @@ Usage:
 		? `
 
 ## browser_action
-Description: Request to interact with a Puppeteer-controlled browser. Every action, except \`close\`, will be responded to with a screenshot of the browser's current state, along with any new console logs. You may only perform one browser action per message, and wait for the user's response including a screenshot and logs to determine the next action.
+Description: 网络搜索任务和当前项目无关的任务时可以调用当前的工具 .The tool provides a way to open URLs and navigate to websites and wait for the user's response including a screenshot and logs to determine the next action.
 - The sequence of actions **must always start with** launching the browser at a URL, and **must always end with** closing the browser. If you need to visit a new URL that is not possible to navigate to from the current webpage, you must first close the browser, then launch again at the new URL.
 - While the browser is active, only the \`browser_action\` tool can be used. No other tools should be called during this time. You may proceed to use other tools only after closing the browser. For example if you run into an error and need to fix a file, you must close the browser, then use other tools to make the necessary changes, then re-launch the browser to verify the result.
 - The browser window has a resolution of **${browserSettings.viewport.width}x${browserSettings.viewport.height}** pixels. When performing any click actions, ensure the coordinates are within this resolution range.
@@ -198,7 +153,7 @@ Parameters:
     * launch: Launch a new Puppeteer-controlled browser instance at the specified URL. This **must always be the first action**.
         - Use with the \`url\` parameter to provide the URL.
         - Ensure the URL is valid and includes the appropriate protocol (e.g. http://localhost:3000/page, file:///path/to/file.html, etc.)
-    * click: Click at a specific x,y coordinate.
+    * click: Click at a specific x,y coordinate or key_press a element.
         - Use with the \`coordinate\` parameter to specify the location.
         - Always click in the center of an element (icon, button, link, etc.) based on coordinates derived from a screenshot.
     * type: Type a string of text on the keyboard. You might use this after clicking on a text field to input text.
@@ -1044,4 +999,57 @@ The following additional contexts are provided by the user's internal company re
 
 
 ${ragCustomContexts.trim()}`
+}
+export function addAgentContexts(userAgentCustomContexts?: string) {
+	let agentCustomContexts = ""
+	if (!userAgentCustomContexts) {
+		agentCustomContexts = `
+     In each iteration, you will receive an Observation that includes a screenshot of a webpage and some texts. This screenshot will
+feature Numerical Labels placed in the TOP LEFT corner of each Web Element. Carefully analyze the visual
+information to identify the Numerical Label corresponding to the Web Element that requires interaction, then follow
+the guidelines and choose one of the following actions:
+0. browser_action when you want to launch a new browser the  paramer is launch
+1. Click or press a Web Element. Usage:
+<browser_action>
+<action>click</action>
+<url>URL to launch the browser at (optional)</url>
+<coordinate>x,y coordinates (optional)</coordinate>
+<text>Text to type (optional)</text>
+</browser_action>
+2. browser_action when you want to perform a specific action such as scroll on a web action  the paramer is (e.g., scroll_down, scroll_up, etc.)
+​browser_action: When you want to perform a specific action, such as filling text into a particular element, the paramer is (e.g., type, etc.).
+
+Correspondingly, when you want to perform an action, you can choose one of the following tool:
+- browser_action (when you want to launch a new browser pramater is launch))  
+
+Key Guidelines You MUST follow:
+
+* Action guidelines *
+1) Execute only one action per iteration.
+2) When clicking or typing, ensure to select the correct bounding box.
+3) Numeric labels lie in the top-left corner of their corresponding bounding boxes and are colored the same.
+
+* Web Browsing Guidelines *
+1) Don't interact with useless web elements like Login, Sign-in, donation that appear in Webpages
+2) Select strategically to minimize time wasted.
+3) When you need msg you can goto Baidu or Bing to find the information you need. and you can use the browser_action tool to interact with the search engine.
+Your reply should strictly follow the format:
+
+Thought: {Your brief thoughts (briefly summarize the info that will help ANSWER)}
+Action: {One Action format you choose}
+Then the User will provide:
+Observation: {A labeled screenshot Given by User}
+    
+    `
+	}
+	if (userAgentCustomContexts) {
+		agentCustomContexts += userAgentCustomContexts + "\n\n"
+	}
+	return `
+====
+
+RETRIEVAL AUGMENTED GENERATION CONTEXTS
+
+The following additional context is provided to better accomplish web automation tasks..
+${agentCustomContexts.trim()}`
 }

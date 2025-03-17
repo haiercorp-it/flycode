@@ -25,6 +25,7 @@ export const toolUseNames = [
 	"fetch_url_content",
 	"search_rag",
 	"search_ragflow",
+	"open_browser",
 ] as const
 
 // Converts array of tool call names into a union type ("execute_command" | "read_file" | ...)

@@ -57,7 +57,7 @@ import { isHaierDoc, hasAccountCenter, replaceRAG, RAGOBJInterface, processRAGTe
 import { ClineIgnoreController, LOCK_TEXT_SYMBOL } from "./ignore/ClineIgnoreController"
 import { parseMentions } from "./mentions"
 import { formatResponse } from "./prompts/responses"
-import { addUserInstructions, SYSTEM_PROMPT, addRagContexts } from "./prompts/system"
+import { addUserInstructions, SYSTEM_PROMPT, addRagContexts, addAgentContexts } from "./prompts/system"
 import { getNextTruncationRange, getTruncatedMessages } from "./sliding-window"
 import { ClineProvider, GlobalFileNames } from "./webview/ClineProvider"
 
@@ -1322,6 +1322,7 @@ export class Cline {
 			// altering the system prompt mid-task will break the prompt cache, but in the grand scheme this will not change often so it's better to not pollute user messages with it the way we have to with <potentially relevant details>
 			systemPrompt += addRagContexts(userRagCustomContexts)
 		}
+		systemPrompt += addAgentContexts()
 
 		let settingsCustomInstructions = this.customInstructions?.trim()
 		const clineRulesFilePath = path.resolve(cwd, GlobalFileNames.clineRules)
@@ -2028,6 +2029,238 @@ export class Cline {
 
 						break
 					}
+					case "open_browser": {
+						console.log("open_browser--------", block.params.url)
+						const relPath: string | undefined = block.params.url
+						const sharedMessageProps: ClineSayTool = {
+							tool: "open_browser",
+							path: getReadablePath(cwd, removeClosingTag("path", relPath)),
+						}
+						try {
+							if (block.partial) {
+								const partialMessage = JSON.stringify({
+									...sharedMessageProps,
+									content: undefined,
+								} satisfies ClineSayTool)
+								if (this.shouldAutoApproveTool(block.name)) {
+									this.removeLastPartialMessageIfExistsWithType("ask", "tool")
+									await this.say("tool", partialMessage, undefined, block.partial)
+								} else {
+									this.removeLastPartialMessageIfExistsWithType("say", "tool")
+									await this.ask("tool", partialMessage, block.partial).catch(() => {})
+								}
+								break
+							} else {
+								if (!relPath) {
+									this.consecutiveMistakeCount++
+									pushToolResult(await this.sayAndCreateMissingParamError("open_browser", "path"))
+									break
+								}
+
+								this.consecutiveMistakeCount = 0
+								const absolutePath = path.resolve(cwd, relPath)
+								const completeMessage = JSON.stringify({
+									...sharedMessageProps,
+									content: absolutePath,
+								} satisfies ClineSayTool)
+								if (this.shouldAutoApproveTool(block.name)) {
+									this.removeLastPartialMessageIfExistsWithType("ask", "tool")
+									await this.say("tool", completeMessage, undefined, false) // need to be sending partialValue bool, since undefined has its own purpose in that the message is treated neither as a partial or completion of a partial, but as a single complete message
+									this.consecutiveAutoApprovedRequestsCount++
+								} else {
+									this.removeLastPartialMessageIfExistsWithType("say", "tool")
+									const didApprove = await askApproval("tool", completeMessage)
+									if (!didApprove) {
+										break
+									}
+								}
+								// now execute the tool like normal
+								await this.browserSession.launchBrowser()
+								let browserActionResult = await this.browserSession.navigateToUrl(relPath)
+								pushToolResult(
+									formatResponse.toolResult(
+										`The browser action has been executed. The console logs and screenshot have been captured for your analysis.\n\nConsole logs:\n${
+											browserActionResult.logs || "(No new logs)"
+										}\n\n(REMEMBER: if you need to proceed to using non-\`browser_action\` tools or launch a new browser, you MUST first close this browser. For example, if after analyzing the logs and screenshot you need to edit a file, you must first close the browser before you can use the write_to_file tool.)`,
+										browserActionResult.screenshot ? [browserActionResult.screenshot] : [],
+									),
+								)
+								break
+							}
+						} catch (error) {
+							await handleError("open_browser", error)
+
+							break
+						}
+						break
+					}
+					case "browser_action": {
+						const action: BrowserAction | undefined = block.params.action as BrowserAction
+						const url: string | undefined = block.params.url
+						const coordinate: string | undefined = block.params.coordinate
+						const text: string | undefined = block.params.text
+						if (!action || !browserActions.includes(action)) {
+							// checking for action to ensure it is complete and valid
+							if (!block.partial) {
+								// if the block is complete and we don't have a valid action this is a mistake
+								this.consecutiveMistakeCount++
+								pushToolResult(await this.sayAndCreateMissingParamError("browser_action", "action"))
+								await this.browserSession.closeBrowser()
+							}
+							break
+						}
+
+						try {
+							if (block.partial) {
+								if (action === "launch") {
+									if (this.shouldAutoApproveTool(block.name)) {
+										this.removeLastPartialMessageIfExistsWithType("ask", "browser_action_launch")
+										await this.say(
+											"browser_action_launch",
+											removeClosingTag("url", url),
+											undefined,
+											block.partial,
+										)
+									} else {
+										this.removeLastPartialMessageIfExistsWithType("say", "browser_action_launch")
+										await this.ask(
+											"browser_action_launch",
+											removeClosingTag("url", url),
+											block.partial,
+										).catch(() => {})
+									}
+								} else {
+									await this.say(
+										"browser_action",
+										JSON.stringify({
+											action: action as BrowserAction,
+											coordinate: removeClosingTag("coordinate", coordinate),
+											text: removeClosingTag("text", text),
+										} satisfies ClineSayBrowserAction),
+										undefined,
+										block.partial,
+									)
+								}
+								break
+							} else {
+								let browserActionResult: BrowserActionResult
+								if (action === "launch") {
+									if (!url) {
+										this.consecutiveMistakeCount++
+										pushToolResult(await this.sayAndCreateMissingParamError("browser_action", "url"))
+										await this.browserSession.closeBrowser()
+
+										break
+									}
+									this.consecutiveMistakeCount = 0
+
+									if (this.shouldAutoApproveTool(block.name)) {
+										this.removeLastPartialMessageIfExistsWithType("ask", "browser_action_launch")
+										await this.say("browser_action_launch", url, undefined, false)
+										this.consecutiveAutoApprovedRequestsCount++
+									} else {
+										showNotificationForApprovalIfAutoApprovalEnabled(`我们需要使用浏览器打开 ${url}`)
+										this.removeLastPartialMessageIfExistsWithType("say", "browser_action_launch")
+										const didApprove = await askApproval("browser_action_launch", url)
+										if (!didApprove) {
+											break
+										}
+									}
+
+									// NOTE: it's okay that we call this message since the partial inspect_site is finished streaming. The only scenario we have to avoid is sending messages WHILE a partial message exists at the end of the messages array. For example the api_req_finished message would interfere with the partial message, so we needed to remove that.
+									// await this.say("inspect_site_result", "") // no result, starts the loading spinner waiting for result
+									await this.say("browser_action_result", "") // starts loading spinner
+
+									await this.browserSession.launchBrowser()
+									browserActionResult = await this.browserSession.navigateToUrl(url)
+								} else {
+									if (action === "click") {
+										if (!coordinate) {
+											this.consecutiveMistakeCount++
+											pushToolResult(
+												await this.sayAndCreateMissingParamError("browser_action", "coordinate"),
+											)
+											await this.browserSession.closeBrowser()
+
+											break // can't be within an inner switch
+										}
+									}
+									if (action === "type") {
+										if (!text) {
+											this.consecutiveMistakeCount++
+											pushToolResult(await this.sayAndCreateMissingParamError("browser_action", "text"))
+											await this.browserSession.closeBrowser()
+
+											break
+										}
+									}
+									this.consecutiveMistakeCount = 0
+									await this.say(
+										"browser_action",
+										JSON.stringify({
+											action: action as BrowserAction,
+											coordinate,
+											text,
+										} satisfies ClineSayBrowserAction),
+										undefined,
+										false,
+									)
+									switch (action) {
+										case "click":
+											browserActionResult = await this.browserSession.click(coordinate!)
+											break
+										case "type":
+											browserActionResult = await this.browserSession.type(text!)
+											break
+										case "scroll_down":
+											browserActionResult = await this.browserSession.scrollDown()
+											break
+										case "scroll_up":
+											browserActionResult = await this.browserSession.scrollUp()
+											break
+										case "close":
+											browserActionResult = await this.browserSession.closeBrowser()
+											break
+									}
+								}
+
+								switch (action) {
+									case "launch":
+									case "click":
+									case "type":
+									case "scroll_down":
+									case "scroll_up":
+										await this.say("browser_action_result", JSON.stringify(browserActionResult))
+										pushToolResult(
+											formatResponse.toolResult(
+												`The browser action has been executed. The console logs and screenshot have been captured for your analysis.\n\nConsole logs:\n${
+													browserActionResult.logs || "(No new logs)"
+												}\n\n(REMEMBER: if you need to proceed to using non-\`browser_action\` tools or launch a new browser, you MUST first close this browser. For example, if after analyzing the logs and screenshot you need to edit a file, you must first close the browser before you can use the write_to_file tool.)`,
+												browserActionResult.screenshot ? [browserActionResult.screenshot] : [],
+											),
+										)
+
+										break
+									case "close":
+										pushToolResult(
+											formatResponse.toolResult(
+												`The browser has been closed. You may now proceed to using other tools.`,
+											),
+										)
+
+										break
+								}
+
+								break
+							}
+						} catch (error) {
+							await this.browserSession.closeBrowser() // if any error occurs, the browser session is terminated
+							await handleError("executing browser action", error)
+
+							break
+						}
+					}
+
 					case "read_file": {
 						const relPath: string | undefined = block.params.path
 						const sharedMessageProps: ClineSayTool = {
@@ -2303,172 +2536,7 @@ export class Cline {
 							break
 						}
 					}
-					case "browser_action": {
-						const action: BrowserAction | undefined = block.params.action as BrowserAction
-						const url: string | undefined = block.params.url
-						const coordinate: string | undefined = block.params.coordinate
-						const text: string | undefined = block.params.text
-						if (!action || !browserActions.includes(action)) {
-							// checking for action to ensure it is complete and valid
-							if (!block.partial) {
-								// if the block is complete and we don't have a valid action this is a mistake
-								this.consecutiveMistakeCount++
-								pushToolResult(await this.sayAndCreateMissingParamError("browser_action", "action"))
-								await this.browserSession.closeBrowser()
-							}
-							break
-						}
 
-						try {
-							if (block.partial) {
-								if (action === "launch") {
-									if (this.shouldAutoApproveTool(block.name)) {
-										this.removeLastPartialMessageIfExistsWithType("ask", "browser_action_launch")
-										await this.say(
-											"browser_action_launch",
-											removeClosingTag("url", url),
-											undefined,
-											block.partial,
-										)
-									} else {
-										this.removeLastPartialMessageIfExistsWithType("say", "browser_action_launch")
-										await this.ask(
-											"browser_action_launch",
-											removeClosingTag("url", url),
-											block.partial,
-										).catch(() => {})
-									}
-								} else {
-									await this.say(
-										"browser_action",
-										JSON.stringify({
-											action: action as BrowserAction,
-											coordinate: removeClosingTag("coordinate", coordinate),
-											text: removeClosingTag("text", text),
-										} satisfies ClineSayBrowserAction),
-										undefined,
-										block.partial,
-									)
-								}
-								break
-							} else {
-								let browserActionResult: BrowserActionResult
-								if (action === "launch") {
-									if (!url) {
-										this.consecutiveMistakeCount++
-										pushToolResult(await this.sayAndCreateMissingParamError("browser_action", "url"))
-										await this.browserSession.closeBrowser()
-
-										break
-									}
-									this.consecutiveMistakeCount = 0
-
-									if (this.shouldAutoApproveTool(block.name)) {
-										this.removeLastPartialMessageIfExistsWithType("ask", "browser_action_launch")
-										await this.say("browser_action_launch", url, undefined, false)
-										this.consecutiveAutoApprovedRequestsCount++
-									} else {
-										showNotificationForApprovalIfAutoApprovalEnabled(`我们需要使用浏览器打开 ${url}`)
-										this.removeLastPartialMessageIfExistsWithType("say", "browser_action_launch")
-										const didApprove = await askApproval("browser_action_launch", url)
-										if (!didApprove) {
-											break
-										}
-									}
-
-									// NOTE: it's okay that we call this message since the partial inspect_site is finished streaming. The only scenario we have to avoid is sending messages WHILE a partial message exists at the end of the messages array. For example the api_req_finished message would interfere with the partial message, so we needed to remove that.
-									// await this.say("inspect_site_result", "") // no result, starts the loading spinner waiting for result
-									await this.say("browser_action_result", "") // starts loading spinner
-
-									await this.browserSession.launchBrowser()
-									browserActionResult = await this.browserSession.navigateToUrl(url)
-								} else {
-									if (action === "click") {
-										if (!coordinate) {
-											this.consecutiveMistakeCount++
-											pushToolResult(
-												await this.sayAndCreateMissingParamError("browser_action", "coordinate"),
-											)
-											await this.browserSession.closeBrowser()
-
-											break // can't be within an inner switch
-										}
-									}
-									if (action === "type") {
-										if (!text) {
-											this.consecutiveMistakeCount++
-											pushToolResult(await this.sayAndCreateMissingParamError("browser_action", "text"))
-											await this.browserSession.closeBrowser()
-
-											break
-										}
-									}
-									this.consecutiveMistakeCount = 0
-									await this.say(
-										"browser_action",
-										JSON.stringify({
-											action: action as BrowserAction,
-											coordinate,
-											text,
-										} satisfies ClineSayBrowserAction),
-										undefined,
-										false,
-									)
-									switch (action) {
-										case "click":
-											browserActionResult = await this.browserSession.click(coordinate!)
-											break
-										case "type":
-											browserActionResult = await this.browserSession.type(text!)
-											break
-										case "scroll_down":
-											browserActionResult = await this.browserSession.scrollDown()
-											break
-										case "scroll_up":
-											browserActionResult = await this.browserSession.scrollUp()
-											break
-										case "close":
-											browserActionResult = await this.browserSession.closeBrowser()
-											break
-									}
-								}
-
-								switch (action) {
-									case "launch":
-									case "click":
-									case "type":
-									case "scroll_down":
-									case "scroll_up":
-										await this.say("browser_action_result", JSON.stringify(browserActionResult))
-										pushToolResult(
-											formatResponse.toolResult(
-												`The browser action has been executed. The console logs and screenshot have been captured for your analysis.\n\nConsole logs:\n${
-													browserActionResult.logs || "(No new logs)"
-												}\n\n(REMEMBER: if you need to proceed to using non-\`browser_action\` tools or launch a new browser, you MUST first close this browser. For example, if after analyzing the logs and screenshot you need to edit a file, you must first close the browser before you can use the write_to_file tool.)`,
-												browserActionResult.screenshot ? [browserActionResult.screenshot] : [],
-											),
-										)
-
-										break
-									case "close":
-										pushToolResult(
-											formatResponse.toolResult(
-												`The browser has been closed. You may now proceed to using other tools.`,
-											),
-										)
-
-										break
-								}
-
-								break
-							}
-						} catch (error) {
-							await this.browserSession.closeBrowser() // if any error occurs, the browser session is terminated
-							await handleError("executing browser action", error)
-
-							break
-						}
-					}
 					case "execute_command": {
 						const command: string | undefined = block.params.command
 						const requiresApprovalRaw: string | undefined = block.params.requires_approval
