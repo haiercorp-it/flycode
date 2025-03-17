@@ -62,6 +62,18 @@ export function activate(context: vscode.ExtensionContext) {
 	)
 
 	context.subscriptions.push(
+		vscode.commands.registerCommand("gi.haierAssiantClicked", async () => {
+			Logger.log("haierRAGCount Clicked")
+			await sidebarProvider.clearTask()
+			await sidebarProvider.postStateToWebview()
+			await sidebarProvider.postMessageToWebview({
+				type: "action",
+				action: "haierAssiantClicked",
+			})
+		}),
+	)
+
+	context.subscriptions.push(
 		vscode.commands.registerCommand("gi.mcpButtonClicked", () => {
 			sidebarProvider.postMessageToWebview({
 				type: "action",

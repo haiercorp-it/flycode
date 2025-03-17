@@ -143,7 +143,7 @@ Usage:
 		? `
 
 ## browser_action
-Description: 网络搜索任务和当前项目无关的任务时可以调用当前的工具 .The tool provides a way to open URLs and navigate to websites and wait for the user's response including a screenshot and logs to determine the next action.
+Description: 网络搜索任务和@assistant指定的任务.The tool provides a way to open URLs and navigate to websites and wait for the user's response including a screenshot and logs to determine the next action.
 - The sequence of actions **must always start with** launching the browser at a URL, and **must always end with** closing the browser. If you need to visit a new URL that is not possible to navigate to from the current webpage, you must first close the browser, then launch again at the new URL.
 - While the browser is active, only the \`browser_action\` tool can be used. No other tools should be called during this time. You may proceed to use other tools only after closing the browser. For example if you run into an error and need to fix a file, you must close the browser, then use other tools to make the necessary changes, then re-launch the browser to verify the result.
 - The browser window has a resolution of **${browserSettings.viewport.width}x${browserSettings.viewport.height}** pixels. When performing any click actions, ensure the coordinates are within this resolution range.
@@ -1008,7 +1008,14 @@ export function addAgentContexts(userAgentCustomContexts?: string) {
 feature Numerical Labels placed in the TOP LEFT corner of each Web Element. Carefully analyze the visual
 information to identify the Numerical Label corresponding to the Web Element that requires interaction, then follow
 the guidelines and choose one of the following actions:
-0. browser_action when you want to launch a new browser the  paramer is launch
+0. browser_action when you want to launch a new browser the  paramer is launch. usage
+<browser_action>
+<action>launch</action>
+<url>URL to launch the browser at (optional)</url>
+<coordinate>x,y coordinates (optional)</coordinate>
+<text>Text to type (optional)</text>
+</browser_action>
+
 1. Click or press a Web Element. Usage:
 <browser_action>
 <action>click</action>

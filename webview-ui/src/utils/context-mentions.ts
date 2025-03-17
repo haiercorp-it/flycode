@@ -52,6 +52,7 @@ export enum ContextMenuOptionType {
 	Git = "git",
 	NoResults = "noResults",
 	RAG = "rag",
+	Assistant = "assistant",
 }
 
 export interface ContextMenuQueryItem {
@@ -102,6 +103,7 @@ export function getContextMenuOptions(
 		return [
 			{ type: ContextMenuOptionType.URL },
 			{ type: ContextMenuOptionType.RAG },
+			{ type: ContextMenuOptionType.Assistant },
 			{ type: ContextMenuOptionType.Problems },
 			{ type: ContextMenuOptionType.Terminal },
 			{ type: ContextMenuOptionType.Git },
