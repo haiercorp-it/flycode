@@ -5,7 +5,12 @@ export interface ApiStreamTextChunk {
 	type: "text"
 	text: string
 }
-
+export interface ApiStreamRAGChunk {
+	type: "rag"
+	text: string
+	done?: boolean
+	question?: string
+}
 export interface ApiStreamReasoningChunk {
 	type: "reasoning"
 	reasoning: string

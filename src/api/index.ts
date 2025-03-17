@@ -21,6 +21,8 @@ import { HaierUserCenterHandler } from "./providers/usercenter"
 import { HaierInternalHandler } from "./providers/haierinternal"
 import { ClineProvider } from "../core/webview/ClineProvider"
 import { DeepSeekLocalHandler } from "./providers/deepseeklocal"
+import { AskSageHandler } from "./providers/asksage"
+import { XAIHandler } from "./providers/xai"
 
 export interface ApiHandler {
 	createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream
@@ -79,6 +81,10 @@ export function buildApiHandler(configuration: ApiConfiguration): ApiHandler {
 			return new HaierUserCenterHandler(options)
 		case "deepseek_local":
 			return new DeepSeekLocalHandler(options)
+		case "asksage":
+			return new AskSageHandler(options)
+		case "xai":
+			return new XAIHandler(options)
 		default:
 			return new AnthropicHandler(options)
 	}

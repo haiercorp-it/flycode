@@ -48,9 +48,8 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 			return null
 		}
 		//694d6bfef35e11efa1bbfa163e16de57
-		// const url = this.url + `/api/v1/chats?page=1&page_size=100&id=${chatAssitId}`
-		const url = this.url + `/api/v1/chats?page=1&page_size=100&id=694d6bfef35e11efa1bbfa163e16de57`
-
+		const url = this.url + `/api/v1/chats?page=1&page_size=100&id=${chatAssitId}`
+		// const url = this.url + `/api/v1/chats?page=1&page_size=100&id=694d6bfef35e11efa1bbfa163e16de57`
 		console.log("this is url", url)
 		const headers = {
 			Authorization: "",

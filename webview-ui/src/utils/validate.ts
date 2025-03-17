@@ -38,6 +38,11 @@ export function validateApiConfiguration(apiConfiguration?: ApiConfiguration): s
 					return "You must provide a valid API key or choose a different provider."
 				}
 				break
+			case "xai":
+				if (!apiConfiguration.xaiApiKey) {
+					return "You must provide a valid API key or choose a different provider."
+				}
+				break
 			case "qwen":
 				if (!apiConfiguration.qwenApiKey) {
 					return "You must provide a valid API key or choose a different provider."
@@ -82,6 +87,11 @@ export function validateApiConfiguration(apiConfiguration?: ApiConfiguration): s
 				console.log("Submitting configuration:", apiConfiguration)
 				if (!apiConfiguration.haierinternalAiBaseUrl && !apiConfiguration.haierinternalModelId) {
 					return "Please provide either a Base URL or Model ID"
+				}
+				break
+			case "asksage":
+				if (!apiConfiguration.asksageApiKey) {
+					return "You must provide a valid API key or choose a different provider."
 				}
 				break
 		}

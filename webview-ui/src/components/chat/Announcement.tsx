@@ -1,6 +1,7 @@
 import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 import { memo } from "react"
 import { getAsVar, VSC_DESCRIPTION_FOREGROUND, VSC_INACTIVE_SELECTION_BACKGROUND } from "../../utils/vscStyles"
+import { vscode } from "../../utils/vscode"
 
 interface AnnouncementProps {
 	version: string
@@ -32,9 +33,13 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 				<li>
 					<b>计划/执行模式切换：</b>
 					计划模式会转变为架构师角色：收集信息、提出澄清问题并设计方案。切换回执行模式来让其落实计划！{" "}
-					{/* <VSCodeLink href="https://x.com/sdrzn/status/1881761978986934582" style={{ display: "inline" }}>
-						点击查看演示
-					</VSCodeLink> */}
+					<span className="codicon codicon-extensions" style={{ marginRight: "4px", fontSize: 10 }}></span>
+					<VSCodeLink
+						onClick={() => {
+							vscode.postMessage({ type: "showMcpView" })
+						}}>
+						MCP服务器Tab
+					</VSCodeLink>
 				</li>
 				<li>
 					<b>快速API/模型切换：</b>通过聊天框下方全新弹出菜单实现快速切换
@@ -45,13 +50,11 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 				<li>
 					<b>MCP服务器改进：</b>新增闲置时启用/禁用开关，以及单个工具的自动审批选项
 				</li>
-				<li>
-					支持检查点功能！{" "}
-					{/* <VSCodeLink href="https://x.com/sdrzn/status/1876378124126236949" style={{ display: "inline" }}>
-						查看实际效果
-					</VSCodeLink> */}
-				</li>
+				<li>支持检查点功能！</li>
 			</ul>
+			<VSCodeLink href="https://x.com/sdrzn/status/1892262424881090721" style={{ display: "inline" }}>
+				See a demo of the changes here!
+			</VSCodeLink>
 			{/*<ul style={{ margin: "0 0 8px", paddingLeft: "12px" }}>
 				 <li>
 					OpenRouter now supports prompt caching! They also have much higher rate limits than other providers,
@@ -108,9 +111,12 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 				}}
 			/>
 			{/* <p style={{ margin: "0" }}>
-				Join our{" "}
+				Join us on{" "}
+				<VSCodeLink style={{ display: "inline" }} href="https://x.com/cline">
+					X,
+				</VSCodeLink>{" "}
 				<VSCodeLink style={{ display: "inline" }} href="https://discord.gg/cline">
-					discord
+					discord,
 				</VSCodeLink>{" "}
 				or{" "}
 				<VSCodeLink style={{ display: "inline" }} href="https://www.reddit.com/r/cline/">

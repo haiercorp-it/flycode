@@ -22,6 +22,7 @@ import Tooltip from "../common/Tooltip"
 import ApiOptions, { normalizeApiConfiguration } from "../settings/ApiOptions"
 import { MAX_IMAGES_PER_MESSAGE } from "./ChatView"
 import ContextMenu from "./ContextMenu"
+import { ChatSettings } from "../../../../src/shared/ChatSettings"
 
 interface ChatTextAreaProps {
 	inputValue: string
@@ -236,6 +237,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 		const buttonRef = useRef<HTMLDivElement>(null)
 		const [arrowPosition, setArrowPosition] = useState(0)
 		const [menuPosition, setMenuPosition] = useState(0)
+		const [shownTooltipMode, setShownTooltipMode] = useState<ChatSettings["mode"] | null>(null)
 
 		const [, metaKeyChar] = useMetaKeyDetection(platform)
 
@@ -658,7 +660,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 			setTimeout(() => {
 				const newMode = chatSettings.mode === "plan" ? "act" : "plan"
 				vscode.postMessage({
-					type: "chatSettings",
+					type: "togglePlanActMode",
 					chatSettings: {
 						mode: newMode,
 					},
@@ -745,9 +747,6 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 			const unknownModel = "unknown"
 			if (!apiConfiguration) return unknownModel
 			switch (selectedProvider) {
-				case "anthropic":
-				case "openrouter":
-					return `${selectedProvider}:${selectedModelId}`
 				case "openai":
 					return `openai-compat:${selectedModelId}`
 				case "vscode-lm":
@@ -761,7 +760,8 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 				case "litellm":
 					return `${selectedProvider}:${apiConfiguration.liteLlmModelId}`
 				case "requesty":
-					return `${selectedProvider}:${apiConfiguration.requestyModelId}`
+				case "anthropic":
+				case "openrouter":
 				default:
 					return `${selectedProvider}:${selectedModelId}`
 			}
@@ -1135,12 +1135,23 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 						</ModelContainer>
 					</ButtonGroup>
 					<Tooltip
-						tipText={`处于 ${chatSettings.mode === "act" ? "执行" : "计划"}  模式时, 我将${chatSettings.mode === "act" ? "立刻执行任务" : "收集信息以制定计划"}`}
+						visible={shownTooltipMode !== null}
+						tipText={`处于 ${shownTooltipMode === "act" ? "执行" : "计划"}  模式时, 我将${shownTooltipMode === "act" ? "立刻执行任务" : "收集信息以制定计划"}`}
 						hintText={`切换 w/ ${metaKeyChar}+Shift+A`}>
 						<SwitchContainer data-testid="mode-switch" disabled={false} onClick={onModeToggle}>
 							<Slider isAct={chatSettings.mode === "act"} isPlan={chatSettings.mode === "plan"} />
-							<SwitchOption isActive={chatSettings.mode === "plan"}>计划</SwitchOption>
-							<SwitchOption isActive={chatSettings.mode === "act"}>执行</SwitchOption>
+							<SwitchOption
+								isActive={chatSettings.mode === "plan"}
+								onMouseOver={() => setShownTooltipMode("plan")}
+								onMouseLeave={() => setShownTooltipMode(null)}>
+								计划
+							</SwitchOption>
+							<SwitchOption
+								isActive={chatSettings.mode === "act"}
+								onMouseOver={() => setShownTooltipMode("act")}
+								onMouseLeave={() => setShownTooltipMode(null)}>
+								执行
+							</SwitchOption>
 						</SwitchContainer>
 					</Tooltip>
 				</ControlsContainer>
