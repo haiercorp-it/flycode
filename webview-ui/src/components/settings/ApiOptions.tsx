@@ -1235,27 +1235,26 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						value={apiConfiguration?.deepseekLocalModelKey || ""}
 						style={{ width: "100%" }}
 						onInput={handleInputChange("deepseekLocalModelKey")}
-						placeholder={""}>
+						placeholder={"系统已内置默认使用系统key"}>
 						<span style={{ fontWeight: 500 }}>Input Model key</span>
 					</VSCodeTextField>
 					<span style={{ fontWeight: 500 }}>Select Model ID</span>
-					<DropdownContainer>
-						<VSCodeDropdown
-							id="awss-region-dropdown"
-							value={apiConfiguration?.deepseekLocalModelId || "DeepSeek-R1"}
-							style={{ width: "100%" }}
-							onChange={handleInputChange("deepseekLocalModelId")}>
-							<VSCodeOption key={"DeepSeek-R1"} value="DeepSeek-R1">
-								DeepSeek-R1
-							</VSCodeOption>
-							<VSCodeOption key={"Qwen2.5-72B-Instruct"} value="Qwen2.5-72B-Instruct">
-								Qwen2.5-72B-Instruct
-							</VSCodeOption>
-							<VSCodeOption key={"llama3_70b"} value="llama3_70b">
-								llama3_70b
-							</VSCodeOption>
-						</VSCodeDropdown>
-					</DropdownContainer>
+					<DropdownContainer></DropdownContainer>
+					<VSCodeDropdown
+						id="aws-region-dropdown"
+						value={apiConfiguration?.deepseekLocalModelId || "DeepSeek-R1"}
+						style={{ width: "100%" }}
+						onChange={handleInputChange("deepseekLocalModelId")}>
+						<VSCodeOption key={"DeepSeek-R1"} value="DeepSeek-R1">
+							DeepSeek-R1
+						</VSCodeOption>
+						<VSCodeOption key={"Qwen2.5-72B-Instruct"} value="Qwen2.5-72B-Instruct">
+							Qwen2.5-72B-Instruct
+						</VSCodeOption>
+						<VSCodeOption key={"llama3_70b"} value="llama3_70b">
+							llama3_70b
+						</VSCodeOption>
+					</VSCodeDropdown>
 
 					<p
 						style={{

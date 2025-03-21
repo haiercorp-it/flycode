@@ -242,7 +242,6 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 		// console.log("Converted messages:", JSON.stringify(convertedMessages))
 
 		const data = {}
-		console.log("Request body:", JSON.stringify(data, null, 2))
 		try {
 			// 使用 fetch API 发送请求并处理流式响应
 			const response = await fetch(url, {
@@ -717,7 +716,6 @@ export class HaierUserCenterHandler implements ApiRAGHandler {
 			})
 
 			const data = {}
-			console.log("Request body:", JSON.stringify(data, null, 2))
 			try {
 				// 使用 fetch API 发送请求并处理流式响应
 				const response = await fetch(url, {

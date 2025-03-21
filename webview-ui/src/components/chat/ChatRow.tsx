@@ -233,7 +233,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							}}></span>
 					),
 					<span style={{ color: normalColor, fontWeight: "bold", wordBreak: "break-word" }}>
-						我们需要在 中 {mcpServerUse.type === "use_mcp_tool" ? "使用工具" : "获取资源"}
+						我们需要{mcpServerUse.type === "use_mcp_tool" ? "使用工具" : "获取资源"}
 						<code style={{ wordBreak: "break-all" }}>
 							{getMcpServerDisplayName(mcpServerUse.serverName, mcpMarketplaceCatalog)}
 						</code>{" "}

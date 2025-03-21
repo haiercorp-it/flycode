@@ -27,8 +27,10 @@ export class TerminalProcess extends EventEmitter<TerminalProcessEvents> {
 	// 	super()
 
 	async run(terminal: vscode.Terminal, command: string) {
-		if (terminal.shellIntegration && terminal.shellIntegration.executeCommand) {
-			const execution = terminal.shellIntegration.executeCommand(command)
+		// 使用类型断言访问shellIntegration属性
+		const shellIntegration = (terminal as any).shellIntegration
+		if (shellIntegration && shellIntegration.executeCommand) {
+			const execution = shellIntegration.executeCommand(command)
 			const stream = execution.read()
 			// todo: need to handle errors
 			let isFirstChunk = true

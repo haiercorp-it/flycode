@@ -2,7 +2,7 @@
 	"name": "generate-infinity",
 	"displayName": "GI",
 	"description": "Empowering developers to build beyond boundaries with AI-driven automation and future-ready architectures. Turn complex code into limitless innovation—where every line scales infinitely.",
-	"version": "1.0.3",
+	"version": "1.0.5",
 	"icon": "assets/icons/icon.png",
 	"galleryBanner": {
 		"color": "#617A91",
@@ -49,7 +49,8 @@
 				{
 					"type": "webview",
 					"id": "claude-devS.SidebarProvider",
-					"name": ""
+					"name": "",
+					"icon": "assets/icons/icon.svg"
 				}
 			]
 		},

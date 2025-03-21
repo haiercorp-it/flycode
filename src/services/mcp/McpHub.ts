@@ -82,6 +82,26 @@ export class McpHub {
 		return mcpServersPath
 	}
 
+	// 	async getMcpSettingsFilePath(): Promise<string> {
+	// 		const provider = this.providerRef.deref()
+	// 		if (!provider) {
+	// 			throw new Error("Provider not available")
+	// 		}
+	// 		const mcpSettingsFilePath = path.join(await provider.ensureSettingsDirectoryExists(), GlobalFileNames.mcpSettings)
+	// 		const fileExists = await fileExistsAtPath(mcpSettingsFilePath)
+
+	// 		if (!fileExists) {
+	// 			await fs.writeFile(
+	// 				mcpSettingsFilePath,
+	// 				`{
+	//   	"mcpServers": {
+
+	//   }
+	// }`,
+	// 			)
+	// 		}
+	// 		return mcpSettingsFilePath
+	// 	}
 	async getMcpSettingsFilePath(): Promise<string> {
 		const provider = this.providerRef.deref()
 		if (!provider) {
@@ -89,16 +109,62 @@ export class McpHub {
 		}
 		const mcpSettingsFilePath = path.join(await provider.ensureSettingsDirectoryExists(), GlobalFileNames.mcpSettings)
 		const fileExists = await fileExistsAtPath(mcpSettingsFilePath)
+
+		const defaultServers = {
+			playwright: {
+				command: "npx",
+				args: ["-y", "@executeautomation/playwright-mcp-server"],
+			},
+			"figma-developer-mcp": {
+				command: "npx",
+				args: ["-y", "figma-developer-mcp", "--stdio"],
+				env: {
+					FIGMA_API_KEY: "",
+				},
+			},
+			puppeteer: {
+				command: "npx",
+				args: ["-y", "@modelcontextprotocol/server-puppeteer@latest"],
+				autoApprove: ["puppeteer_fill"],
+			},
+		}
+
 		if (!fileExists) {
+			// 如果文件不存在，创建包含默认配置的新文件
 			await fs.writeFile(
 				mcpSettingsFilePath,
-				`{
-  "mcpServers": {
-    
-  }
-}`,
+				JSON.stringify(
+					{
+						mcpServers: defaultServers,
+					},
+					null,
+					2,
+				),
 			)
+		} else {
+			// 如果文件存在，读取现有配置并合并新的服务器配置
+			try {
+				const content = await fs.readFile(mcpSettingsFilePath, "utf-8")
+				const config = JSON.parse(content)
+
+				if (!config.mcpServers) {
+					config.mcpServers = {}
+				}
+
+				// 合并新的服务器配置，保留现有的其他配置
+				config.mcpServers = {
+					...config.mcpServers,
+					...defaultServers,
+				}
+
+				// 写回更新后的配置
+				await fs.writeFile(mcpSettingsFilePath, JSON.stringify(config, null, 2))
+			} catch (error) {
+				console.error("Failed to update MCP settings:", error)
+				throw error
+			}
 		}
+
 		return mcpSettingsFilePath
 	}
 

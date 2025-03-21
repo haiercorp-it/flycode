@@ -136,21 +136,6 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 						}}>
 						Allow anonymous error and usage reporting
 					</VSCodeCheckbox>
-					<p
-						style={{
-							fontSize: "12px",
-							marginTop: "5px",
-							color: "var(--vscode-descriptionForeground)",
-						}}>
-						Help improve Cline by sending anonymous usage data and error reports. No code, prompts, or personal
-						information is ever sent. See our{" "}
-						<VSCodeLink
-							href="https://github.com/cline/cline/blob/main/docs/PRIVACY.md"
-							style={{ fontSize: "inherit" }}>
-							privacy policy
-						</VSCodeLink>{" "}
-						for more details.
-					</p>
 				</div>
 
 				{IS_DEV && (

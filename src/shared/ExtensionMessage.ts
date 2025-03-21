@@ -187,6 +187,7 @@ export interface ClineSayBrowserAction {
 
 export type BrowserActionResult = {
 	screenshot?: string
+	boxDescriptions?: string
 	logs?: string
 	currentUrl?: string
 	currentMousePosition?: string

@@ -394,8 +394,9 @@ export const openAiModelInfoSaneDefaults: ModelInfo = {
 export const deepseekModelInfoSaneDefaults: ModelInfo = {
 	maxTokens: 8_000,
 	contextWindow: 51_000,
-	supportsImages: false,
+	supportsImages: true,
 	supportsPromptCache: true,
+	supportsComputerUse: true,
 	inputPrice: 0,
 	outputPrice: 0,
 }
@@ -911,7 +912,7 @@ export const HaierinternalDefaultModelId = "deepseek-r1:32b"
 export const HaierinternalModelInfoSaneDefaults: ModelInfo = {
 	maxTokens: 4096,
 	contextWindow: 8192,
-	supportsImages: false,
+	supportsImages: true,
 	supportsPromptCache: false,
 	inputPrice: 0,
 	outputPrice: 0,

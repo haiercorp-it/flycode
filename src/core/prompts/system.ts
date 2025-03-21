@@ -143,20 +143,20 @@ Usage:
 		? `
 
 ## browser_action
-Description: 网络搜索任务和@assistant指定的任务.The tool provides a way to open URLs and navigate to websites and wait for the user's response including a screenshot and logs to determine the next action.
+Description: The tool provides a way to open URLs and navigate to websites and wait for the user's response including a screenshot and logs to determine the next action.
 - The sequence of actions **must always start with** launching the browser at a URL, and **must always end with** closing the browser. If you need to visit a new URL that is not possible to navigate to from the current webpage, you must first close the browser, then launch again at the new URL.
 - While the browser is active, only the \`browser_action\` tool can be used. No other tools should be called during this time. You may proceed to use other tools only after closing the browser. For example if you run into an error and need to fix a file, you must close the browser, then use other tools to make the necessary changes, then re-launch the browser to verify the result.
 - The browser window has a resolution of **${browserSettings.viewport.width}x${browserSettings.viewport.height}** pixels. When performing any click actions, ensure the coordinates are within this resolution range.
 - Before clicking on any elements such as icons, links, or buttons, you must consult the provided screenshot of the page to determine the coordinates of the element. The click should be targeted at the **center of the element**, not on its edges.
 Parameters:
 - action: (required) The action to perform. The available actions are:
-    * launch: Launch a new Puppeteer-controlled browser instance at the specified URL. This **must always be the first action**.
+    * launch: Launch a new Puppeteer-controlled browser instance at the specified URL. This **must always be the first action** you should wait to wait the browser to load.
         - Use with the \`url\` parameter to provide the URL.
         - Ensure the URL is valid and includes the appropriate protocol (e.g. http://localhost:3000/page, file:///path/to/file.html, etc.)
     * click: Click at a specific x,y coordinate or key_press a element.
-        - Use with the \`coordinate\` parameter to specify the location.
+          - Use with the \`coordinate\` parameter to specify the location.
         - Always click in the center of an element (icon, button, link, etc.) based on coordinates derived from a screenshot.
-    * type: Type a string of text on the keyboard. You might use this after clicking on a text field to input text.
+    * type: Always after the click action.click to get the focus then Type a string of text on the keyboard. You might use this after clicking on a text field to input text. if type action failed, you can use the click action to click on the text field again then retry.
         - Use with the \`text\` parameter to provide the string to type.
     * scroll_down: Scroll down the page by one page height.
     * scroll_up: Scroll up the page by one page height.
@@ -165,14 +165,14 @@ Parameters:
 - url: (optional) Use this for providing the URL for the \`launch\` action.
     * Example: <url>https://example.com</url>
 - coordinate: (optional) The X and Y coordinates for the \`click\` action. Coordinates should be within the **${browserSettings.viewport.width}x${browserSettings.viewport.height}** resolution.
-    * Example: <coordinate>450,300</coordinate>
+    * Example: <coordinate>435,139</coordinate>
 - text: (optional) Use this for providing the text for the \`type\` action.
     * Example: <text>Hello, world!</text>
 Usage:
 <browser_action>
 <action>Action to perform (e.g., launch, click, type, scroll_down, scroll_up, close)</action>
 <url>URL to launch the browser at (optional)</url>
-<coordinate>x,y coordinates (optional)</coordinate>
+<coordinate>the element id </coordinate>
 <text>Text to type (optional)</text>
 </browser_action>`
 		: ""
@@ -1030,45 +1030,11 @@ export function addAgentContexts(userAgentCustomContexts?: string) {
 feature Numerical Labels placed in the TOP LEFT corner of each Web Element. Carefully analyze the visual
 information to identify the Numerical Label corresponding to the Web Element that requires interaction, then follow
 the guidelines and choose one of the following actions:
-0. browser_action when you want to launch a new browser the  paramer is launch. usage
-<browser_action>
-<action>launch</action>
-<url>URL to launch the browser at (optional)</url>
-<coordinate>x,y coordinates (optional)</coordinate>
-<text>Text to type (optional)</text>
-</browser_action>
-
-1. Click or press a Web Element. Usage:
-<browser_action>
-<action>click</action>
-<url>URL to launch the browser at (optional)</url>
-<coordinate>x,y coordinates (optional)</coordinate>
-<text>Text to type (optional)</text>
-</browser_action>
-2. browser_action when you want to perform a specific action such as scroll on a web action  the paramer is (e.g., scroll_down, scroll_up, etc.)
-​browser_action: When you want to perform a specific action, such as filling text into a particular element, the paramer is (e.g., type, etc.).
-
-Correspondingly, when you want to perform an action, you can choose one of the following tool:
-- browser_action (when you want to launch a new browser pramater is launch))  
-
-Key Guidelines You MUST follow:
-
-* Action guidelines *
-1) Execute only one action per iteration.
-2) When clicking or typing, ensure to select the correct bounding box.
-3) Numeric labels lie in the top-left corner of their corresponding bounding boxes and are colored the same.
-
-* Web Browsing Guidelines *
-1) Don't interact with useless web elements like Login, Sign-in, donation that appear in Webpages
-2) Select strategically to minimize time wasted.
-3) When you need msg you can goto Baidu or Bing to find the information you need. and you can use the browser_action tool to interact with the search engine.
-Your reply should strictly follow the format:
-
+  网络搜索任务和@assistant指定的任务 请使用 MCP 工具. 
 Thought: {Your brief thoughts (briefly summarize the info that will help ANSWER)}
 Action: {One Action format you choose}
 Then the User will provide:
 Observation: {A labeled screenshot Given by User}
-    
     `
 	}
 	if (userAgentCustomContexts) {

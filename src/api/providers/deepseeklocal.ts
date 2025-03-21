@@ -42,14 +42,14 @@ export class DeepSeekLocalHandler implements ApiHandler {
 		console.log("DeepSeekLocalHandler: createMessage called", this.getModelInfo.id, this.getModelInfo.url)
 
 		const url = this.options.deepseekLocalUrl || "https://mgallery.haier.net/v1/chat/completions"
+		let key = this.options.deepseekLocalModelKey || "sk-GkI7Bh6MZQy5WPsB38F59763B8984368A90109Ed306d051c"
 		const headers = {
 			"Content-Type": "application/json",
-			Authorization: "Bearer " + this.options.deepseekLocalModelKey,
+			Authorization: "Bearer " + key,
 		}
 		// 打印转换前的消息，检查格式
 		console.log("Original messages:", headers)
 		// const convertedMessages = convertToOpenAiMessages(messages)
-
 		const processedMessages = messages.map((msg, index) => {
 			if ("content" in msg && Array.isArray(msg.content)) {
 				let filteredContent = msg.content
@@ -98,19 +98,43 @@ export class DeepSeekLocalHandler implements ApiHandler {
 				},
 				...processedMessages,
 			],
-			max_tokens: 8000,
+			max_tokens: 10000,
 			temperature: 0.07,
 			stream: true,
 		}
-		console.log("Request body:", JSON.stringify(data, null, 2))
 		try {
 			// 使用 fetch API 发送请求并处理流式响应
-			const response = await fetch(url, {
+			let response = await fetch(url, {
 				method: "POST",
 				headers: headers,
 				body: JSON.stringify(data),
 			})
 			console.log("Response length:", JSON.stringify(data).length)
+
+			// 如果遇到 424 错误，只保留最后两条消息并重试
+			if (response.status === 424) {
+				console.log("收到 424 错误，正在使用最后两条消息重试...")
+				const lastTwoMessages = [processedMessages[0], ...processedMessages.slice(-4)]
+
+				const retryData = {
+					...data,
+					messages: [
+						{
+							role: "system",
+							content: systemPrompt,
+						},
+						...lastTwoMessages,
+					],
+				}
+
+				response = await fetch(url, {
+					method: "POST",
+					headers: headers,
+					body: JSON.stringify(retryData),
+				})
+				console.log("重试请求长度:", JSON.stringify(retryData).length)
+			}
+
 			if (!response.ok) {
 				const errorText = await response.text()
 				console.error("Error response:", {

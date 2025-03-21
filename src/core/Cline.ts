@@ -1323,7 +1323,7 @@ export class Cline {
 		// 	// this.api = buildApiHandler({...apiConfiguration,'apiProvider':'usercenter'});
 		// }
 
-		let systemPrompt = await SYSTEM_PROMPT(cwd, supportsComputerUse, mcpHub, this.browserSettings)
+		let systemPrompt = await SYSTEM_PROMPT(cwd, true, mcpHub, this.browserSettings) //supportsComputerUse
 
 		let userRagCustomContexts = this.accountInfo?.text?.trim()
 		if (userRagCustomContexts) {
@@ -2103,7 +2103,8 @@ export class Cline {
 									formatResponse.toolResult(
 										`The browser action has been executed. The console logs and screenshot have been captured for your analysis.\n\nConsole logs:\n${
 											browserActionResult.logs || "(No new logs)"
-										}\n\n(REMEMBER: if you need to proceed to using non-\`browser_action\` tools or launch a new browser, you MUST first close this browser. For example, if after analyzing the logs and screenshot you need to edit a file, you must first close the browser before you can use the write_to_file tool.)`,
+										},
+										\n\n(REMEMBER: if you need to proceed to using non-\`browser_action\` tools or launch a new browser, you MUST first close this browser. For example, if after analyzing the logs and screenshot you need to edit a file, you must first close the browser before you can use the write_to_file tool.)`,
 										browserActionResult.screenshot ? [browserActionResult.screenshot] : [],
 									),
 								)
@@ -2257,7 +2258,9 @@ export class Cline {
 											formatResponse.toolResult(
 												`The browser action has been executed. The console logs and screenshot have been captured for your analysis.\n\nConsole logs:\n${
 													browserActionResult.logs || "(No new logs)"
-												}\n\n(REMEMBER: if you need to proceed to using non-\`browser_action\` tools or launch a new browser, you MUST first close this browser. For example, if after analyzing the logs and screenshot you need to edit a file, you must first close the browser before you can use the write_to_file tool.)`,
+												}\n\n(REMEMBER: if you need to proceed to using non-\`browser_action\` tools or launch a new browser, you MUST first close this browser. For example, if after analyzing the logs and screenshot you need to edit a file, you must first close the browser before you can use the write_to_file tool.)
+												\n\n 可点击元素:\n${browserActionResult.boxDescriptions}
+												`,
 												browserActionResult.screenshot ? [browserActionResult.screenshot] : [],
 											),
 										)
@@ -2665,6 +2668,10 @@ export class Cline {
 						const server_name: string | undefined = block.params.server_name
 						const tool_name: string | undefined = block.params.tool_name
 						const mcp_arguments: string | undefined = block.params.arguments
+						if (tool_name === "playwright_screenshot") {
+							console.log("use_mcp_tool", server_name, tool_name, mcp_arguments)
+						}
+
 						try {
 							if (block.partial) {
 								const partialMessage = JSON.stringify({
@@ -2748,10 +2755,54 @@ export class Cline {
 
 								// now execute the tool
 								await this.say("mcp_server_request_started") // same as browser_action_result
+								let evalueElement
+								let evalueImg
+								if (server_name === "playwright") {
+									const parsedArgumentsNew = {
+										script: `
+										    Array.from(document.querySelectorAll('a, button, input, select,li, textarea, [role="button"], [onclick], [tabindex="0"]')).filter(el => el.offsetWidth > 20 && el.offsetHeight > 20).map(el => ({ tagName: el.tagName, rect: el.getBoundingClientRect(), innerHTML: el.innerHTML.slice(0, 10) }))
+										`,
+										// 其他必要参数（根据您的工具配置补充）
+									}
+									const evalue = await this.providerRef
+										.deref()
+										?.mcpHub?.callTool(server_name, "playwright_evaluate", parsedArgumentsNew)
+									const evalues = await this.providerRef
+										.deref()
+										?.mcpHub?.callTool(server_name, "playwright_screenshot", {
+											name: "screenshot.png",
+											savePng: false,
+											storeBase64: true,
+										})
+									if (evalues?.isError === false) {
+										let content = evalues?.content.map((item: any) => item.text)[0]
+										const filePath = "/" + content.split(": ")[1]
+										const data = await fs.readFile(filePath)
+										evalueImg = `data:image/png;base64,${data.toString("base64")}`
+									}
+
+									console.log("evalue", evalue, evalues)
+									evalueElement =
+										(evalue?.isError ? "Error:\n" : "") +
+											evalue?.content
+												.map((item) => {
+													if (item.type === "text") {
+														return item.text
+													}
+													if (item.type === "resource") {
+														const { blob, ...rest } = item.resource
+														return JSON.stringify(rest, null, 2)
+													}
+													return ""
+												})
+												.filter(Boolean)
+												.join("\n\n") || "(No response)"
+								}
+
 								const toolResult = await this.providerRef
 									.deref()
 									?.mcpHub?.callTool(server_name, tool_name, parsedArguments)
-
+								console.log("this si tool result", toolResult, server_name, tool_name)
 								// TODO: add progress indicator and ability to parse images and non-text responses
 								const toolResultPretty =
 									(toolResult?.isError ? "Error:\n" : "") +
@@ -2769,7 +2820,9 @@ export class Cline {
 											.filter(Boolean)
 											.join("\n\n") || "(No response)"
 								await this.say("mcp_server_response", toolResultPretty)
-								pushToolResult(formatResponse.toolResult(toolResultPretty))
+								let newTool = toolResultPretty + `\n\n获取的网页的元素:${evalueElement}`
+								console.log("this si tool result", newTool)
+								pushToolResult(formatResponse.toolResult(newTool, evalueImg ? [evalueImg] : []))
 
 								await this.saveCheckpoint()
 
