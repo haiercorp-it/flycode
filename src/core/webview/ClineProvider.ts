@@ -2062,12 +2062,14 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 			apiConfiguration,
 			customInstructions,
 			uriScheme: vscode.env.uriScheme,
-			currentTaskItem: this.cline?.taskId ? (taskHistory || []).find((item:any) => item.id === this.cline?.taskId) : undefined,
+			currentTaskItem: this.cline?.taskId
+				? (taskHistory || []).find((item: any) => item.id === this.cline?.taskId)
+				: undefined,
 			checkpointTrackerErrorMessage: this.cline?.checkpointTrackerErrorMessage,
 			clineMessages: this.cline?.clineMessages || [],
 			taskHistory: (taskHistory || [])
-				.filter((item:any) => item.ts && item.task)
-				.sort((a:any, b:any) => b.ts - a.ts)
+				.filter((item: any) => item.ts && item.task)
+				.sort((a: any, b: any) => b.ts - a.ts)
 				.slice(0, 100), // for now we're only getting the latest 100 tasks, but a better solution here is to only pass in 3 for recent task history, and then get the full task history on demand when going to the task history view (maybe with pagination?)
 			shouldShowAnnouncement: lastShownAnnouncementId !== this.latestAnnouncementId,
 			platform: process.platform as Platform,

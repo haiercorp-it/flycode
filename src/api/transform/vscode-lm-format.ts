@@ -190,7 +190,7 @@ export async function convertToAnthropicMessage(
 
 				return null
 			})
-			.filter((part:any): part is Anthropic.ContentBlock => part !== null),
+			.filter((part: any): part is Anthropic.ContentBlock => part !== null),
 		stop_reason: null,
 		stop_sequence: null,
 		usage: {
