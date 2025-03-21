@@ -42,7 +42,7 @@ export class DeepSeekLocalHandler implements ApiHandler {
 		console.log("DeepSeekLocalHandler: createMessage called", this.getModelInfo.id, this.getModelInfo.url)
 
 		const url = this.options.deepseekLocalUrl || "https://mgallery.haier.net/v1/chat/completions"
-		let key = this.options.deepseekLocalModelKey || "sk-GkI7Bh6MZQy5WPsB38F59763B8984368A90109Ed306d051c"
+		let key = this.options.deepseekLocalModelKey || ""
 		const headers = {
 			"Content-Type": "application/json",
 			Authorization: "Bearer " + key,
