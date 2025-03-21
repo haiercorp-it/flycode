@@ -19,6 +19,9 @@ export class ClineHandler implements ApiHandler {
 			apiKey: this.options.clineApiKey || "",
 		})
 	}
+	getAccountInfo() {
+		
+	}
 
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
 		this.lastGenerationId = undefined

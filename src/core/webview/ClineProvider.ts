@@ -34,6 +34,7 @@ import { getNonce } from "./getNonce"
 import { getUri } from "./getUri"
 import { telemetryService } from "../../services/telemetry/TelemetryService"
 import { TelemetrySetting } from "../../shared/TelemetrySetting"
+import { FirebaseAuthManager } from "../../services/auth/FirebaseAuthManager"
 import { validateThinkingBudget } from "../../utils/validation"
 import { tuple } from "zod"
 import { cleanupLegacyCheckpoints } from "../../integrations/checkpoints/CheckpointMigration"
@@ -68,6 +69,7 @@ type SecretKey =
 	| "asksageApiKey"
 	| "xaiApiKey"
 	| "sambanovaApiKey"
+	| "authToken"
 type GlobalStateKey =
 	| "apiProvider"
 	| "apiModelId"
@@ -133,6 +135,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 	private disposables: vscode.Disposable[] = []
 	private view?: vscode.WebviewView | vscode.WebviewPanel
 	private cline?: Cline
+	private authManager: FirebaseAuthManager
 	workspaceTracker?: WorkspaceTracker
 	mcpHub?: McpHub
 	private latestAnnouncementId = "feb-19-2025" // update to some unique identifier when we add a new announcement
@@ -2059,12 +2062,12 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 			apiConfiguration,
 			customInstructions,
 			uriScheme: vscode.env.uriScheme,
-			currentTaskItem: this.cline?.taskId ? (taskHistory || []).find((item) => item.id === this.cline?.taskId) : undefined,
+			currentTaskItem: this.cline?.taskId ? (taskHistory || []).find((item:any) => item.id === this.cline?.taskId) : undefined,
 			checkpointTrackerErrorMessage: this.cline?.checkpointTrackerErrorMessage,
 			clineMessages: this.cline?.clineMessages || [],
 			taskHistory: (taskHistory || [])
-				.filter((item) => item.ts && item.task)
-				.sort((a, b) => b.ts - a.ts)
+				.filter((item:any) => item.ts && item.task)
+				.sort((a:any, b:any) => b.ts - a.ts)
 				.slice(0, 100), // for now we're only getting the latest 100 tasks, but a better solution here is to only pass in 3 for recent task history, and then get the full task history on demand when going to the task history view (maybe with pagination?)
 			shouldShowAnnouncement: lastShownAnnouncementId !== this.latestAnnouncementId,
 			platform: process.platform as Platform,

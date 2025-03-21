@@ -9,7 +9,6 @@ import * as path from "path"
 import { serializeError } from "serialize-error"
 import * as vscode from "vscode"
 import { ApiHandler, buildApiHandler, ApiRAGHandler, buildApiRAGHandler } from "../api"
-import { OpenAiHandler } from "../api/providers/openai"
 import { OpenRouterHandler } from "../api/providers/openrouter"
 import CheckpointTracker from "../integrations/checkpoints/CheckpointTracker"
 import { DIFF_VIEW_URI_SCHEME, DiffViewProvider } from "../integrations/editor/DiffViewProvider"
@@ -59,13 +58,12 @@ import { ClineIgnoreController, LOCK_TEXT_SYMBOL } from "./ignore/ClineIgnoreCon
 import { parseMentions } from "./mentions"
 import { formatResponse } from "./prompts/responses"
 import { addUserInstructions, SYSTEM_PROMPT, addRagContexts, addAgentContexts } from "./prompts/system"
-import { getNextTruncationRange, getTruncatedMessages } from "./sliding-window"
-import { ClineProvider, GlobalFileNames } from "./webview/ClineProvider"
+// import { getNextTruncationRange, getTruncatedMessages } from "./sliding-window"
+import { ClineProvider } from "./webview/ClineProvider"
 import { ContextManager } from "./context-management/ContextManager"
 import { OpenAiHandler } from "../api/providers/openai"
 import { ApiStream } from "../api/transform/stream"
 import { ClineHandler } from "../api/providers/cline"
-import { ClineProvider } from "./webview/ClineProvider"
 import { DEFAULT_LANGUAGE_SETTINGS, getLanguageKey, LanguageDisplay, LanguageKey } from "../shared/Languages"
 import { telemetryService } from "../services/telemetry/TelemetryService"
 import { ConversationTelemetryService, TelemetryChatMessage } from "../services/telemetry/ConversationTelemetryService"
@@ -2110,98 +2108,6 @@ export class Cline {
 						}
 
 						break
-					}
-					case "open_browser": {
-						console.log("open_browser--------", block.params.url)
-						const relPath: string | undefined = block.params.url
-						const sharedMessageProps: ClineSayTool = {
-							tool: "open_browser",
-							path: getReadablePath(cwd, removeClosingTag("path", relPath)),
-						}
-						try {
-							if (block.partial) {
-								const partialMessage = JSON.stringify({
-									...sharedMessageProps,
-									content: undefined,
-								} satisfies ClineSayTool)
-								if (this.shouldAutoApproveTool(block.name)) {
-									this.removeLastPartialMessageIfExistsWithType("ask", "tool")
-									await this.say("tool", partialMessage, undefined, block.partial)
-								} else {
-									this.removeLastPartialMessageIfExistsWithType("say", "tool")
-									await this.ask("tool", partialMessage, block.partial).catch(() => {})
-								}
-								break
-							} else {
-								if (!relPath) {
-									this.consecutiveMistakeCount++
-									pushToolResult(await this.sayAndCreateMissingParamError("open_browser", "path"))
-									break
-								}
-
-								this.consecutiveMistakeCount = 0
-								const absolutePath = path.resolve(cwd, relPath)
-								const completeMessage = JSON.stringify({
-									...sharedMessageProps,
-									content: absolutePath,
-								} satisfies ClineSayTool)
-								if (this.shouldAutoApproveTool(block.name)) {
-									this.removeLastPartialMessageIfExistsWithType("ask", "tool")
-									await this.say("tool", completeMessage, undefined, false) // need to be sending partialValue bool, since undefined has its own purpose in that the message is treated neither as a partial or completion of a partial, but as a single complete message
-									this.consecutiveAutoApprovedRequestsCount++
-									telemetryService.captureToolUsage(this.taskId, block.name, true, true)
-								} else {
-									this.removeLastPartialMessageIfExistsWithType("say", "tool")
-									const didApprove = await askApproval("tool", completeMessage)
-									if (!didApprove) {
-										telemetryService.captureToolUsage(this.taskId, block.name, false, false)
-										break
-									}
-									telemetryService.captureToolUsage(this.taskId, block.name, false, true)
-								}
-								// now execute the tool like normal
-								await this.browserSession.launchBrowser()
-								let browserActionResult = await this.browserSession.navigateToUrl(relPath)
-								pushToolResult(
-									formatResponse.toolResult(
-										`The browser action has been executed. The console logs and screenshot have been captured for your analysis.\n\nConsole logs:\n${
-											browserActionResult.logs || "(No new logs)"
-										},
-										\n\n(REMEMBER: if you need to proceed to using non-\`browser_action\` tools or launch a new browser, you MUST first close this browser. For example, if after analyzing the logs and screenshot you need to edit a file, you must first close the browser before you can use the write_to_file tool.)`,
-										browserActionResult.screenshot ? [browserActionResult.screenshot] : [],
-									),
-								)
-
-								const completeMessage = JSON.stringify({
-									...sharedMessageProps,
-									content: result,
-								} satisfies ClineSayTool)
-								if (this.shouldAutoApproveTool(block.name)) {
-									this.removeLastPartialMessageIfExistsWithType("ask", "tool")
-									await this.say("tool", completeMessage, undefined, false)
-									this.consecutiveAutoApprovedRequestsCount++
-									telemetryService.captureToolUsage(this.taskId, block.name, true, true)
-								} else {
-									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to view directory ${path.basename(absolutePath)}/`,
-									)
-									this.removeLastPartialMessageIfExistsWithType("say", "tool")
-									const didApprove = await askApproval("tool", completeMessage)
-									if (!didApprove) {
-										telemetryService.captureToolUsage(this.taskId, block.name, false, false)
-										break
-									}
-									telemetryService.captureToolUsage(this.taskId, block.name, false, true)
-								}
-								pushToolResult(result)
-
-								break
-							}
-						} catch (error) {
-							await handleError("listing files", error)
-
-							break
-						}
 					}
 					case "list_code_definition_names": {
 						const relDirPath: string | undefined = block.params.path

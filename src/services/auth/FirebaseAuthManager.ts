@@ -46,7 +46,7 @@ export class FirebaseAuthManager {
 				console.log("Session restored successfully")
 			} catch (error) {
 				console.error("Failed to restore session, clearing token:", error)
-				await provider.setAuthToken(undefined)
+				// await provider.setAuthToken(undefined)
 				await provider.setUserInfo(undefined)
 			}
 		} else {
@@ -65,7 +65,7 @@ export class FirebaseAuthManager {
 		if (user) {
 			console.log("User signed in", { userId: user.uid })
 			const idToken = await user.getIdToken()
-			await provider.setAuthToken(idToken)
+			// await provider.setAuthToken(idToken)
 			// Store public user info in state
 			await provider.setUserInfo({
 				displayName: user.displayName,
@@ -75,7 +75,7 @@ export class FirebaseAuthManager {
 			console.log("User info set in provider", { user })
 		} else {
 			console.log("User signed out")
-			await provider.setAuthToken(undefined)
+			// await provider.setAuthToken(undefined)
 			await provider.setUserInfo(undefined)
 		}
 		await provider.postStateToWebview()
