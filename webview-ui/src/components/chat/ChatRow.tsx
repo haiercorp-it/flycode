@@ -5,8 +5,10 @@ import { useEvent, useSize } from "react-use"
 import styled from "styled-components"
 import {
 	ClineApiReqInfo,
+	ClineAskQuestion,
 	ClineAskUseMcpServer,
 	ClineMessage,
+	ClinePlanModeResponse,
 	ClineSayTool,
 	COMPLETION_RESULT_CHANGES_FLAG,
 	ExtensionMessage,
@@ -15,17 +17,19 @@ import { COMMAND_OUTPUT_STRING, COMMAND_REQ_APP_STRING } from "../../../../src/s
 import { useExtensionState } from "../../context/ExtensionStateContext"
 import { findMatchingResourceOrTemplate, getMcpServerDisplayName } from "../../utils/mcp"
 import { vscode } from "../../utils/vscode"
+import { CheckmarkControl } from "../common/CheckmarkControl"
 import { CheckpointControls, CheckpointOverlay } from "../common/CheckpointControls"
 import CodeAccordian, { cleanPathPrefix } from "../common/CodeAccordian"
 import CodeBlock, { CODE_BLOCK_BG_COLOR } from "../common/CodeBlock"
 import MarkdownBlock from "../common/MarkdownBlock"
-import SuccessButton from "../common/SuccessButton"
 import Thumbnails from "../common/Thumbnails"
 import McpResourceRow from "../mcp/McpResourceRow"
 import McpToolRow from "../mcp/McpToolRow"
-import { highlightMentions } from "./TaskHeader"
-import { CheckmarkControl } from "../common/CheckmarkControl"
 import McpResponseDisplay from "../mcp/McpResponseDisplay"
+import CreditLimitError from "./CreditLimitError"
+import { OptionsButtons } from "./OptionsButtons"
+import { highlightMentions } from "./TaskHeader"
+import SuccessButton from "../common/SuccessButton"
 
 const ChatRowContainer = styled.div`
 	padding: 10px 6px 10px 15px;
@@ -183,7 +187,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							color: errorColor,
 							marginBottom: "-1.5px",
 						}}></span>,
-					<span style={{ color: errorColor, fontWeight: "bold" }}>错误</span>,
+					<span style={{ color: errorColor, fontWeight: "bold" }}>Error</span>,
 				]
 			case "mistake_limit_reached":
 				return [
@@ -193,7 +197,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							color: errorColor,
 							marginBottom: "-1.5px",
 						}}></span>,
-					<span style={{ color: errorColor, fontWeight: "bold" }}> 遇到问题...</span>,
+					<span style={{ color: errorColor, fontWeight: "bold" }}>Cline is having trouble...</span>,
 				]
 			case "auto_approval_max_req_reached":
 				return [
@@ -203,7 +207,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							color: errorColor,
 							marginBottom: "-1.5px",
 						}}></span>,
-					<span style={{ color: errorColor, fontWeight: "bold" }}>达到最大请求数</span>,
+					<span style={{ color: errorColor, fontWeight: "bold" }}>Maximum Requests Reached</span>,
 				]
 			case "command":
 				return [
@@ -217,7 +221,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 								marginBottom: "-1.5px",
 							}}></span>
 					),
-					<span style={{ color: normalColor, fontWeight: "bold" }}>我们需要执行这条命令:</span>,
+					<span style={{ color: normalColor, fontWeight: "bold" }}>Cline wants to execute this command:</span>,
 				]
 			case "use_mcp_server":
 				const mcpServerUse = JSON.parse(message.text || "{}") as ClineAskUseMcpServer
@@ -233,11 +237,11 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							}}></span>
 					),
 					<span style={{ color: normalColor, fontWeight: "bold", wordBreak: "break-word" }}>
-						我们需要{mcpServerUse.type === "use_mcp_tool" ? "使用工具" : "获取资源"}
+						Cline wants to {mcpServerUse.type === "use_mcp_tool" ? "use a tool" : "access a resource"} on the{" "}
 						<code style={{ wordBreak: "break-all" }}>
 							{getMcpServerDisplayName(mcpServerUse.serverName, mcpMarketplaceCatalog)}
 						</code>{" "}
-						MCP扩展服务
+						MCP server:
 					</span>,
 				]
 			case "completion_result":
@@ -248,7 +252,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							color: successColor,
 							marginBottom: "-1.5px",
 						}}></span>,
-					<span style={{ color: successColor, fontWeight: "bold" }}>任务完成</span>,
+					<span style={{ color: successColor, fontWeight: "bold" }}>Task Completed</span>,
 				]
 			case "api_req_started":
 				const getIconSpan = (iconName: string, color: string) => (
@@ -283,31 +287,25 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 					) : (
 						<ProgressIndicator />
 					),
-					apiReqCancelReason != null ? (
-						apiReqCancelReason === "user_cancelled" ? (
-							<span
-								style={{
-									color: normalColor,
-									fontWeight: "bold",
-								}}>
-								API 请求取消
-							</span>
-						) : (
-							<span
-								style={{
-									color: errorColor,
-									fontWeight: "bold",
-								}}>
-								API 流请求失败
-							</span>
-						)
-					) : cost != null ? (
-						<span style={{ color: normalColor, fontWeight: "bold" }}>API请求</span>
-					) : apiRequestFailedMessage ? (
-						<span style={{ color: errorColor, fontWeight: "bold" }}>API请求失败</span>
-					) : (
-						<span style={{ color: normalColor, fontWeight: "bold" }}>API请求...</span>
-					),
+					(() => {
+						if (apiReqCancelReason != null) {
+							return apiReqCancelReason === "user_cancelled" ? (
+								<span style={{ color: normalColor, fontWeight: "bold" }}>API Request Cancelled</span>
+							) : (
+								<span style={{ color: errorColor, fontWeight: "bold" }}>API Streaming Failed</span>
+							)
+						}
+
+						if (cost != null) {
+							return <span style={{ color: normalColor, fontWeight: "bold" }}>API Request</span>
+						}
+
+						if (apiRequestFailedMessage) {
+							return <span style={{ color: errorColor, fontWeight: "bold" }}>API Request Failed</span>
+						}
+
+						return <span style={{ color: normalColor, fontWeight: "bold" }}>API Request...</span>
+					})(),
 				]
 			case "followup":
 				return [
@@ -317,7 +315,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							color: normalColor,
 							marginBottom: "-1.5px",
 						}}></span>,
-					<span style={{ color: normalColor, fontWeight: "bold" }}>请问:</span>,
+					<span style={{ color: normalColor, fontWeight: "bold" }}>Cline has a question:</span>,
 				]
 			default:
 				return [null, null]
@@ -361,7 +359,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 					<>
 						<div style={headerStyle}>
 							{toolIcon("edit")}
-							<span style={{ fontWeight: "bold" }}>我们需要编辑这个文件:</span>
+							<span style={{ fontWeight: "bold" }}>Cline wants to edit this file:</span>
 						</div>
 						<CodeAccordian
 							// isLoading={message.partial}
@@ -377,7 +375,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 					<>
 						<div style={headerStyle}>
 							{toolIcon("new-file")}
-							<span style={{ fontWeight: "bold" }}>我们需要创建一个新文件:</span>
+							<span style={{ fontWeight: "bold" }}>Cline wants to create a new file:</span>
 						</div>
 						<CodeAccordian
 							isLoading={message.partial}
@@ -395,7 +393,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							{toolIcon("file-code")}
 							<span style={{ fontWeight: "bold" }}>
 								{/* {message.type === "ask" ? "" : "Cline read this file:"} */}
-								我们需要读取这个文件:
+								Cline wants to read this file:
 							</span>
 						</div>
 						<div
@@ -452,7 +450,9 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 						<div style={headerStyle}>
 							{toolIcon("folder-opened")}
 							<span style={{ fontWeight: "bold" }}>
-								{message.type === "ask" ? "我们需要查看这个目录中的顶级文件:" : "我们查看了此目录中的顶层文件:"}
+								{message.type === "ask"
+									? "Cline wants to view the top level files in this directory:"
+									: "Cline viewed the top level files in this directory:"}
 							</span>
 						</div>
 						<CodeAccordian
@@ -471,8 +471,8 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							{toolIcon("folder-opened")}
 							<span style={{ fontWeight: "bold" }}>
 								{message.type === "ask"
-									? "我们需要递归查看这个目录中的所有文件:"
-									: "我们在这个目录递归到以下文件:"}
+									? "Cline wants to recursively view all files in this directory:"
+									: "Cline recursively viewed all files in this directory:"}
 							</span>
 						</div>
 						<CodeAccordian
@@ -491,8 +491,8 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							{toolIcon("file-code")}
 							<span style={{ fontWeight: "bold" }}>
 								{message.type === "ask"
-									? "我们需要查看这个目录中使用的源代码定义名称:"
-									: "我们在这个目录查看了以下源代码定义:"}
+									? "Cline wants to view source code definition names used in this directory:"
+									: "Cline viewed source code definition names used in this directory:"}
 							</span>
 						</div>
 						<CodeAccordian
@@ -509,7 +509,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 						<div style={headerStyle}>
 							{toolIcon("search")}
 							<span style={{ fontWeight: "bold" }}>
-								我们需要在这个目录中搜索 <code>{tool.regex}</code>:
+								Cline wants to search this directory for <code>{tool.regex}</code>:
 							</span>
 						</div>
 						<CodeAccordian
@@ -521,32 +521,6 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 						/>
 					</>
 				)
-			// case "inspectSite":
-			// 	const isInspecting =
-			// 		isLast && lastModifiedMessage?.say === "inspect_site_result" && !lastModifiedMessage?.images
-			// 	return (
-			// 		<>
-			// 			<div style={headerStyle}>
-			// 				{isInspecting ? <ProgressIndicator /> : toolIcon("inspect")}
-			// 				<span style={{ fontWeight: "bold" }}>
-			// 					{message.type === "ask" ? (
-			// 						<>我们需要 inspect this website:</>
-			// 					) : (
-			// 						<>Cline is inspecting this website:</>
-			// 					)}
-			// 				</span>
-			// 			</div>
-			// 			<div
-			// 				style={{
-			// 					borderRadius: 3,
-			// 					border: "1px solid var(--vscode-editorGroup-border)",
-			// 					overflow: "hidden",
-			// 					backgroundColor: CODE_BLOCK_BG_COLOR,
-			// 				}}>
-			// 				<CodeBlock source={`${"```"}shell\n${tool.path}\n${"```"}`} forceWrap={true} />
-			// 			</div>
-			// 		</>
-			// 	)
 			default:
 				return null
 		}
@@ -615,7 +589,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 									padding: `2px 8px ${isExpanded ? 0 : 8}px 8px`,
 								}}>
 								<span className={`codicon codicon-chevron-${isExpanded ? "down" : "right"}`}></span>
-								<span style={{ fontSize: "0.8em" }}>终端输出</span>
+								<span style={{ fontSize: "0.8em" }}>Command Output</span>
 							</div>
 							{isExpanded && <CodeBlock source={`${"```"}shell\n${output}\n${"```"}`} />}
 						</div>
@@ -632,7 +606,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							color: "var(--vscode-editorWarning-foreground)",
 						}}>
 						<i className="codicon codicon-warning"></i>
-						<span>模型已判定此命令需要批准。</span>
+						<span>The model has determined this command requires explicit approval.</span>
 					</div>
 				)}
 			</>
@@ -753,62 +727,55 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 							</div>
 							{((cost == null && apiRequestFailedMessage) || apiReqStreamingFailedMessage) && (
 								<>
-									<p
-										style={{
-											...pStyle,
-											color: "var(--vscode-errorForeground)",
-										}}>
-										{apiRequestFailedMessage || apiReqStreamingFailedMessage}
+									{(() => {
+										// Try to parse the error message as JSON for credit limit error
+										const errorData = parseErrorText(apiRequestFailedMessage)
+										if (errorData) {
+											if (
+												errorData.code === "insufficient_credits" &&
+												typeof errorData.current_balance === "number" &&
+												typeof errorData.total_spent === "number" &&
+												typeof errorData.total_promotions === "number" &&
+												typeof errorData.message === "string"
+											) {
+												return (
+													<CreditLimitError
+														currentBalance={errorData.current_balance}
+														totalSpent={errorData.total_spent}
+														totalPromotions={errorData.total_promotions}
+														message={errorData.message}
+													/>
+												)
+											}
+										}
 
-										{/* {apiProvider === "" && (
-												<div
-													style={{
-														display: "flex",
-														alignItems: "center",
-														backgroundColor:
-															"color-mix(in srgb, var(--vscode-errorForeground) 20%, transparent)",
-														color: "var(--vscode-editor-foreground)",
-														padding: "6px 8px",
-														borderRadius: "3px",
-														margin: "10px 0 0 0",
-														fontSize: "12px",
-													}}>
-													<i
-														className="codicon codicon-warning"
-														style={{
-															marginRight: 6,
-															fontSize: 16,
-															color: "var(--vscode-errorForeground)",
-														}}></i>
-													<span>
-														Uh-oh this could be a problem on end. We've been alerted and
-														will resolve this ASAP. You can also{" "}
+										// Default error display
+										return (
+											<p
+												style={{
+													...pStyle,
+													color: "var(--vscode-errorForeground)",
+												}}>
+												{apiRequestFailedMessage || apiReqStreamingFailedMessage}
+												{apiRequestFailedMessage?.toLowerCase().includes("powershell") && (
+													<>
+														<br />
+														<br />
+														It seems like you're having Windows PowerShell issues, please see this{" "}
 														<a
-															href=""
-															style={{ color: "inherit", textDecoration: "underline" }}>
-															contact us
+															href="https://github.com/cline/cline/wiki/TroubleShooting-%E2%80%90-%22PowerShell-is-not-recognized-as-an-internal-or-external-command%22"
+															style={{
+																color: "inherit",
+																textDecoration: "underline",
+															}}>
+															troubleshooting guide
 														</a>
 														.
-													</span>
-												</div>
-											)} */}
-										{apiRequestFailedMessage?.toLowerCase().includes("powershell") && (
-											<>
-												<br />
-												<br />
-												It seems like you're having Windows PowerShell issues, please see this{" "}
-												<a
-													href="https://github.com/cline/cline/wiki/TroubleShooting-%E2%80%90-%22PowerShell-is-not-recognized-as-an-internal-or-external-command%22"
-													style={{
-														color: "inherit",
-														textDecoration: "underline",
-													}}>
-													troubleshooting guide
-												</a>
-												.
-											</>
-										)}
-									</p>
+													</>
+												)}
+											</p>
+										)
+									})()}
 								</>
 							)}
 
@@ -851,7 +818,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 									{isExpanded ? (
 										<div style={{ marginTop: -3 }}>
 											<span style={{ fontWeight: "bold", display: "block", marginBottom: "4px" }}>
-												推理
+												Thinking
 												<span
 													className="codicon codicon-chevron-down"
 													style={{
@@ -865,7 +832,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 										</div>
 									) : (
 										<div style={{ display: "flex", alignItems: "center" }}>
-											<span style={{ fontWeight: "bold", marginRight: "4px" }}>推理:</span>
+											<span style={{ fontWeight: "bold", marginRight: "4px" }}>Thinking:</span>
 											<span
 												style={{
 													whiteSpace: "nowrap",
@@ -948,10 +915,12 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 								style={{
 									display: "flex",
 									flexDirection: "column",
-									backgroundColor: "rgba(255, 191, 0, 0.1)",
+									backgroundColor: "var(--vscode-textBlockQuote-background)",
 									padding: 8,
 									borderRadius: 3,
 									fontSize: 12,
+									color: "var(--vscode-foreground)",
+									opacity: 0.8,
 								}}>
 								<div
 									style={{
@@ -960,21 +929,15 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 										marginBottom: 4,
 									}}>
 									<i
-										className="codicon codicon-error"
+										className="codicon codicon-warning"
 										style={{
 											marginRight: 8,
-											fontSize: 18,
-											color: "#FFA500",
+											fontSize: 14,
+											color: "var(--vscode-descriptionForeground)",
 										}}></i>
-									<span
-										style={{
-											fontWeight: 500,
-											color: "#FFA500",
-										}}>
-										差异编辑失败
-									</span>
+									<span style={{ fontWeight: 500 }}>Diff Edit Mismatch</span>
 								</div>
-								<div>这通常发生在模型使用的搜索模式与文件中的任何内容都不匹配时。正在重试……</div>
+								<div>The model used search patterns that don't match anything in the file. Retrying...</div>
 							</div>
 						</>
 					)
@@ -1008,11 +971,13 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 											fontWeight: 500,
 											color: "#FFA500",
 										}}>
-										访问被拒绝
+										Access Denied
 									</span>
 								</div>
 								<div>
-									我们尝试访问文件 <code>{message.text}</code> 但被以下文件禁止了: <code>.clineignore</code>.
+									Cline tried to access <code>{message.text}</code> which is blocked by the{" "}
+									<code>.clineignore</code>
+									file.
 								</div>
 							</div>
 						</>
@@ -1055,8 +1020,8 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 											})
 										}}
 										style={{
-											width: "100%",
 											cursor: seeNewChangesDisabled ? "wait" : "pointer",
+											width: "100%",
 										}}>
 										<i className="codicon codicon-new-file" style={{ marginRight: 6 }} />
 										See new changes
@@ -1095,20 +1060,21 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 											fontWeight: 500,
 											color: "#FFA500",
 										}}>
-										Shell 集成不可用
+										Shell Integration Unavailable
 									</span>
 								</div>
 								<div>
-									我们无法查看命令的输出。请更新VSCode (<code>CMD/CTRL + Shift + P</code> → "Update")
-									并确保您使用的是支持的终端程序: zsh, bash, fish, or PowerShell (
-									<code>CMD/CTRL + Shift + P</code> → "Terminal: Select Default Profile").{" "}
+									Cline won't be able to view the command's output. Please update VSCode (
+									<code>CMD/CTRL + Shift + P</code> → "Update") and make sure you're using a supported shell:
+									zsh, bash, fish, or PowerShell (<code>CMD/CTRL + Shift + P</code> → "Terminal: Select Default
+									Profile").{" "}
 									<a
 										href="https://github.com/cline/cline/wiki/Troubleshooting-%E2%80%90-Shell-Integration-Unavailable"
 										style={{
 											color: "inherit",
 											textDecoration: "underline",
 										}}>
-										仍有问题?
+										Still having trouble?
 									</a>
 								</div>
 							</div>
@@ -1202,7 +1168,7 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 														cursor: seeNewChangesDisabled ? "wait" : "pointer",
 													}}
 												/>
-												查看变更
+												See new changes
 											</SuccessButton>
 										</div>
 									)}
@@ -1213,6 +1179,19 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 						return null // Don't render anything when we get a completion_result ask without text
 					}
 				case "followup":
+					let question: string | undefined
+					let options: string[] | undefined
+					let selected: string | undefined
+					try {
+						const parsedMessage = JSON.parse(message.text || "{}") as ClineAskQuestion
+						question = parsedMessage.question
+						options = parsedMessage.options
+						selected = parsedMessage.selected
+					} catch (e) {
+						// legacy messages would pass question directly
+						question = message.text
+					}
+
 					return (
 						<>
 							{title && (
@@ -1222,18 +1201,58 @@ export const ChatRowContent = ({ message, isExpanded, onToggleExpand, lastModifi
 								</div>
 							)}
 							<div style={{ paddingTop: 10 }}>
-								<Markdown markdown={message.text} />
+								<Markdown markdown={question} />
+								<OptionsButtons
+									options={options}
+									selected={selected}
+									isActive={isLast && lastModifiedMessage?.ask === "followup"}
+								/>
 							</div>
 						</>
 					)
-				case "plan_mode_response":
+				case "plan_mode_response": {
+					let response: string | undefined
+					let options: string[] | undefined
+					let selected: string | undefined
+					try {
+						const parsedMessage = JSON.parse(message.text || "{}") as ClinePlanModeResponse
+						response = parsedMessage.response
+						options = parsedMessage.options
+						selected = parsedMessage.selected
+					} catch (e) {
+						// legacy messages would pass response directly
+						response = message.text
+					}
 					return (
 						<div style={{}}>
-							<Markdown markdown={message.text} />
+							<Markdown markdown={response} />
+							<OptionsButtons
+								options={options}
+								selected={selected}
+								isActive={isLast && lastModifiedMessage?.ask === "plan_mode_response"}
+							/>
 						</div>
 					)
+				}
 				default:
 					return null
 			}
+	}
+}
+
+function parseErrorText(text: string | undefined) {
+	if (!text) {
+		return undefined
+	}
+	try {
+		const startIndex = text.indexOf("{")
+		const endIndex = text.lastIndexOf("}")
+		if (startIndex !== -1 && endIndex !== -1) {
+			const jsonStr = text.substring(startIndex, endIndex + 1)
+			const errorObject = JSON.parse(jsonStr)
+			return errorObject
+		}
+	} catch (e) {
+		// Not JSON or missing required fields
 	}
 }

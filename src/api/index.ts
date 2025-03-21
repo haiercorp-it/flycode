@@ -9,13 +9,14 @@ import { OllamaHandler } from "./providers/ollama"
 import { LmStudioHandler } from "./providers/lmstudio"
 import { GeminiHandler } from "./providers/gemini"
 import { OpenAiNativeHandler } from "./providers/openai-native"
-import { ApiStream } from "./transform/stream"
+import { ApiStream, ApiStreamUsageChunk } from "./transform/stream"
 import { DeepSeekHandler } from "./providers/deepseek"
 import { RequestyHandler } from "./providers/requesty"
 import { TogetherHandler } from "./providers/together"
 import { QwenHandler } from "./providers/qwen"
 import { MistralHandler } from "./providers/mistral"
 import { VsCodeLmHandler } from "./providers/vscode-lm"
+import { ClineHandler } from "./providers/cline"
 import { LiteLlmHandler } from "./providers/litellm"
 import { HaierUserCenterHandler } from "./providers/usercenter"
 import { HaierInternalHandler } from "./providers/haierinternal"
@@ -23,11 +24,13 @@ import { ClineProvider } from "../core/webview/ClineProvider"
 import { DeepSeekLocalHandler } from "./providers/deepseeklocal"
 import { AskSageHandler } from "./providers/asksage"
 import { XAIHandler } from "./providers/xai"
+import { SambanovaHandler } from "./providers/sambanova"
 
 export interface ApiHandler {
 	createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream
 	getModel(): { id: string; info: ModelInfo }
 	getAccountInfo(): any
+	getApiStreamUsage?(): Promise<ApiStreamUsageChunk | undefined>
 }
 
 export interface ApiRAGHandler extends ApiHandler {
@@ -73,6 +76,8 @@ export function buildApiHandler(configuration: ApiConfiguration): ApiHandler {
 			return new MistralHandler(options)
 		case "vscode-lm":
 			return new VsCodeLmHandler(options)
+		case "cline":
+			return new ClineHandler(options)
 		case "litellm":
 			return new LiteLlmHandler(options)
 		case "haierinternal":
@@ -85,6 +90,8 @@ export function buildApiHandler(configuration: ApiConfiguration): ApiHandler {
 			return new AskSageHandler(options)
 		case "xai":
 			return new XAIHandler(options)
+		case "sambanova":
+			return new SambanovaHandler(options)
 		default:
 			return new AnthropicHandler(options)
 	}

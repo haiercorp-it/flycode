@@ -8,6 +8,7 @@ import WelcomeView from "./components/welcome/WelcomeView"
 import AccountView from "./components/account/AccountView"
 import RagAccountView from "./components/rag/RagAccount"
 import { ExtensionStateContextProvider, useExtensionState } from "./context/ExtensionStateContext"
+import { FirebaseAuthProvider } from "./context/FirebaseAuthContext"
 import { vscode } from "./utils/vscode"
 import McpView from "./components/mcp/McpView"
 
@@ -128,7 +129,9 @@ const AppContent = () => {
 const App = () => {
 	return (
 		<ExtensionStateContextProvider>
-			<AppContent />
+			<FirebaseAuthProvider>
+				<AppContent />
+			</FirebaseAuthProvider>
 		</ExtensionStateContextProvider>
 	)
 }

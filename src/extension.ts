@@ -188,10 +188,11 @@ export function activate(context: vscode.ExtensionContext) {
 				const token = query.get("token")
 				const state = query.get("state")
 				const info = query.get("info")
-
+				const apiKey = query.get("apiKey")
 				console.log("Auth callback received:", {
 					token: token,
 					state: state,
+					apiKey: apiKey,
 				})
 
 				// Validate state parameter
