@@ -27,12 +27,14 @@ export interface ExtensionMessage {
 		| "relinquishControl"
 		| "vsCodeLmModels"
 		| "requestVsCodeLmModels"
-		| "emailSubscribed"
+		| "authCallback"
 		| "mcpMarketplaceCatalog"
 		| "mcpDownloadDetails"
 		| "commitSearchResults"
 		| "openGraphData"
 		| "isImageUrlResult"
+		| "didUpdateSettings"
+		| "totalTasksSize"
 	text?: string
 	action?:
 		| "chatButtonClicked"
@@ -42,7 +44,7 @@ export interface ExtensionMessage {
 		| "didBecomeVisible"
 		| "accountLoginClicked"
 		| "accountLogoutClicked"
-	invoke?: "sendMessage" | "primaryButtonClick" | "secondaryButtonClick"
+	invoke?: Invoke
 	state?: ExtensionState
 	images?: string[]
 	ollamaModels?: string[]
@@ -53,6 +55,7 @@ export interface ExtensionMessage {
 	openRouterModels?: Record<string, ModelInfo>
 	openAiModels?: string[]
 	mcpServers?: McpServer[]
+	customToken?: string
 	mcpMarketplaceCatalog?: McpMarketplaceCatalog
 	error?: string
 	mcpDownloadDetails?: McpDownloadResponse
@@ -67,34 +70,37 @@ export interface ExtensionMessage {
 	}
 	url?: string
 	isImage?: boolean
+	totalTasksSize?: number | null
 }
+
+export type Invoke = "sendMessage" | "primaryButtonClick" | "secondaryButtonClick"
 
 export type Platform = "aix" | "darwin" | "freebsd" | "linux" | "openbsd" | "sunos" | "win32" | "unknown"
 
 export const DEFAULT_PLATFORM = "unknown"
 
 export interface ExtensionState {
-	version: string
 	apiConfiguration?: ApiConfiguration
-	customInstructions?: string
-	uriScheme?: string
-	currentTaskItem?: HistoryItem
-	checkpointTrackerErrorMessage?: string
-	clineMessages: ClineMessage[]
-	taskHistory: HistoryItem[]
-	shouldShowAnnouncement: boolean
 	autoApprovalSettings: AutoApprovalSettings
 	browserSettings: BrowserSettings
 	chatSettings: ChatSettings
-	isLoggedIn: boolean
+	checkpointTrackerErrorMessage?: string
+	clineMessages: ClineMessage[]
+	currentTaskItem?: HistoryItem
+	customInstructions?: string
+	mcpMarketplaceEnabled?: boolean
+	planActSeparateModelsSetting: boolean
 	platform: Platform
+	shouldShowAnnouncement: boolean
+	taskHistory: HistoryItem[]
+	telemetrySetting: TelemetrySetting
+	uriScheme?: string
 	userInfo?: {
 		displayName: string | null
 		email: string | null
 		photoURL: string | null
 	}
-	mcpMarketplaceEnabled?: boolean
-	telemetrySetting: TelemetrySetting
+	version: string
 	vscMachineId: string
 }
 
@@ -193,6 +199,18 @@ export interface ClineAskUseMcpServer {
 	toolName?: string
 	arguments?: string
 	uri?: string
+}
+
+export interface ClinePlanModeResponse {
+	response: string
+	options?: string[]
+	selected?: string
+}
+
+export interface ClineAskQuestion {
+	question: string
+	options?: string[]
+	selected?: string
 }
 
 export interface ClineApiReqInfo {
