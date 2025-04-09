@@ -1403,6 +1403,10 @@ export class Cline {
 				}
 				let maxAllowedSize: number
 				switch (contextWindow) {
+					case 40_000: // deepseek local v3
+						maxAllowedSize = contextWindow - 20_000
+						break
+
 					case 51_000: // deepseek local
 						maxAllowedSize = contextWindow - 20_000
 						break
