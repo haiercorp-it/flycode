@@ -1335,26 +1335,25 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 					</VSCodeTextField> */}
 					<span style={{ fontWeight: 500 }}>Select Model ID</span>
 					<DropdownContainer className="dropdown-container" zIndex={DROPDOWN_Z_INDEX - 1}>
-					<VSCodeDropdown
-						id="aws-region-dropdown"
-						value={apiConfiguration?.deepseekLocalModelId || "DeepSeek-R1"}
-						style={{ width: "100%" }}
-						onChange={handleInputChange("deepseekLocalModelId")}>
-						<VSCodeOption key={"DeepSeek-R1"} value="DeepSeek-R1">
-							DeepSeek-R1
-						</VSCodeOption>
-						<VSCodeOption key={"Qwen2.5-72B-Instruct"} value="Qwen2.5-72B-Instruct">
-							Qwen2.5-72B-Instruct
-						</VSCodeOption>
-						<VSCodeOption key={"llama3_70b"} value="llama3_70b">
-							llama3_70b 
-						</VSCodeOption>
-						<VSCodeOption key={"deepseek-v3"} value="deepseek-v3">
-							deepseek-v3.1 
-						</VSCodeOption>
-					</VSCodeDropdown>
+						<VSCodeDropdown
+							id="aws-region-dropdown"
+							value={apiConfiguration?.deepseekLocalModelId || "DeepSeek-R1"}
+							style={{ width: "100%" }}
+							onChange={handleInputChange("deepseekLocalModelId")}>
+							<VSCodeOption key={"DeepSeek-R1"} value="DeepSeek-R1">
+								DeepSeek-R1
+							</VSCodeOption>
+							<VSCodeOption key={"Qwen2.5-72B-Instruct"} value="Qwen2.5-72B-Instruct">
+								Qwen2.5-72B-Instruct
+							</VSCodeOption>
+							<VSCodeOption key={"llama3_70b"} value="llama3_70b">
+								llama3_70b
+							</VSCodeOption>
+							<VSCodeOption key={"deepseek-v3"} value="deepseek-v3">
+								deepseek-v3.1
+							</VSCodeOption>
+						</VSCodeDropdown>
 					</DropdownContainer>
-					
 
 					<p
 						style={{
@@ -1466,7 +1465,11 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 					<>
 						<DropdownContainer zIndex={DROPDOWN_Z_INDEX - 2} className="dropdown-container">
 							<label htmlFor="model-id">
-								{selectedProvider!== "deepseek_local" ? <span style={{ fontWeight: 500 }}>Model ID</span> : <span style={{height:'50px'}}></span>}
+								{selectedProvider !== "deepseek_local" ? (
+									<span style={{ fontWeight: 500 }}>Model ID</span>
+								) : (
+									<span style={{ height: "50px" }}></span>
+								)}
 							</label>
 							{selectedProvider === "anthropic" && createDropdown(anthropicModels)}
 							{selectedProvider === "bedrock" && createDropdown(bedrockModels)}
@@ -1490,13 +1493,15 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							<ThinkingBudgetSlider apiConfiguration={apiConfiguration} setApiConfiguration={setApiConfiguration} />
 						)}
 
-						{selectedProvider!== "deepseek_local" && <ModelInfoView
-							selectedModelId={selectedModelId}
-							modelInfo={selectedModelInfo}
-							isDescriptionExpanded={isDescriptionExpanded}
-							setIsDescriptionExpanded={setIsDescriptionExpanded}
-							isPopup={isPopup}
-						/>}
+						{selectedProvider !== "deepseek_local" && (
+							<ModelInfoView
+								selectedModelId={selectedModelId}
+								modelInfo={selectedModelInfo}
+								isDescriptionExpanded={isDescriptionExpanded}
+								setIsDescriptionExpanded={setIsDescriptionExpanded}
+								isPopup={isPopup}
+							/>
+						)}
 					</>
 				)}
 

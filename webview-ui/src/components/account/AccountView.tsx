@@ -5,7 +5,6 @@ import { vscode } from "../../utils/vscode"
 import VSCodeButtonLink from "../common/VSCodeButtonLink"
 import { useExtensionState } from "../../context/ExtensionStateContext"
 
-
 type AccountViewProps = {
 	onDone: () => void
 }

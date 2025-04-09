@@ -762,7 +762,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 				case "litellm":
 					return `${selectedProvider}:${apiConfiguration.liteLlmModelId}`
 				case "deepseek_local":
-					return `HaierGallery:${selectedModelId==="deepseek-v3"?"deepseek-v3.1":selectedModelId}`	
+					return `HaierGallery:${selectedModelId === "deepseek-v3" ? "deepseek-v3.1" : selectedModelId}`
 				case "requesty":
 				case "anthropic":
 				case "openrouter":
