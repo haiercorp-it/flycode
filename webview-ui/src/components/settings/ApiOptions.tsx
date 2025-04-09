@@ -54,6 +54,7 @@ import { getAsVar, VSC_DESCRIPTION_FOREGROUND } from "../../utils/vscStyles"
 import VSCodeButtonLink from "../common/VSCodeButtonLink"
 import OpenRouterModelPicker, { ModelDescriptionMarkdown } from "./OpenRouterModelPicker"
 import AccountView, { ClineAccountView } from "../account/AccountView"
+import { hide } from "@floating-ui/react"
 
 interface ApiOptionsProps {
 	showModelOptions: boolean
@@ -195,8 +196,8 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						minWidth: 130,
 						position: "relative",
 					}}>
-					<VSCodeOption value="deepseek_local">deepseek_local</VSCodeOption>
-					<VSCodeOption value="cline">Cline</VSCodeOption>
+					<VSCodeOption value="deepseek_local">Haiergallery</VSCodeOption>
+					{/* <VSCodeOption value="cline">Cline</VSCodeOption> */}
 					<VSCodeOption value="openrouter">OpenRouter</VSCodeOption>
 					<VSCodeOption value="anthropic">Anthropic</VSCodeOption>
 					<VSCodeOption value="bedrock">AWS Bedrock</VSCodeOption>
@@ -1325,15 +1326,15 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						""
 					)}
 					{/* <span style={{ fontWeight: 500 }}>Input Model key</span> */}
-					<VSCodeTextField
+					{/* <VSCodeTextField
 						value={apiConfiguration?.deepseekLocalModelKey || ""}
 						style={{ width: "100%" }}
 						onInput={handleInputChange("deepseekLocalModelKey")}
 						placeholder={"系统已内置默认使用系统key"}>
 						<span style={{ fontWeight: 500 }}>Input Model key</span>
-					</VSCodeTextField>
+					</VSCodeTextField> */}
 					<span style={{ fontWeight: 500 }}>Select Model ID</span>
-					<DropdownContainer></DropdownContainer>
+					<DropdownContainer className="dropdown-container" zIndex={DROPDOWN_Z_INDEX - 1}>
 					<VSCodeDropdown
 						id="aws-region-dropdown"
 						value={apiConfiguration?.deepseekLocalModelId || "DeepSeek-R1"}
@@ -1346,9 +1347,14 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							Qwen2.5-72B-Instruct
 						</VSCodeOption>
 						<VSCodeOption key={"llama3_70b"} value="llama3_70b">
-							llama3_70b
+							llama3_70b 
+						</VSCodeOption>
+						<VSCodeOption key={"deepseek-v3"} value="deepseek-v3">
+							deepseek-v3.1 
 						</VSCodeOption>
 					</VSCodeDropdown>
+					</DropdownContainer>
+					
 
 					<p
 						style={{
@@ -1460,7 +1466,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 					<>
 						<DropdownContainer zIndex={DROPDOWN_Z_INDEX - 2} className="dropdown-container">
 							<label htmlFor="model-id">
-								<span style={{ fontWeight: 500 }}>Model</span>
+								{selectedProvider!== "deepseek_local" ? <span style={{ fontWeight: 500 }}>Model ID</span> : <span style={{height:'50px'}}></span>}
 							</label>
 							{selectedProvider === "anthropic" && createDropdown(anthropicModels)}
 							{selectedProvider === "bedrock" && createDropdown(bedrockModels)}
@@ -1484,13 +1490,13 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							<ThinkingBudgetSlider apiConfiguration={apiConfiguration} setApiConfiguration={setApiConfiguration} />
 						)}
 
-						<ModelInfoView
+						{selectedProvider!== "deepseek_local" && <ModelInfoView
 							selectedModelId={selectedModelId}
 							modelInfo={selectedModelInfo}
 							isDescriptionExpanded={isDescriptionExpanded}
 							setIsDescriptionExpanded={setIsDescriptionExpanded}
 							isPopup={isPopup}
-						/>
+						/>}
 					</>
 				)}
 

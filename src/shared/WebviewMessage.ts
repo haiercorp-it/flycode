@@ -64,6 +64,8 @@ export interface WebviewMessage {
 		| "clearAllTaskHistory"
 		| "optionsResponse"
 		| "requestTotalTasksSize"
+		| "customInstructions"
+		| "subscribeEmail"
 	// | "relaunchChromeDebugMode"
 	text?: string
 	disabled?: boolean

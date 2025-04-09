@@ -207,6 +207,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 	}
 
 	async setUserInfo(info?: { displayName: string | null; email: string | null; photoURL: string | null }) {
+		console.log("Setting user info", info)
 		await this.updateGlobalState("userInfo", info)
 	}
 

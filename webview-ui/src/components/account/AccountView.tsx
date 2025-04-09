@@ -3,6 +3,8 @@ import { memo } from "react"
 import { useFirebaseAuth } from "../../context/FirebaseAuthContext"
 import { vscode } from "../../utils/vscode"
 import VSCodeButtonLink from "../common/VSCodeButtonLink"
+import { useExtensionState } from "../../context/ExtensionStateContext"
+
 
 type AccountViewProps = {
 	onDone: () => void
@@ -197,9 +199,9 @@ export const ClineAccountView = () => {
 				</div>
 			) : (
 				<div style={{}}>
-					<VSCodeButton onClick={handleLogin} style={{ marginTop: 0 }}>
+					{/* <VSCodeButton onClick={handleLogin} style={{ marginTop: 0 }}>
 						Sign Up with Cline
-					</VSCodeButton>
+					</VSCodeButton> */}
 				</div>
 			)}
 		</div>

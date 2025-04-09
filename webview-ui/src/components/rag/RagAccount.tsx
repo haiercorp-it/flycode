@@ -129,7 +129,7 @@ const RagAccountView = ({ onDone }: SettingsViewProps) => {
 							}}
 							onClick={() => {}}>
 							<span
-								className={`codicon ${1 ? "codicon-chevron-down" : "codicon-chevron-right"}`}
+								className={`codicon ${1===1 ? "codicon-chevron-down" : "codicon-chevron-right"}`}
 								style={{
 									marginRight: "4px",
 								}}></span>

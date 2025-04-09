@@ -35,6 +35,7 @@ export interface ExtensionMessage {
 		| "isImageUrlResult"
 		| "didUpdateSettings"
 		| "totalTasksSize"
+		| "emailSubscribed"
 	text?: string
 	action?:
 		| "chatButtonClicked"
@@ -102,6 +103,7 @@ export interface ExtensionState {
 		email: string | null
 		photoURL: string | null
 	}
+	isLoggedIn?: boolean
 	version: string
 	vscMachineId: string
 }

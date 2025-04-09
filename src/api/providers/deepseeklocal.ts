@@ -42,7 +42,7 @@ export class DeepSeekLocalHandler implements ApiHandler {
 		console.log("DeepSeekLocalHandler: createMessage called", this.getModelInfo.id, this.getModelInfo.url)
 
 		const url = this.options.deepseekLocalUrl || "https://mgallery.haier.net/v1/chat/completions"
-		let key = this.options.deepseekLocalModelKey || ""
+		let key = this.options.deepseekLocalModelKey || "sk-GkI7Bh6MZQy5WPsB38F59763B8984368A90109Ed306d051c"
 		const headers = {
 			"Content-Type": "application/json",
 			Authorization: "Bearer " + key,
@@ -98,7 +98,7 @@ export class DeepSeekLocalHandler implements ApiHandler {
 				},
 				...processedMessages,
 			],
-			max_tokens: 10000,
+			max_tokens: 5000,
 			temperature: 0.07,
 			stream: true,
 		}
@@ -114,7 +114,7 @@ export class DeepSeekLocalHandler implements ApiHandler {
 			// 如果遇到 424 错误，只保留最后两条消息并重试
 			if (response.status === 424) {
 				console.log("收到 424 错误，正在使用最后两条消息重试...")
-				const lastTwoMessages = [processedMessages[0], ...processedMessages.slice(-4)]
+				const lastTwoMessages = [processedMessages[0], ...processedMessages.slice(-2)]
 
 				const retryData = {
 					...data,

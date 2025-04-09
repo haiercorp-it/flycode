@@ -2,7 +2,7 @@
 	"name": "generate-infinity",
 	"displayName": "GI",
 	"description": "Empowering developers to build beyond boundaries with AI-driven automation and future-ready architectures. Turn complex code into limitless innovation—where every line scales infinitely.",
-	"version": "1.0.5",
+	"version": "1.0.6",
 	"icon": "assets/icons/icon.png",
 	"galleryBanner": {
 		"color": "#617A91",
@@ -187,7 +187,7 @@
 					"default": null,
 					"description": "Chrome 可执行文件的路径，用于浏览器功能。如果未设置，扩展将尝试自动查找或下载。"
 				},
-				"cline.preferredLanguage": {
+				"GI.preferredLanguage": {
 					"type": "string",
 					"enum": [
 						"English",
@@ -210,17 +210,17 @@
 						"Turkish - Türkçe"
 					],
 					"default": "English",
-					"description": "The language that Cline should use for communication."
+					"description": "The language that GI should use for communication."
 				},
-				"cline.mcpMarketplace.enabled": {
+				"GI.mcpMarketplace.enabled": {
 					"type": "boolean",
 					"default": true,
 					"description": "Controls whether the MCP Marketplace is enabled."
 				},
-				"cline.conversationTelemetry": {
+				"GI.conversationTelemetry": {
 					"type": "boolean",
 					"default": false,
-					"description": "Share message data,  code, and more extensive telemetry. This data may be used to improve prompts used in Cline, train models, and understand failure states more accurately."
+					"description": "Share message data,  code, and more extensive telemetry. This data may be used to improve prompts used in GI, train models, and understand failure states more accurately."
 				}
 			}
 		}
@@ -259,7 +259,6 @@
 		"@types/node": "20.x",
 		"@types/should": "^11.2.0",
 		"@types/sinon": "^17.0.4",
-		"@types/vscode": "^1.85.0",
 		"@typescript-eslint/eslint-plugin": "^7.14.1",
 		"@typescript-eslint/parser": "^7.11.0",
 		"@vscode/test-cli": "^0.0.9",
@@ -294,6 +293,7 @@
 		"@types/get-folder-size": "^3.0.4",
 		"@types/pdf-parse": "^1.1.4",
 		"@types/turndown": "^5.0.5",
+		"@types/vscode": "^1.98.0",
 		"@vscode/codicons": "^0.0.36",
 		"axios": "^1.8.4",
 		"cheerio": "^1.0.0",

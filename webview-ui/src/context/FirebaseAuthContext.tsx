@@ -32,26 +32,26 @@ export const FirebaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
 	const auth = getAuth(app)
 
 	// Handle auth state changes
-	useEffect(() => {
-		const unsubscribe = auth.onAuthStateChanged((user) => {
-			setUser(user)
-			setIsInitialized(true)
+	// useEffect(() => {
+	// 	const unsubscribe = auth.onAuthStateChanged((user) => {
+	// 		setUser(user)
+	// 		setIsInitialized(true)
 
-			// Sync auth state with extension
-			vscode.postMessage({
-				type: "authStateChanged",
-				user: user
-					? {
-							displayName: user.displayName,
-							email: user.email,
-							photoURL: user.photoURL,
-						}
-					: null,
-			})
-		})
+	// 		// Sync auth state with extension
+	// 		vscode.postMessage({
+	// 			type: "authStateChanged",
+	// 			user: user
+	// 				? {
+	// 						displayName: user.displayName,
+	// 						email: user.email,
+	// 						photoURL: user.photoURL,
+	// 					}
+	// 				: null,
+	// 		})
+	// 	})
 
-		return () => unsubscribe()
-	}, [auth])
+	// 	return () => unsubscribe()
+	// }, [auth])
 
 	const signInWithToken = useCallback(
 		async (token: string) => {

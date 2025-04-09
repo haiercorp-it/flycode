@@ -1,6 +1,6 @@
-import { Anthropic as Anthropics } from "@anthropic-ai/sdk"
+// import { Anthropic } from "@anthropic-ai/sdk"
+import { Anthropic } from "@anthropic-ai/sdk"
 import * as vscode from "vscode"
-import { CancellationToken } from "vscode"
 import { ApiHandler, SingleCompletionHandler } from "../"
 import { calculateApiCostAnthropic } from "../../utils/cost"
 import { ApiStream } from "../transform/stream"
@@ -11,94 +11,94 @@ import { ApiHandlerOptions, ModelInfo, openAiModelInfoSaneDefaults } from "../..
 // Cline does not update VSCode type definitions or engine requirements to maintain compatibility.
 // This declaration (as seen in src/integrations/TerminalManager.ts) provides types for the Language Model API in newer versions of VSCode.
 // Extracted from https://github.com/microsoft/vscode/blob/131ee0ef660d600cd0a7e6058375b281553abe20/src/vscode-dts/vscode.d.ts
-declare module "vscode" {
-	namespace lm {
-		function selectChatModels(selector?: LanguageModelChatSelector): Thenable<LanguageModelChat[]>
-		enum LanguageModelChatMessageRole {
-			User = 1,
-			Assistant = 2,
-		}
-		enum LanguageModelChatToolMode {
-			Auto = 1,
-			Required = 2,
-		}
-		interface LanguageModelChatSelector {
-			vendor?: string
-			family?: string
-			version?: string
-			id?: string
-		}
-		interface LanguageModelChatTool {
-			name: string
-			description: string
-			inputSchema?: object
-		}
-		interface LanguageModelChatRequestOptions {
-			justification?: string
-			modelOptions?: { [name: string]: any }
-			tools?: LanguageModelChatTool[]
-			toolMode?: LanguageModelChatToolMode
-		}
-		class LanguageModelTextPart {
-			value: string
-			constructor(value: string)
-		}
-		class LanguageModelToolCallPart {
-			callId: string
-			name: string
-			input: object
-			constructor(callId: string, name: string, input: object)
-		}
-		interface LanguageModelChatResponse {
-			stream: AsyncIterable<LanguageModelTextPart | LanguageModelToolCallPart | unknown>
-			text: AsyncIterable<string>
-		}
-		interface LanguageModelChat {
-			readonly name: string
-			readonly id: string
-			readonly vendor: string
-			readonly family: string
-			readonly version: string
-			readonly maxInputTokens: number
+// declare module "vscode" {
+// 	enum LanguageModelChatMessageRole {
+// 		User = 1,
+// 		Assistant = 2,
+// 	}
+// 	enum LanguageModelChatToolMode {
+// 		Auto = 1,
+// 		Required = 2,
+// 	}
+// 	interface LanguageModelChatSelector {
+// 		vendor?: string
+// 		family?: string
+// 		version?: string
+// 		id?: string
+// 	}
+// 	interface LanguageModelChatTool {
+// 		name: string
+// 		description: string
+// 		inputSchema?: object
+// 	}
+// 	interface LanguageModelChatRequestOptions {
+// 		justification?: string
+// 		modelOptions?: { [name: string]: any }
+// 		tools?: LanguageModelChatTool[]
+// 		toolMode?: LanguageModelChatToolMode
+// 	}
+// 	class LanguageModelTextPart {
+// 		value: string
+// 		constructor(value: string)
+// 	}
+// 	class LanguageModelToolCallPart {
+// 		callId: string
+// 		name: string
+// 		input: object
+// 		constructor(callId: string, name: string, input: object)
+// 	}
+// 	interface LanguageModelChatResponse {
+// 		stream: AsyncIterable<LanguageModelTextPart | LanguageModelToolCallPart | unknown>
+// 		text: AsyncIterable<string>
+// 	}
+// 	interface LanguageModelChat {
+// 		readonly name: string
+// 		readonly id: string
+// 		readonly vendor: string
+// 		readonly family: string
+// 		readonly version: string
+// 		readonly maxInputTokens: number
 
-			sendRequest(
-				messages: LanguageModelChatMessage[],
-				options?: LanguageModelChatRequestOptions,
-				token?: CancellationToken,
-			): Thenable<LanguageModelChatResponse>
-			countTokens(text: string | LanguageModelChatMessage, token?: CancellationToken): Thenable<number>
-		}
-		class LanguageModelPromptTsxPart {
-			value: unknown
-			constructor(value: unknown)
-		}
-		class LanguageModelToolResultPart {
-			callId: string
-			content: Array<LanguageModelTextPart | LanguageModelPromptTsxPart | unknown>
-			constructor(callId: string, content: Array<LanguageModelTextPart | LanguageModelPromptTsxPart | unknown>)
-		}
-		class LanguageModelChatMessage {
-			static User(
-				content: string | Array<LanguageModelTextPart | LanguageModelToolResultPart>,
-				name?: string,
-			): LanguageModelChatMessage
-			static Assistant(
-				content: string | Array<LanguageModelTextPart | LanguageModelToolCallPart>,
-				name?: string,
-			): LanguageModelChatMessage
+// 		sendRequest(
+// 			messages: LanguageModelChatMessage[],
+// 			options?: LanguageModelChatRequestOptions,
+// 			token?: CancellationToken,
+// 		): Thenable<LanguageModelChatResponse>
+// 		countTokens(text: string | LanguageModelChatMessage, token?: CancellationToken): Thenable<number>
+// 	}
+// 	class LanguageModelPromptTsxPart {
+// 		value: unknown
+// 		constructor(value: unknown)
+// 	}
+// 	class LanguageModelToolResultPart {
+// 		callId: string
+// 		content: Array<LanguageModelTextPart | LanguageModelPromptTsxPart | unknown>
+// 		constructor(callId: string, content: Array<LanguageModelTextPart | LanguageModelPromptTsxPart | unknown>)
+// 	}
+// 	class LanguageModelChatMessage {
+// 		static User(
+// 			content: string | Array<LanguageModelTextPart | LanguageModelToolResultPart>,
+// 			name?: string,
+// 		): LanguageModelChatMessage
+// 		static Assistant(
+// 			content: string | Array<LanguageModelTextPart | LanguageModelToolCallPart>,
+// 			name?: string,
+// 		): LanguageModelChatMessage
 
-			role: LanguageModelChatMessageRole
-			content: Array<LanguageModelTextPart | LanguageModelToolResultPart | LanguageModelToolCallPart>
-			name: string | undefined
+// 		role: LanguageModelChatMessageRole
+// 		content: Array<LanguageModelTextPart | LanguageModelToolResultPart | LanguageModelToolCallPart>
+// 		name: string | undefined
 
-			constructor(
-				role: LanguageModelChatMessageRole,
-				content: string | Array<LanguageModelTextPart | LanguageModelToolResultPart | LanguageModelToolCallPart>,
-				name?: string,
-			)
-		}
-	}
-}
+// 		constructor(
+// 			role: LanguageModelChatMessageRole,
+// 			content: string | Array<LanguageModelTextPart | LanguageModelToolResultPart | LanguageModelToolCallPart>,
+// 			name?: string,
+// 		)
+// 	}
+// 	namespace lm {
+// 		function selectChatModels(selector?: LanguageModelChatSelector): Thenable<LanguageModelChat[]>
+// 	}
+// }
 
 /**
  * Handles interaction with VS Code's Language Model API for chat-based operations.
@@ -156,12 +156,14 @@ export class VsCodeLmHandler implements ApiHandler, SingleCompletionHandler {
 			this.dispose()
 
 			throw new Error(
-				`  <Language Model API>: Failed to initialize handler: ${error instanceof Error ? error.message : "Unknown error"}`,
+				`Cline <Language Model API>: Failed to initialize handler: ${error instanceof Error ? error.message : "Unknown error"}`,
 			)
 		}
 	}
+	getAccountInfo() {
+		
+	}
 
-	getAccountInfo() {}
 	/**
 	 * Creates a language model chat client based on the provided selector.
 	 *
@@ -190,7 +192,7 @@ export class VsCodeLmHandler implements ApiHandler, SingleCompletionHandler {
 				family: "lm",
 				version: "1.0",
 				maxInputTokens: 8192,
-				sendRequest: async (messages: any, options: any, token: any) => {
+				sendRequest: async (messages, options, token) => {
 					// Provide a minimal implementation
 					return {
 						stream: (async function* () {
@@ -207,7 +209,7 @@ export class VsCodeLmHandler implements ApiHandler, SingleCompletionHandler {
 			}
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : "Unknown error"
-			throw new Error(`  <Language Model API>: Failed to select model: ${errorMessage}`)
+			throw new Error(`Cline <Language Model API>: Failed to select model: ${errorMessage}`)
 		}
 	}
 
@@ -340,7 +342,7 @@ export class VsCodeLmHandler implements ApiHandler, SingleCompletionHandler {
 			} catch (error) {
 				const message = error instanceof Error ? error.message : "Unknown error"
 				console.error("Cline <Language Model API>: Client creation failed:", message)
-				throw new Error(`  <Language Model API>: Failed to create client: ${message}`)
+				throw new Error(`Cline <Language Model API>: Failed to create client: ${message}`)
 			}
 		}
 
@@ -412,7 +414,7 @@ export class VsCodeLmHandler implements ApiHandler, SingleCompletionHandler {
 		return content
 	}
 
-	async *createMessage(systemPrompt: string, messages: Anthropics.Messages.MessageParam[]): ApiStream {
+	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
 		// Ensure clean state before starting a new request
 		this.ensureCleanState()
 		const client: vscode.LanguageModelChat = await this.getClient()
@@ -442,7 +444,7 @@ export class VsCodeLmHandler implements ApiHandler, SingleCompletionHandler {
 		try {
 			// Create the response stream with minimal required options
 			const requestOptions: vscode.LanguageModelChatRequestOptions = {
-				justification: `  would like to use '${client.name}' from '${client.vendor}', Click 'Allow' to proceed.`,
+				justification: `Cline would like to use '${client.name}' from '${client.vendor}', Click 'Allow' to proceed.`,
 			}
 
 			// Note: Tool support is currently provided by the VSCode Language Model API directly
@@ -533,7 +535,7 @@ export class VsCodeLmHandler implements ApiHandler, SingleCompletionHandler {
 			this.ensureCleanState()
 
 			if (error instanceof vscode.CancellationError) {
-				throw new Error("  <Language Model API>: Request cancelled by user")
+				throw new Error("Cline <Language Model API>: Request cancelled by user")
 			}
 
 			if (error instanceof Error) {
@@ -549,12 +551,12 @@ export class VsCodeLmHandler implements ApiHandler, SingleCompletionHandler {
 				// Handle error-like objects
 				const errorDetails = JSON.stringify(error, null, 2)
 				console.error("Cline <Language Model API>: Stream error object:", errorDetails)
-				throw new Error(`  <Language Model API>: Response stream error: ${errorDetails}`)
+				throw new Error(`Cline <Language Model API>: Response stream error: ${errorDetails}`)
 			} else {
 				// Fallback for unknown error types
 				const errorMessage = String(error)
 				console.error("Cline <Language Model API>: Unknown stream error:", errorMessage)
-				throw new Error(`  <Language Model API>: Response stream error: ${errorMessage}`)
+				throw new Error(`Cline <Language Model API>: Response stream error: ${errorMessage}`)
 			}
 		}
 	}
