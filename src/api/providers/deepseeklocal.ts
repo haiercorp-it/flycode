@@ -42,7 +42,7 @@ export class DeepSeekLocalHandler implements ApiHandler {
 		console.log("DeepSeekLocalHandler: createMessage called", this.getModelInfo.id, this.getModelInfo.url)
 
 		const url = this.options.deepseekLocalUrl || "https://mgallery.haier.net/v1/chat/completions"
-		let key = this.options.deepseekLocalModelKey || ""
+		let key = this.options.deepseekLocalModelKey || "sk-YNhA0eMRypupWcON067f5bD979C84925B265C71246F776Dd"
 		const headers = {
 			"Content-Type": "application/json",
 			Authorization: "Bearer " + key,
@@ -102,6 +102,7 @@ export class DeepSeekLocalHandler implements ApiHandler {
 			temperature: 0.07,
 			stream: true,
 		}
+		console.log("请求大模型消息====", JSON.stringify(data))
 		try {
 			// 使用 fetch API 发送请求并处理流式响应
 			let response = await fetch(url, {
@@ -230,9 +231,19 @@ export class DeepSeekLocalHandler implements ApiHandler {
 	}
 
 	getModel(): { id: string; info: ModelInfo } {
-		return {
-			id: this.options.openAiModelId ?? "",
-			info: deepseekModelInfoSaneDefaults,
+		let modelId = this.options.openAiModelId
+		if (modelId === "deepseek-v3") {
+			let result = deepseekModelInfoSaneDefaults
+			result.contextWindow = 40_000
+			return {
+				id: this.options.openAiModelId ?? "",
+				info: result,
+			}
+		} else {
+			return {
+				id: this.options.openAiModelId ?? "",
+				info: deepseekModelInfoSaneDefaults,
+			}
 		}
 	}
 }

@@ -1239,23 +1239,32 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						<span style={{ fontWeight: 500 }}>Input Model key</span>
 					</VSCodeTextField>
 					<span style={{ fontWeight: 500 }}>Select Model ID</span>
-					<DropdownContainer></DropdownContainer>
-					<VSCodeDropdown
-						id="aws-region-dropdown"
-						value={apiConfiguration?.deepseekLocalModelId || "DeepSeek-R1"}
-						style={{ width: "100%" }}
-						onChange={handleInputChange("deepseekLocalModelId")}>
-						<VSCodeOption key={"DeepSeek-R1"} value="DeepSeek-R1">
-							DeepSeek-R1
-						</VSCodeOption>
-						<VSCodeOption key={"Qwen2.5-72B-Instruct"} value="Qwen2.5-72B-Instruct">
-							Qwen2.5-72B-Instruct
-						</VSCodeOption>
-						<VSCodeOption key={"llama3_70b"} value="llama3_70b">
-							llama3_70b
-						</VSCodeOption>
-					</VSCodeDropdown>
-
+					<DropdownContainer className="dropdown-container" zIndex={DROPDOWN_Z_INDEX - 1}>
+						<VSCodeDropdown
+							id="aws-region-dropdown"
+							value={apiConfiguration?.deepseekLocalModelId || "DeepSeek-R1"}
+							style={{ minWidth: 180 }}
+							onChange={handleInputChange("deepseekLocalModelId")}>
+							<VSCodeOption key={"deepseekr1"} value="deepseekr1">
+								DeepSeek-R1
+							</VSCodeOption>
+							<VSCodeOption key={"QwQ-32B"} value="QwQ-32B">
+								QwQ-32B
+							</VSCodeOption>
+							<VSCodeOption key={"deepseek-v3"} value="deepseek-v3">
+								DeepSeek-V3
+							</VSCodeOption>
+							<VSCodeOption key={"Qwen2.5-72B-Instruct"} value="Qwen2.5-72B-Instruct">
+								Qwen2.5-72B-Instruct
+							</VSCodeOption>
+							<VSCodeOption key={"Qwen2.5-VL-72B-Instruct"} value="Qwen2.5-VL-72B-Instruct">
+								Qwen2.5-VL-72B-Instruct
+							</VSCodeOption>
+							<VSCodeOption key={"Llama-3.3-70B-Instruct "} value="Llama-3.3-70B-Instruct ">
+								Llama-3.3-70B-Instruct
+							</VSCodeOption>
+						</VSCodeDropdown>
+					</DropdownContainer>
 					<p
 						style={{
 							fontSize: "12px",
