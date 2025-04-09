@@ -42,7 +42,7 @@ export class DeepSeekLocalHandler implements ApiHandler {
 		console.log("DeepSeekLocalHandler: createMessage called", this.getModelInfo.id, this.getModelInfo.url)
 
 		const url = this.options.deepseekLocalUrl || "https://mgallery.haier.net/v1/chat/completions"
-		let key = this.options.deepseekLocalModelKey || "sk-GkI7Bh6MZQy5WPsB38F59763B8984368A90109Ed306d051c"
+		let key = this.options.deepseekLocalModelKey || "sk-YNhA0eMRypupWcON067f5bD979C84925B265C71246F776Dd"
 		const headers = {
 			"Content-Type": "application/json",
 			Authorization: "Bearer " + key,
@@ -98,10 +98,11 @@ export class DeepSeekLocalHandler implements ApiHandler {
 				},
 				...processedMessages,
 			],
-			max_tokens: 5000,
+			max_tokens: 10000,
 			temperature: 0.07,
 			stream: true,
 		}
+		console.log("请求大模型消息====", JSON.stringify(data))
 		try {
 			// 使用 fetch API 发送请求并处理流式响应
 			let response = await fetch(url, {
@@ -114,7 +115,7 @@ export class DeepSeekLocalHandler implements ApiHandler {
 			// 如果遇到 424 错误，只保留最后两条消息并重试
 			if (response.status === 424) {
 				console.log("收到 424 错误，正在使用最后两条消息重试...")
-				const lastTwoMessages = [processedMessages[0], ...processedMessages.slice(-2)]
+				const lastTwoMessages = [processedMessages[0], ...processedMessages.slice(-4)]
 
 				const retryData = {
 					...data,
@@ -230,9 +231,19 @@ export class DeepSeekLocalHandler implements ApiHandler {
 	}
 
 	getModel(): { id: string; info: ModelInfo } {
-		return {
-			id: this.options.openAiModelId ?? "",
-			info: deepseekModelInfoSaneDefaults,
+		let modelId = this.options.openAiModelId
+		if (modelId === "deepseek-v3") {
+			let result = deepseekModelInfoSaneDefaults
+			result.contextWindow = 40_000
+			return {
+				id: this.options.openAiModelId ?? "",
+				info: result,
+			}
+		} else {
+			return {
+				id: this.options.openAiModelId ?? "",
+				info: deepseekModelInfoSaneDefaults,
+			}
 		}
 	}
 }

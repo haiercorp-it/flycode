@@ -32,10 +32,8 @@ import {
 	openAiNativeModels,
 	openRouterDefaultModelId,
 	openRouterDefaultModelInfo,
-	mainlandQwenModels,
-	internationalQwenModels,
-	mainlandQwenDefaultModelId,
-	internationalQwenDefaultModelId,
+	qwenDefaultModelId,
+	qwenModels,
 	vertexDefaultModelId,
 	vertexModels,
 	deepseekModelInfoSaneDefaults,
@@ -44,8 +42,6 @@ import {
 	askSageDefaultURL,
 	xaiDefaultModelId,
 	xaiModels,
-	sambanovaModels,
-	sambanovaDefaultModelId,
 } from "../../../../src/shared/api"
 import { ExtensionMessage } from "../../../../src/shared/ExtensionMessage"
 import { useExtensionState } from "../../context/ExtensionStateContext"
@@ -53,8 +49,6 @@ import { vscode } from "../../utils/vscode"
 import { getAsVar, VSC_DESCRIPTION_FOREGROUND } from "../../utils/vscStyles"
 import VSCodeButtonLink from "../common/VSCodeButtonLink"
 import OpenRouterModelPicker, { ModelDescriptionMarkdown } from "./OpenRouterModelPicker"
-import AccountView, { ClineAccountView } from "../account/AccountView"
-import { hide } from "@floating-ui/react"
 
 interface ApiOptionsProps {
 	showModelOptions: boolean
@@ -94,7 +88,6 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 	const [vsCodeLmModels, setVsCodeLmModels] = useState<vscodemodels.LanguageModelChatSelector[]>([])
 	const [anthropicBaseUrlSelected, setAnthropicBaseUrlSelected] = useState(!!apiConfiguration?.anthropicBaseUrl)
 	const [azureApiVersionSelected, setAzureApiVersionSelected] = useState(!!apiConfiguration?.azureApiVersion)
-	const [awsEndpointSelected, setAwsEndpointSelected] = useState(!!apiConfiguration?.awsBedrockEndpoint)
 	const [modelConfigurationSelected, setModelConfigurationSelected] = useState(false)
 	const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
 
@@ -196,8 +189,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						minWidth: 130,
 						position: "relative",
 					}}>
-					<VSCodeOption value="deepseek_local">Haiergallery</VSCodeOption>
-					{/* <VSCodeOption value="cline">Cline</VSCodeOption> */}
+					<VSCodeOption value="deepseek_local">deepseek_local</VSCodeOption>
 					<VSCodeOption value="openrouter">OpenRouter</VSCodeOption>
 					<VSCodeOption value="anthropic">Anthropic</VSCodeOption>
 					<VSCodeOption value="bedrock">AWS Bedrock</VSCodeOption>
@@ -217,15 +209,8 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 					{/* <VSCodeOption value="haierinternal">haierinternal</VSCodeOption> */}
 					<VSCodeOption value="asksage">AskSage</VSCodeOption>
 					<VSCodeOption value="xai">X AI</VSCodeOption>
-					<VSCodeOption value="sambanova">SambaNova</VSCodeOption>
 				</VSCodeDropdown>
 			</DropdownContainer>
-
-			{selectedProvider === "cline" && (
-				<div style={{ marginBottom: 8, marginTop: 4 }}>
-					<ClineAccountView />
-				</div>
-			)}
 
 			{selectedProvider === "asksage" && (
 				<div>
@@ -591,33 +576,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							{/* <VSCodeOption value="us-gov-east-1">us-gov-east-1</VSCodeOption> */}
 						</VSCodeDropdown>
 					</DropdownContainer>
-
 					<div style={{ display: "flex", flexDirection: "column" }}>
-						<VSCodeCheckbox
-							checked={awsEndpointSelected}
-							onChange={(e: any) => {
-								const isChecked = e.target.checked === true
-								setAwsEndpointSelected(isChecked)
-								if (!isChecked) {
-									setApiConfiguration({
-										...apiConfiguration,
-										awsBedrockEndpoint: "",
-									})
-								}
-							}}>
-							Use custom VPC endpoint
-						</VSCodeCheckbox>
-
-						{awsEndpointSelected && (
-							<VSCodeTextField
-								value={apiConfiguration?.awsBedrockEndpoint || ""}
-								style={{ width: "100%", marginTop: 3, marginBottom: 5 }}
-								type="url"
-								onInput={handleInputChange("awsBedrockEndpoint")}
-								placeholder="Enter VPC Endpoint URL (optional)"
-							/>
-						)}
-
 						<VSCodeCheckbox
 							checked={apiConfiguration?.awsUseCrossRegionInference || false}
 							onChange={(e: any) => {
@@ -837,21 +796,6 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 								}}>
 								Supports Images
 							</VSCodeCheckbox>
-							<VSCodeCheckbox
-								checked={!!apiConfiguration?.openAiModelInfo?.supportsComputerUse}
-								onChange={(e: any) => {
-									const isChecked = e.target.checked === true
-									let modelInfo = apiConfiguration?.openAiModelInfo
-										? apiConfiguration.openAiModelInfo
-										: { ...openAiModelInfoSaneDefaults }
-									modelInfo = { ...modelInfo, supportsComputerUse: isChecked }
-									setApiConfiguration({
-										...apiConfiguration,
-										openAiModelInfo: modelInfo,
-									})
-								}}>
-								Supports Computer Use
-							</VSCodeCheckbox>
 							<div style={{ display: "flex", gap: 10, marginTop: "5px" }}>
 								<VSCodeTextField
 									value={
@@ -930,38 +874,6 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 										})
 									}}>
 									<span style={{ fontWeight: 500 }}>Output Price / 1M tokens</span>
-								</VSCodeTextField>
-							</div>
-							<div style={{ display: "flex", gap: 10, marginTop: "5px" }}>
-								<VSCodeTextField
-									value={
-										apiConfiguration?.openAiModelInfo?.temperature
-											? apiConfiguration.openAiModelInfo.temperature.toString()
-											: openAiModelInfoSaneDefaults.temperature?.toString()
-									}
-									onInput={(input: any) => {
-										let modelInfo = apiConfiguration?.openAiModelInfo
-											? apiConfiguration.openAiModelInfo
-											: { ...openAiModelInfoSaneDefaults }
-
-										// Check if the input ends with a decimal point or has trailing zeros after decimal
-										const value = input.target.value
-										const shouldPreserveFormat =
-											value.endsWith(".") || (value.includes(".") && value.endsWith("0"))
-
-										modelInfo.temperature =
-											value === ""
-												? openAiModelInfoSaneDefaults.temperature
-												: shouldPreserveFormat
-													? value // Keep as string to preserve decimal format
-													: parseFloat(value)
-
-										setApiConfiguration({
-											...apiConfiguration,
-											openAiModelInfo: modelInfo,
-										})
-									}}>
-									<span style={{ fontWeight: 500 }}>Temperature</span>
 								</VSCodeTextField>
 							</div>
 						</>
@@ -1227,13 +1139,6 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						placeholder={"e.g. llama3.1"}>
 						<span style={{ fontWeight: 500 }}>Model ID</span>
 					</VSCodeTextField>
-					<VSCodeTextField
-						value={apiConfiguration?.ollamaApiOptionsCtxNum || "32768"}
-						style={{ width: "100%" }}
-						onInput={handleInputChange("ollamaApiOptionsCtxNum")}
-						placeholder={"e.g. 32768"}>
-						<span style={{ fontWeight: 500 }}>Model Context Window</span>
-					</VSCodeTextField>
 					{ollamaModels.length > 0 && (
 						<VSCodeRadioGroup
 							value={
@@ -1326,35 +1231,40 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						""
 					)}
 					{/* <span style={{ fontWeight: 500 }}>Input Model key</span> */}
-					{/* <VSCodeTextField
+					<VSCodeTextField
 						value={apiConfiguration?.deepseekLocalModelKey || ""}
 						style={{ width: "100%" }}
 						onInput={handleInputChange("deepseekLocalModelKey")}
 						placeholder={"系统已内置默认使用系统key"}>
 						<span style={{ fontWeight: 500 }}>Input Model key</span>
-					</VSCodeTextField> */}
+					</VSCodeTextField>
 					<span style={{ fontWeight: 500 }}>Select Model ID</span>
 					<DropdownContainer className="dropdown-container" zIndex={DROPDOWN_Z_INDEX - 1}>
 						<VSCodeDropdown
 							id="aws-region-dropdown"
 							value={apiConfiguration?.deepseekLocalModelId || "DeepSeek-R1"}
-							style={{ width: "100%" }}
+							style={{ minWidth: 180 }}
 							onChange={handleInputChange("deepseekLocalModelId")}>
-							<VSCodeOption key={"DeepSeek-R1"} value="DeepSeek-R1">
+							<VSCodeOption key={"deepseekr1"} value="deepseekr1">
 								DeepSeek-R1
+							</VSCodeOption>
+							<VSCodeOption key={"QwQ-32B"} value="QwQ-32B">
+								QwQ-32B
+							</VSCodeOption>
+							<VSCodeOption key={"deepseek-v3"} value="deepseek-v3">
+								DeepSeek-V3
 							</VSCodeOption>
 							<VSCodeOption key={"Qwen2.5-72B-Instruct"} value="Qwen2.5-72B-Instruct">
 								Qwen2.5-72B-Instruct
 							</VSCodeOption>
-							<VSCodeOption key={"llama3_70b"} value="llama3_70b">
-								llama3_70b
+							<VSCodeOption key={"Qwen2.5-VL-72B-Instruct"} value="Qwen2.5-VL-72B-Instruct">
+								Qwen2.5-VL-72B-Instruct
 							</VSCodeOption>
-							<VSCodeOption key={"deepseek-v3"} value="deepseek-v3">
-								deepseek-v3.1
+							<VSCodeOption key={"Llama-3.3-70B-Instruct "} value="Llama-3.3-70B-Instruct ">
+								Llama-3.3-70B-Instruct
 							</VSCodeOption>
 						</VSCodeDropdown>
 					</DropdownContainer>
-
 					<p
 						style={{
 							fontSize: "12px",
@@ -1411,37 +1321,6 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 				</div>
 			)}
 
-			{selectedProvider === "sambanova" && (
-				<div>
-					<VSCodeTextField
-						value={apiConfiguration?.sambanovaApiKey || ""}
-						style={{ width: "100%" }}
-						type="password"
-						onInput={handleInputChange("sambanovaApiKey")}
-						placeholder="Enter API Key...">
-						<span style={{ fontWeight: 500 }}>SambaNova API Key</span>
-					</VSCodeTextField>
-					<p
-						style={{
-							fontSize: "12px",
-							marginTop: 3,
-							color: "var(--vscode-descriptionForeground)",
-						}}>
-						This key is stored locally and only used to make API requests from this extension.
-						{!apiConfiguration?.sambanovaApiKey && (
-							<VSCodeLink
-								href="https://docs.sambanova.ai/cloud/docs/get-started/overview"
-								style={{
-									display: "inline",
-									fontSize: "inherit",
-								}}>
-								You can get a SambaNova API key by signing up here.
-							</VSCodeLink>
-						)}
-					</p>
-				</div>
-			)}
-
 			{apiErrorMessage && (
 				<p
 					style={{
@@ -1454,7 +1333,6 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 			)}
 
 			{selectedProvider !== "openrouter" &&
-				selectedProvider !== "cline" &&
 				selectedProvider !== "openai" &&
 				selectedProvider !== "ollama" &&
 				selectedProvider !== "lmstudio" &&
@@ -1465,11 +1343,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 					<>
 						<DropdownContainer zIndex={DROPDOWN_Z_INDEX - 2} className="dropdown-container">
 							<label htmlFor="model-id">
-								{selectedProvider !== "deepseek_local" ? (
-									<span style={{ fontWeight: 500 }}>Model ID</span>
-								) : (
-									<span style={{ height: "50px" }}></span>
-								)}
+								<span style={{ fontWeight: 500 }}>Model</span>
 							</label>
 							{selectedProvider === "anthropic" && createDropdown(anthropicModels)}
 							{selectedProvider === "bedrock" && createDropdown(bedrockModels)}
@@ -1477,14 +1351,10 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							{selectedProvider === "gemini" && createDropdown(geminiModels)}
 							{selectedProvider === "openai-native" && createDropdown(openAiNativeModels)}
 							{selectedProvider === "deepseek" && createDropdown(deepSeekModels)}
-							{selectedProvider === "qwen" &&
-								createDropdown(
-									apiConfiguration?.qwenApiLine === "china" ? mainlandQwenModels : internationalQwenModels,
-								)}
+							{selectedProvider === "qwen" && createDropdown(qwenModels)}
 							{selectedProvider === "mistral" && createDropdown(mistralModels)}
 							{selectedProvider === "asksage" && createDropdown(askSageModels)}
 							{selectedProvider === "xai" && createDropdown(xaiModels)}
-							{selectedProvider === "sambanova" && createDropdown(sambanovaModels)}
 						</DropdownContainer>
 
 						{((selectedProvider === "anthropic" && selectedModelId === "claude-3-7-sonnet-20250219") ||
@@ -1493,21 +1363,17 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							<ThinkingBudgetSlider apiConfiguration={apiConfiguration} setApiConfiguration={setApiConfiguration} />
 						)}
 
-						{selectedProvider !== "deepseek_local" && (
-							<ModelInfoView
-								selectedModelId={selectedModelId}
-								modelInfo={selectedModelInfo}
-								isDescriptionExpanded={isDescriptionExpanded}
-								setIsDescriptionExpanded={setIsDescriptionExpanded}
-								isPopup={isPopup}
-							/>
-						)}
+						<ModelInfoView
+							selectedModelId={selectedModelId}
+							modelInfo={selectedModelInfo}
+							isDescriptionExpanded={isDescriptionExpanded}
+							setIsDescriptionExpanded={setIsDescriptionExpanded}
+							isPopup={isPopup}
+						/>
 					</>
 				)}
 
-			{(selectedProvider === "openrouter" || selectedProvider === "cline") && showModelOptions && (
-				<OpenRouterModelPicker isPopup={isPopup} />
-			)}
+			{selectedProvider === "openrouter" && showModelOptions && <OpenRouterModelPicker isPopup={isPopup} />}
 
 			{modelIdErrorMessage && (
 				<p
@@ -1708,10 +1574,7 @@ export function normalizeApiConfiguration(apiConfiguration?: ApiConfiguration): 
 				selectedModelInfo: deepseekModelInfoSaneDefaults,
 			}
 		case "qwen":
-			const qwenModels = apiConfiguration?.qwenApiLine === "china" ? mainlandQwenModels : internationalQwenModels
-			const qwenDefaultId =
-				apiConfiguration?.qwenApiLine === "china" ? mainlandQwenDefaultModelId : internationalQwenDefaultModelId
-			return getProviderData(qwenModels, qwenDefaultId)
+			return getProviderData(qwenModels, qwenDefaultModelId)
 		case "mistral":
 			return getProviderData(mistralModels, mistralDefaultModelId)
 		case "asksage":
@@ -1722,17 +1585,11 @@ export function normalizeApiConfiguration(apiConfiguration?: ApiConfiguration): 
 				selectedModelId: apiConfiguration?.openRouterModelId || openRouterDefaultModelId,
 				selectedModelInfo: apiConfiguration?.openRouterModelInfo || openRouterDefaultModelInfo,
 			}
-		case "cline":
-			return {
-				selectedProvider: provider,
-				selectedModelId: apiConfiguration?.openRouterModelId || openRouterDefaultModelId,
-				selectedModelInfo: apiConfiguration?.openRouterModelInfo || openRouterDefaultModelInfo,
-			}
 		case "openai":
 			return {
 				selectedProvider: provider,
 				selectedModelId: apiConfiguration?.openAiModelId || "",
-				selectedModelInfo: apiConfiguration?.openAiModelInfo || openAiModelInfoSaneDefaults,
+				selectedModelInfo: openAiModelInfoSaneDefaults,
 			}
 		case "ollama":
 			return {
@@ -1771,8 +1628,6 @@ export function normalizeApiConfiguration(apiConfiguration?: ApiConfiguration): 
 			}
 		case "xai":
 			return getProviderData(xaiModels, xaiDefaultModelId)
-		case "sambanova":
-			return getProviderData(sambanovaModels, sambanovaDefaultModelId)
 		default:
 			return getProviderData(anthropicModels, anthropicDefaultModelId)
 	}
