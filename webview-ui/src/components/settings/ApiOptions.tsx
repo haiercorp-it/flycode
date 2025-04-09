@@ -1340,7 +1340,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							value={apiConfiguration?.deepseekLocalModelId || "DeepSeek-R1"}
 							style={{ width: "100%" }}
 							onChange={handleInputChange("deepseekLocalModelId")}>
-							<VSCodeOption key={"DeepSeek-R1"} value="DeepSeek-R1">
+							<VSCodeOption key={"deepseekr1"} value="deepseekr1">
 								DeepSeek-R1
 							</VSCodeOption>
 							<VSCodeOption key={"Qwen2.5-72B-Instruct"} value="Qwen2.5-72B-Instruct">
@@ -1349,8 +1349,17 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							<VSCodeOption key={"llama3_70b"} value="llama3_70b">
 								llama3_70b
 							</VSCodeOption>
+							<VSCodeOption key={"Llama-3.3-70B-Instruct"} value="Llama-3.3-70B-Instruct">
+								Llama-3.3-70B-Instruct
+							</VSCodeOption>
+							<VSCodeOption key={"Qwen2.5-VL-72B-Instruct"} value="Qwen2.5-VL-72B-Instruct">
+								Qwen2.5-VL-72B-Instruct
+							</VSCodeOption>
 							<VSCodeOption key={"deepseek-v3"} value="deepseek-v3">
-								deepseek-v3.1
+								deepseek-v3
+							</VSCodeOption>
+							<VSCodeOption key={"QwQ-32B"} value="QwQ-32B">
+								QwQ-32B
 							</VSCodeOption>
 						</VSCodeDropdown>
 					</DropdownContainer>
