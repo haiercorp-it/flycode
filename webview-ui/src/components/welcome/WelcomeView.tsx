@@ -9,14 +9,15 @@ import ApiOptions from "../settings/ApiOptions"
 import ClineLogoWhite from "../../assets/ClineLogoWhite"
 
 const WelcomeView = () => {
-	const { apiConfiguration } = useExtensionState()
+	const { apiConfiguration, isLoggedIn } = useExtensionState()
 
 	const [apiErrorMessage, setApiErrorMessage] = useState<string | undefined>(undefined)
 	const [email, setEmail] = useState("")
 	const [isSubscribed, setIsSubscribed] = useState(false)
 	console.log("apiConfiguration", isSubscribed)
+	console.log("apiErrorMessage", apiErrorMessage)
 	const disableLetsGoButton = apiErrorMessage != null
-
+	console.log("disableLetsGoButton", disableLetsGoButton)
 	const handleSubmit = () => {
 		// console.log("Submitting configuration:", apiConfiguration)
 		// vscode.postMessage({ type: "apiConfiguration", apiConfiguration })
@@ -105,8 +106,7 @@ const WelcomeView = () => {
 				</div> */}
 
 				<div style={{ marginTop: "15px" }}>
-					{/* <ApiOptions showModelOptions={false} /> */}
-					<VSCodeButton onClick={handleSubmit} disabled={disableLetsGoButton} style={{ marginTop: "3px" }}>
+					<VSCodeButton onClick={handleSubmit} style={{ marginTop: "3px" }}>
 						开始使用！请先登录
 					</VSCodeButton>
 				</div>

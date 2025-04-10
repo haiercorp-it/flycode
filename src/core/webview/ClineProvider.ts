@@ -207,7 +207,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			await this.storeSecret("clineApiKey", undefined)
 			await this.updateGlobalState("apiProvider", "openrouter")
 			await this.postStateToWebview()
-			vscode.window.showInformationMessage("Successfully logged out of Cline")
+			// vscode.window.showInformationMessage("Successfully logged out of Cline")
 		} catch (error) {
 			vscode.window.showErrorMessage("Logout failed")
 		}

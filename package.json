@@ -5,7 +5,7 @@
 	"version": "1.0.7",
 	"icon": "assets/icons/icon.png",
 	"engines": {
-		"vscode": "^1.84.0"
+		"vscode": "^1.60.1"
 	},
 	"author": {
 		"name": "IT Group."
@@ -97,22 +97,22 @@
 				"category": "Cline"
 			},
 			{
-				"command": "cline.openDocumentation",
+				"command": "gi.openDocumentation",
 				"title": "Documentation",
 				"icon": "$(book)"
 			},
 			{
-				"command": "cline.addToChat",
+				"command": "gi.addToChat",
 				"title": "Add to Cline",
 				"category": "Cline"
 			},
 			{
-				"command": "cline.addTerminalOutputToChat",
+				"command": "gi.addTerminalOutputToChat",
 				"title": "Add to Cline",
 				"category": "Cline"
 			},
 			{
-				"command": "cline.fixWithCline",
+				"command": "gi.fixWithCline",
 				"title": "Fix with Cline",
 				"category": "Cline"
 			}
@@ -152,14 +152,14 @@
 			],
 			"editor/context": [
 				{
-					"command": "cline.addToChat",
+					"command": "gi.addToChat",
 					"group": "navigation",
 					"when": "editorHasSelection"
 				}
 			],
 			"terminal/context": [
 				{
-					"command": "cline.addTerminalOutputToChat",
+					"command": "gi.addTerminalOutputToChat",
 					"group": "navigation"
 				}
 			]
