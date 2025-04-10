@@ -103,17 +103,17 @@
 			},
 			{
 				"command": "gi.addToChat",
-				"title": "Add to Cline",
+				"title": "添加到对话框",
 				"category": "Cline"
 			},
 			{
 				"command": "gi.addTerminalOutputToChat",
-				"title": "Add to Cline",
+				"title": "将终端输出添加到对话框",
 				"category": "Cline"
 			},
 			{
 				"command": "gi.fixWithCline",
-				"title": "Fix with Cline",
+				"title": "gi修复",
 				"category": "Cline"
 			}
 		],
