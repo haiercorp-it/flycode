@@ -8,6 +8,7 @@ import { ChatSettings } from "./ChatSettings"
 import { HistoryItem } from "./HistoryItem"
 import { McpServer, McpMarketplaceCatalog, McpMarketplaceItem, McpDownloadResponse } from "./mcp"
 import { TelemetrySetting } from "./TelemetrySetting"
+import type { BalanceResponse, UsageTransaction, PaymentTransaction } from "../shared/ClineAccount"
 
 // webview will hold state
 export interface ExtensionMessage {
@@ -34,8 +35,12 @@ export interface ExtensionMessage {
 		| "openGraphData"
 		| "isImageUrlResult"
 		| "didUpdateSettings"
+		| "userCreditsBalance"
+		| "userCreditsUsage"
+		| "userCreditsPayments"
 		| "totalTasksSize"
 		| "emailSubscribed"
+		| "addToInput"
 	text?: string
 	action?:
 		| "chatButtonClicked"
@@ -47,6 +52,7 @@ export interface ExtensionMessage {
 		| "accountLogoutClicked"
 		| "haierRAGCountClicked"
 		| "haierAssiantClicked"
+		| "accountButtonClicked"
 	invoke?: "sendMessage" | "primaryButtonClick" | "secondaryButtonClick"
 	state?: ExtensionState
 	images?: string[]
@@ -73,6 +79,9 @@ export interface ExtensionMessage {
 	}
 	url?: string
 	isImage?: boolean
+	userCreditsBalance?: BalanceResponse
+	userCreditsUsage?: UsageTransaction[]
+	userCreditsPayments?: PaymentTransaction[]
 	totalTasksSize?: number | null
 }
 

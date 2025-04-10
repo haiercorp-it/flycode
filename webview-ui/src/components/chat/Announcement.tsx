@@ -52,9 +52,6 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 				</li>
 				<li>支持检查点功能！</li>
 			</ul>
-			<VSCodeLink href="https://x.com/sdrzn/status/1892262424881090721" style={{ display: "inline" }}>
-				See a demo of the changes here!
-			</VSCodeLink>
 			{/*<ul style={{ margin: "0 0 8px", paddingLeft: "12px" }}>
 				 <li>
 					OpenRouter now supports prompt caching! They also have much higher rate limits than other providers,

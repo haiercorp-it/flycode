@@ -48,7 +48,7 @@ const AppContent = () => {
 						setShowAccount(false)
 						setShowRAGAccount(false)
 						break
-					case "accountLoginClicked":
+					case "accountButtonClicked":
 						setShowSettings(false)
 						setShowHistory(false)
 						setShowMcp(false)
@@ -112,6 +112,7 @@ const AppContent = () => {
 						showHistoryView={() => {
 							setShowSettings(false)
 							setShowMcp(false)
+							setShowAccount(false)
 							setShowHistory(true)
 						}}
 						isHidden={showSettings || showHistory || showMcp || showAccount || showRAGAccount}

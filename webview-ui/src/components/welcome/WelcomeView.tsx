@@ -6,6 +6,7 @@ import { useExtensionState } from "../../context/ExtensionStateContext"
 import { validateApiConfiguration } from "../../utils/validate"
 import { vscode } from "../../utils/vscode"
 import ApiOptions from "../settings/ApiOptions"
+import ClineLogoWhite from "../../assets/ClineLogoWhite"
 
 const WelcomeView = () => {
 	const { apiConfiguration } = useExtensionState()
