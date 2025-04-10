@@ -88,8 +88,17 @@ export class DeepSeekLocalHandler implements ApiHandler {
 		// })
 
 		console.log("processedMessages:", processedMessages)
-		//
-		const data = {
+
+		interface ChatRequestData {
+			model: string | undefined
+			messages: (Anthropic.Messages.MessageParam | { role: string; content: string })[]
+			max_tokens: number
+			temperature: number
+			stream: boolean
+			stream_options?: { include_usage: boolean }
+		}
+
+		let data: ChatRequestData = {
 			model: this.options.deepseekLocalModelId,
 			messages: [
 				{
@@ -101,7 +110,10 @@ export class DeepSeekLocalHandler implements ApiHandler {
 			max_tokens: 5000,
 			temperature: 0.07,
 			stream: true,
+			stream_options: { include_usage: true },
 		}
+
+		// 根据不同的模型处理需要返回的usage字段
 		try {
 			// 使用 fetch API 发送请求并处理流式响应
 			let response = await fetch(url, {
