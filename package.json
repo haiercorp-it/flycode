@@ -5,7 +5,7 @@
 	"version": "1.0.7",
 	"icon": "assets/icons/icon.png",
 	"engines": {
-		"vscode": "^1.60.1"
+		"vscode": "^1.80.1"
 	},
 	"author": {
 		"name": "IT Group."

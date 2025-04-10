@@ -1337,10 +1337,10 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 					<DropdownContainer className="dropdown-container" zIndex={DROPDOWN_Z_INDEX - 1}>
 						<VSCodeDropdown
 							id="aws-region-dropdown"
-							value={apiConfiguration?.deepseekLocalModelId || "DeepSeek-R1"}
+							value={apiConfiguration?.deepseekLocalModelId || "deepseekr1"}
 							style={{ width: "100%" }}
 							onChange={handleInputChange("deepseekLocalModelId")}>
-							<VSCodeOption key={"deepseekr1"} value="deepseekr1">
+							<VSCodeOption key={"deepseekr1"} value="deepseekr1" selected>
 								DeepSeek-R1
 							</VSCodeOption>
 							<VSCodeOption key={"Qwen2.5-72B-Instruct"} value="Qwen2.5-72B-Instruct">
