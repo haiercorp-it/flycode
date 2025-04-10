@@ -145,7 +145,7 @@
 					"when": "view == claude-devS.SidebarProvider"
 				},
 				{
-					"command": "gi.accountButtonClicked",
+					"command": "gi.accountLoginClicked",
 					"group": "navigation@6",
 					"when": "view == claude-devS.SidebarProvider"
 				}
