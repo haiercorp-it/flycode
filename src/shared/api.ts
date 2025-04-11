@@ -83,6 +83,7 @@ export interface ApiHandlerOptions {
 	xaiApiKey?: string
 	thinkingBudgetTokens?: number
 	sambanovaApiKey?: string
+	apiProviderSelect?: string
 }
 
 export type ApiConfiguration = ApiHandlerOptions & {

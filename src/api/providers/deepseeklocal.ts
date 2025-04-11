@@ -92,7 +92,6 @@ export class DeepSeekLocalHandler implements ApiHandler {
 		interface ChatRequestData {
 			model: string | undefined
 			messages: (Anthropic.Messages.MessageParam | { role: string; content: string })[]
-			max_tokens: number
 			temperature: number
 			stream: boolean
 			stream_options?: { include_usage: boolean }
@@ -107,7 +106,6 @@ export class DeepSeekLocalHandler implements ApiHandler {
 				},
 				...processedMessages,
 			],
-			max_tokens: 5000,
 			temperature: 0.07,
 			stream: true,
 			stream_options: { include_usage: true },
@@ -242,9 +240,19 @@ export class DeepSeekLocalHandler implements ApiHandler {
 	}
 
 	getModel(): { id: string; info: ModelInfo } {
-		return {
-			id: this.options.openAiModelId ?? "",
-			info: deepseekModelInfoSaneDefaults,
+		console.log("getModel  result", this.options.deepseekLocalModelId)
+		if (this.options.deepseekLocalModelId === "Qwen2.5-Coder-32B-Instruct") {
+			let model = deepseekModelInfoSaneDefaults
+			model.contextWindow = 40_000
+			return {
+				id: this.options.deepseekLocalModelId ?? "",
+				info: model,
+			}
+		} else {
+			return {
+				id: this.options.deepseekLocalModelId ?? "",
+				info: deepseekModelInfoSaneDefaults,
+			}
 		}
 	}
 }

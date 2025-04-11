@@ -1450,12 +1450,18 @@ export class Cline {
 				}
 				const totalTokens = (tokensIn || tempTokenIn) + (tokensOut || 0) + (cacheWrites || 0) + (cacheReads || 0)
 				let contextWindow = this.api.getModel().info.contextWindow || 128_000
+				console.log("getModel===", this.api.getModel())
+				console.log("totalTokens===", totalTokens)
 				// FIXME: hack to get anyone using openai compatible with deepseek to have the proper context window instead of the default 128k. We need a way for the user to specify the context window for models they input through openai compatible
 				if (this.api instanceof OpenAiHandler && this.api.getModel().id.toLowerCase().includes("deepseek")) {
 					contextWindow = 64_000
 				}
+				console.log("contextWindow===", contextWindow)
 				let maxAllowedSize: number
 				switch (contextWindow) {
+					case 40_000: // deepseek local
+						maxAllowedSize = contextWindow - 25_000
+						break
 					case 51_000: // deepseek local
 						maxAllowedSize = contextWindow - 20_000
 						break
