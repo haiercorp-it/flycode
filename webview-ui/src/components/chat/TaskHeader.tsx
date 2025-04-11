@@ -248,22 +248,6 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
 							{!isTaskExpanded && <span style={{ marginLeft: 4 }}>{highlightMentions(task.text, false)}</span>}
 						</div>
 					</div>
-					{!isTaskExpanded && isCostAvailable && (
-						<div
-							style={{
-								marginLeft: 10,
-								backgroundColor: "color-mix(in srgb, var(--vscode-badge-foreground) 70%, transparent)",
-								color: "var(--vscode-badge-background)",
-								padding: "2px 4px",
-								borderRadius: "500px",
-								fontSize: "11px",
-								fontWeight: 500,
-								display: "inline-block",
-								flexShrink: 0,
-							}}>
-							${totalCost?.toFixed(4)}
-						</div>
-					)}
 					<VSCodeButton appearance="icon" onClick={onClose} style={{ marginLeft: 6, flexShrink: 0 }}>
 						<span className="codicon codicon-close"></span>
 					</VSCodeButton>
@@ -395,53 +379,6 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
 									<DeleteButton taskSize={formatSize(currentTaskItem?.size)} taskId={currentTaskItem?.id} />
 								)}
 							</div>
-
-							{shouldShowPromptCacheInfo &&
-								(cacheReads !== undefined ||
-									cacheWrites !== undefined ||
-									apiConfiguration?.apiProvider === "anthropic") && (
-									<div
-										style={{
-											display: "flex",
-											alignItems: "center",
-											gap: "4px",
-											flexWrap: "wrap",
-										}}>
-										<span style={{ fontWeight: "bold" }}>Cache:</span>
-										<span
-											style={{
-												display: "flex",
-												alignItems: "center",
-												gap: "3px",
-											}}>
-											<i
-												className="codicon codicon-database"
-												style={{
-													fontSize: "12px",
-													fontWeight: "bold",
-													marginBottom: "-1px",
-												}}
-											/>
-											+{formatLargeNumber(cacheWrites || 0)}
-										</span>
-										<span
-											style={{
-												display: "flex",
-												alignItems: "center",
-												gap: "3px",
-											}}>
-											<i
-												className="codicon codicon-arrow-right"
-												style={{
-													fontSize: "12px",
-													fontWeight: "bold",
-													marginBottom: 0,
-												}}
-											/>
-											{formatLargeNumber(cacheReads || 0)}
-										</span>
-									</div>
-								)}
 							{ContextWindowComponent}
 							{isCostAvailable && (
 								<div
