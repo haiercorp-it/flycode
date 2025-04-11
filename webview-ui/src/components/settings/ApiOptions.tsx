@@ -99,9 +99,6 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 	const [providerSortingSelected, setProviderSortingSelected] = useState(!!apiConfiguration?.openRouterProviderSorting)
 
 	const handleInputChange = (field: keyof ApiConfiguration) => (event: any) => {
-		console.log("field", apiConfiguration)
-		console.log("field1222", field)
-		console.log("field1222", event.target.value)
 		setApiConfiguration({
 			...apiConfiguration,
 			[field]: event.target.value,
@@ -1337,26 +1334,20 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 					<DropdownContainer className="dropdown-container" zIndex={DROPDOWN_Z_INDEX - 1}>
 						<VSCodeDropdown
 							id="aws-region-dropdown"
-							value={apiConfiguration?.deepseekLocalModelId || "deepseekr1"}
+							value={apiConfiguration?.deepseekLocalModelId}
 							style={{ width: "100%" }}
 							onChange={handleInputChange("deepseekLocalModelId")}>
-							<VSCodeOption key={"deepseekr1"} value="deepseekr1" selected>
-								DeepSeek-R1
-							</VSCodeOption>
-							<VSCodeOption key={"Qwen2.5-72B-Instruct"} value="Qwen2.5-72B-Instruct">
-								Qwen2.5-72B-Instruct
-							</VSCodeOption>
-							<VSCodeOption key={"Llama-3.3-70B-Instruct"} value="Llama-3.3-70B-Instruct">
-								Llama-3.3-70B-Instruct
-							</VSCodeOption>
-							<VSCodeOption key={"Qwen2.5-VL-72B-Instruct"} value="Qwen2.5-VL-72B-Instruct">
-								Qwen2.5-VL-72B-Instruct
+							<VSCodeOption key={"Llama-3.3-70B-Instruct"} value="Llama-3.3-70B-Instruct" selected>
+								Llama-3.3-70B
 							</VSCodeOption>
 							<VSCodeOption key={"deepseek-v3"} value="deepseek-v3">
-								deepseek-v3
+								deepseek-v3-671B
 							</VSCodeOption>
 							<VSCodeOption key={"QwQ-32B"} value="QwQ-32B">
 								QwQ-32B
+							</VSCodeOption>
+							<VSCodeOption key={"Qwen2.5-Coder-32B-Instruct"} value="Qwen2.5-Coder-32B-Instruct">
+								Qwen2.5-Coder-32B
 							</VSCodeOption>
 						</VSCodeDropdown>
 					</DropdownContainer>
