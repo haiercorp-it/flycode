@@ -1346,9 +1346,6 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							<VSCodeOption key={"Qwen2.5-72B-Instruct"} value="Qwen2.5-72B-Instruct">
 								Qwen2.5-72B-Instruct
 							</VSCodeOption>
-							<VSCodeOption key={"llama3_70b"} value="llama3_70b">
-								llama3_70b
-							</VSCodeOption>
 							<VSCodeOption key={"Llama-3.3-70B-Instruct"} value="Llama-3.3-70B-Instruct">
 								Llama-3.3-70B-Instruct
 							</VSCodeOption>

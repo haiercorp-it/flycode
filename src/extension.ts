@@ -330,17 +330,17 @@ export function activate(context: vscode.ExtensionContext) {
 						document.lineAt(Math.min(document.lineCount - 1, range.end.line + 3)).text.length,
 					)
 
-					const addAction = new vscode.CodeAction("Add to Cline", vscode.CodeActionKind.QuickFix)
+					const addAction = new vscode.CodeAction("Add to GI", vscode.CodeActionKind.QuickFix)
 					addAction.command = {
 						command: "gi.addToChat",
-						title: "添加到对话框",
+						title: "添加到GI对话框",
 						arguments: [expandedRange, context.diagnostics],
 					}
 
-					const fixAction = new vscode.CodeAction("Fix with Cline", vscode.CodeActionKind.QuickFix)
+					const fixAction = new vscode.CodeAction("Fix with GI", vscode.CodeActionKind.QuickFix)
 					fixAction.command = {
 						command: "cline.fixWithCline",
-						title: "Fix with GI",
+						title: "使用GI修复",
 						arguments: [expandedRange, context.diagnostics],
 					}
 

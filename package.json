@@ -103,12 +103,12 @@
 			},
 			{
 				"command": "gi.addToChat",
-				"title": "添加到对话框",
+				"title": "添加到GI对话框",
 				"category": "Cline"
 			},
 			{
 				"command": "gi.addTerminalOutputToChat",
-				"title": "将终端输出添加到对话框",
+				"title": "将终端输出添加到GI对话框",
 				"category": "Cline"
 			},
 			{
