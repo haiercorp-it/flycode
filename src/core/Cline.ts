@@ -70,7 +70,7 @@ import { ConversationTelemetryService, TelemetryChatMessage } from "../services/
 import pTimeout from "p-timeout"
 import { GlobalFileNames } from "../global-constants"
 import { checkIsOpenRouterContextWindowError } from "./context-management/context-error-handling"
-import { OperationLogService } from '../services/operation-log';
+import { OperationLogService } from "../services/operation-log"
 
 const cwd = vscode.workspace.workspaceFolders?.map((folder) => folder.uri.fsPath).at(0) ?? path.join(os.homedir(), "Desktop") // may or may not exist but fs checking existence would immediately ask for permission which would be bad UX, need to come up with a better solution
 
@@ -1521,39 +1521,33 @@ export class Cline {
 
 		// 记录用户操作日志
 		try {
-			const prompt = taskMessage.text || '';
+			const prompt = taskMessage.text || ""
 			const inputParams = JSON.stringify({
 				truncatedConversationHistory,
-				systemPrompt
-			});
-			const modelInfo = this.api.getModel();
-			const llmModel = modelInfo ? modelInfo.id : 'unknown';
-			const mode = crossUserMessage ? 'rag' : 'normal';
-			
+				systemPrompt,
+			})
+			const modelInfo = this.api.getModel()
+			const llmModel = modelInfo ? modelInfo.id : "unknown"
+			const mode = crossUserMessage ? "rag" : "normal"
+
 			// 获取当前登录用户信息
-			const provider = this.providerRef.deref();
-			let operator = 'anonymous';
-			
+			const provider = this.providerRef.deref()
+			let operator = "anonymous"
+
 			if (provider) {
-				const { userInfo } = await provider.getStateToPostToWebview();
+				const { userInfo } = await provider.getStateToPostToWebview()
 				if (userInfo) {
 					// 使用工号(email)和姓名(displayName)作为操作人
-					const userName = userInfo.displayName || '';
-					const userNumber = userInfo.email || '';
-					operator = userNumber ? `${userName}(${userNumber})` : userName;
+					const userName = userInfo.displayName || ""
+					const userNumber = userInfo.email || ""
+					operator = userNumber ? `${userName}(${userNumber})` : userName
 				}
 			}
-			
+
 			// 异步记录日志，不等待结果
-			OperationLogService.getInstance().logOperation(
-				operator,
-				inputParams,
-				mode,
-				prompt,
-				llmModel
-			);
+			OperationLogService.getInstance().logOperation(operator, inputParams, mode, prompt, llmModel)
 		} catch (error) {
-			console.error('Failed to log operation:', error);
+			console.error("Failed to log operation:", error)
 		}
 
 		if (crossUserMessage) {
