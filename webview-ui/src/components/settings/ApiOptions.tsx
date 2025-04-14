@@ -196,7 +196,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 					<VSCodeOption value="deepseek_local" selected>
 						Haiergallery
 					</VSCodeOption>
-					<VSCodeOption value="openrouter">OpenRouter</VSCodeOption>
+					{/* <VSCodeOption value="openrouter">OpenRouter</VSCodeOption>
 					<VSCodeOption value="anthropic">Anthropic</VSCodeOption>
 					<VSCodeOption value="bedrock">AWS Bedrock</VSCodeOption>
 					<VSCodeOption value="openai">OpenAI Compatible</VSCodeOption>
@@ -214,7 +214,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 					<VSCodeOption value="litellm">LiteLLM</VSCodeOption>
 					<VSCodeOption value="asksage">AskSage</VSCodeOption>
 					<VSCodeOption value="xai">X AI</VSCodeOption>
-					<VSCodeOption value="sambanova">SambaNova</VSCodeOption>
+					<VSCodeOption value="sambanova">SambaNova</VSCodeOption> */}
 				</VSCodeDropdown>
 			</DropdownContainer>
 
@@ -1337,9 +1337,6 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							value={apiConfiguration?.deepseekLocalModelId}
 							style={{ width: "100%" }}
 							onChange={handleInputChange("deepseekLocalModelId")}>
-							<VSCodeOption key={"Llama-3.3-70B-Instruct"} value="Llama-3.3-70B-Instruct" selected>
-								Llama-3.3-70B
-							</VSCodeOption>
 							<VSCodeOption key={"deepseek-v3"} value="deepseek-v3">
 								deepseek-v3-671B
 							</VSCodeOption>

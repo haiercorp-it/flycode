@@ -2,7 +2,7 @@
 	"name": "generate-infinity",
 	"displayName": "GI",
 	"description": "Empowering developers to build beyond boundaries with AI-driven automation and future-ready architectures. Turn complex code into limitless innovation—where every line scales infinitely.",
-	"version": "1.0.7",
+	"version": "1.0.8",
 	"icon": "assets/icons/icon.png",
 	"engines": {
 		"vscode": "^1.80.1"
