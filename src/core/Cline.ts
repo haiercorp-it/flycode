@@ -70,6 +70,7 @@ import { ConversationTelemetryService, TelemetryChatMessage } from "../services/
 import pTimeout from "p-timeout"
 import { GlobalFileNames } from "../global-constants"
 import { checkIsOpenRouterContextWindowError } from "./context-management/context-error-handling"
+import { OperationLogService } from '../services/operation-log';
 
 const cwd = vscode.workspace.workspaceFolders?.map((folder) => folder.uri.fsPath).at(0) ?? path.join(os.homedir(), "Desktop") // may or may not exist but fs checking existence would immediately ask for permission which would be bad UX, need to come up with a better solution
 
@@ -1517,6 +1518,44 @@ export class Cline {
 			crossUserMessage = false
 			// stream = this.api.createMessage(systemPrompt, truncatedConversationHistory)
 		}
+
+		// 记录用户操作日志
+		try {
+			const prompt = taskMessage.text || '';
+			const inputParams = JSON.stringify({
+				truncatedConversationHistory,
+				systemPrompt
+			});
+			const modelInfo = this.api.getModel();
+			const llmModel = modelInfo ? modelInfo.id : 'unknown';
+			const mode = crossUserMessage ? 'rag' : 'normal';
+			
+			// 获取当前登录用户信息
+			const provider = this.providerRef.deref();
+			let operator = 'anonymous';
+			
+			if (provider) {
+				const { userInfo } = await provider.getStateToPostToWebview();
+				if (userInfo) {
+					// 使用工号(email)和姓名(displayName)作为操作人
+					const userName = userInfo.displayName || '';
+					const userNumber = userInfo.email || '';
+					operator = userNumber ? `${userName}(${userNumber})` : userName;
+				}
+			}
+			
+			// 异步记录日志，不等待结果
+			OperationLogService.getInstance().logOperation(
+				operator,
+				inputParams,
+				mode,
+				prompt,
+				llmModel
+			);
+		} catch (error) {
+			console.error('Failed to log operation:', error);
+		}
+
 		if (crossUserMessage) {
 			let objResponse: RAGOBJInterface = processRAGText(taskMessage.text)
 			await this.usercenterApi?.createMessagePreaper()
@@ -3455,7 +3494,7 @@ export class Cline {
 			}
 			const { response, text, images } = await this.ask(
 				"mistake_limit_reached",
-				`大模型思考出了点问题，或者是大模型未能正确使用工具。你可以尝试添加适当的指导来重试，比如可以建议他“尝试将任务拆解成更小的步骤”来逐步推进。").`,
+				`大模型思考出了点问题，或者是大模型未能正确使用工具。你可以尝试添加适当的指导来重试，比如可以建议他"尝试将任务拆解成更小的步骤"来逐步推进。").`,
 				// "mistake_limit_reached",  this.api.getModel().id.includes("claude")
 				// 	? `This may indicate a failure in his thought process or inability to use a tool properly, which can be mitigated with some user guidance (e.g. "Try breaking down the task into smaller steps").`
 				// 	: "Cline uses complex prompts and iterative task execution that may be challenging for less capable models. For best results, it's recommended to use Claude 3.5 Sonnet for its advanced agentic coding capabilities.",
