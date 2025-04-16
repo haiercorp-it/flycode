@@ -97,6 +97,12 @@
 				"category": "Cline"
 			},
 			{
+				"command": "cline.dev.createTestTasks",
+				"title": "Create Test Tasks",
+				"category": "Cline",
+				"when": "cline.isDevMode"
+			},
+			{
 				"command": "gi.openDocumentation",
 				"title": "Documentation",
 				"icon": "$(book)"
@@ -275,6 +281,7 @@
 		"format": "prettier . --check",
 		"format:fix": "prettier . --write",
 		"test": "vscode-test",
+		"test:ci": "node scripts/test-ci.js",
 		"install:all": "npm install && cd webview-ui && npm install",
 		"dev:webview": "cd webview-ui && npm run dev",
 		"build:webview": "cd webview-ui && npm run build",
@@ -334,7 +341,6 @@
 		"claude-dev": "file:",
 		"clone-deep": "^4.0.1",
 		"default-shell": "^2.2.0",
-		"delay": "^6.0.0",
 		"diff": "^5.2.0",
 		"execa": "^9.5.2",
 		"fast-deep-equal": "^3.1.3",

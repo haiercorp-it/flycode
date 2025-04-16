@@ -1,6 +1,6 @@
 import { Anthropic } from "@anthropic-ai/sdk"
 import cloneDeep from "clone-deep"
-import delay from "delay"
+import { setTimeout as setTimeoutPromise } from "node:timers/promises"
 import fs from "fs/promises"
 import getFolderSize from "get-folder-size"
 import os from "os"
@@ -69,7 +69,11 @@ import { telemetryService } from "../services/telemetry/TelemetryService"
 import { ConversationTelemetryService, TelemetryChatMessage } from "../services/telemetry/ConversationTelemetryService"
 import pTimeout from "p-timeout"
 import { GlobalFileNames } from "../global-constants"
-import { checkIsOpenRouterContextWindowError } from "./context-management/context-error-handling"
+import {
+	checkIsAnthropicContextWindowError,
+	checkIsOpenRouterContextWindowError,
+} from "./context-management/context-error-handling"
+import { AnthropicHandler } from "../api/providers/anthropic"
 import { OperationLogService } from "../services/operation-log"
 
 const cwd = vscode.workspace.workspaceFolders?.map((folder) => folder.uri.fsPath).at(0) ?? path.join(os.homedir(), "Desktop") // may or may not exist but fs checking existence would immediately ask for permission which would be bad UX, need to come up with a better solution
@@ -1242,7 +1246,7 @@ export class Cline {
 		// for their associated messages to be sent to the webview, maintaining
 		// the correct order of messages (although the webview is smart about
 		// grouping command_output messages despite any gaps anyways)
-		await delay(50)
+		await setTimeoutPromise(50)
 
 		result = result.trim()
 
@@ -1428,81 +1432,12 @@ export class Cline {
 			})
 		}
 
-		// If the previous API request's total token usage is close to the context window, truncate the conversation history to free up space for the new request
-		if (previousApiReqIndex >= 0) {
-			const previousRequest = this.clineMessages[previousApiReqIndex]
-			if (previousRequest && previousRequest.text) {
-				const { tokensIn, tokensOut, cacheWrites, cacheReads }: ClineApiReqInfo = JSON.parse(previousRequest.text)
-				console.log(
-					"tokensIn",
-					tokensIn,
-					"tokensOut",
-					tokensOut,
-					"cacheWrites",
-					cacheWrites,
-					"cacheReads",
-					cacheReads,
-					"previousRequest====",
-				)
-				let tempTokenIn = 0
-				if (tokensIn === 0) {
-					console.log("previousRequest.text", previousRequest.text.includes("api_req_failed"))
-					tempTokenIn = parseInt(`${previousRequest.text.length * 0.6}`)
-				}
-				const totalTokens = (tokensIn || tempTokenIn) + (tokensOut || 0) + (cacheWrites || 0) + (cacheReads || 0)
-				let contextWindow = this.api.getModel().info.contextWindow || 128_000
-				console.log("getModel===", this.api.getModel())
-				console.log("totalTokens===", totalTokens)
-				// FIXME: hack to get anyone using openai compatible with deepseek to have the proper context window instead of the default 128k. We need a way for the user to specify the context window for models they input through openai compatible
-				if (this.api instanceof OpenAiHandler && this.api.getModel().id.toLowerCase().includes("deepseek")) {
-					contextWindow = 64_000
-				}
-				console.log("contextWindow===", contextWindow)
-				let maxAllowedSize: number
-				switch (contextWindow) {
-					case 40_000: // deepseek local
-						maxAllowedSize = contextWindow - 25_000
-						break
-					case 51_000: // deepseek local
-						maxAllowedSize = contextWindow - 20_000
-						break
-					case 64_000: // deepseek models
-						maxAllowedSize = contextWindow - 27_000
-						break
-					case 128_000: // most models
-						maxAllowedSize = contextWindow - 30_000
-						break
-					case 200_000: // claude models
-						maxAllowedSize = contextWindow - 40_000
-						break
-					default:
-						maxAllowedSize = Math.max(contextWindow - 40_000, contextWindow * 0.8) // for deepseek, 80% of 64k meant only ~10k buffer which was too small and resulted in users getting context window errors.
-				}
-
-				// This is the most reliable way to know when we're close to hitting the context window.
-				if (totalTokens >= maxAllowedSize) {
-					// Since the user may switch between models with different context windows, truncating half may not be enough (ie if switching from claude 200k to deepseek 64k, half truncation will only remove 100k tokens, but we need to remove much more)
-					// So if totalTokens/2 is greater than maxAllowedSize, we truncate 3/4 instead of 1/2
-					// FIXME: truncating the conversation in a way that is optimal for prompt caching AND takes into account multi-context window complexity is something we need to improve
-					const keep = totalTokens / 2 > maxAllowedSize ? "quarter" : "half"
-
-					// NOTE: it's okay that we overwriteConversationHistory in resume task since we're only ever removing the last user message and not anything in the middle which would affect this range
-					this.conversationHistoryDeletedRange = this.contextManager.getNextTruncationRange(
-						this.apiConversationHistory,
-						this.conversationHistoryDeletedRange,
-						keep,
-					)
-					await this.saveClineMessages() // saves task history item which we use to keep track of conversation history deleted range
-					// await this.overwriteApiConversationHistory(truncatedMessages)
-				}
-			}
-		}
-
-		// away 发送消息 最终发送的是 this.apiConversationHistory + 删除区间进行消息提纯
-		// conversationHistoryDeletedRange is updated only when we're close to hitting the context window, so we don't continuously break the prompt cache
-		const truncatedConversationHistory = this.contextManager.getTruncatedMessages(
+		const contextManagementMetadata = this.contextManager.getNewContextMessagesAndMetadata(
 			this.apiConversationHistory,
+			this.clineMessages,
+			this.api,
 			this.conversationHistoryDeletedRange,
+			previousApiReqIndex,
 		)
 		let crossUserMessage = false
 		let stream
@@ -1519,11 +1454,15 @@ export class Cline {
 			// stream = this.api.createMessage(systemPrompt, truncatedConversationHistory)
 		}
 
+		if (contextManagementMetadata.updatedConversationHistoryDeletedRange) {
+			this.conversationHistoryDeletedRange = contextManagementMetadata.conversationHistoryDeletedRange
+			await this.saveClineMessages() // saves task history item which we use to keep track of conversation history deleted range
+		}
 		// 记录用户操作日志
 		try {
 			const prompt = taskMessage.text || ""
 			const inputParams = JSON.stringify({
-				truncatedConversationHistory,
+				contextManagementMetadata,
 				systemPrompt,
 			})
 			const modelInfo = this.api.getModel()
@@ -1533,6 +1472,9 @@ export class Cline {
 			// 获取当前登录用户信息
 			const provider = this.providerRef.deref()
 			let operator = "anonymous"
+			let stream = this.api.createMessage(systemPrompt, contextManagementMetadata.truncatedConversationHistory)
+
+			const iterator = stream[Symbol.asyncIterator]()
 
 			if (provider) {
 				const { userInfo } = await provider.getStateToPostToWebview()
@@ -1553,10 +1495,10 @@ export class Cline {
 		if (crossUserMessage) {
 			let objResponse: RAGOBJInterface = processRAGText(taskMessage.text)
 			await this.usercenterApi?.createMessagePreaper()
-			stream = this.usercenterApi?.createMessage(objResponse.text, truncatedConversationHistory)
+			stream = this.usercenterApi?.createMessage(objResponse.text, contextManagementMetadata.truncatedConversationHistory)
 		} else {
-			console.log("normal message", truncatedConversationHistory)
-			stream = this.api.createMessage(systemPrompt, truncatedConversationHistory)
+			console.log("normal message", contextManagementMetadata)
+			stream = this.api.createMessage(systemPrompt, contextManagementMetadata.truncatedConversationHistory)
 		}
 
 		const iterator = stream![Symbol.asyncIterator]()
@@ -1568,9 +1510,20 @@ export class Cline {
 			this.isWaitingForFirstChunk = false
 		} catch (error) {
 			const isOpenRouter = this.api instanceof OpenRouterHandler || this.api instanceof ClineHandler
+			const isAnthropic = this.api instanceof AnthropicHandler
 			const isOpenRouterContextWindowError = checkIsOpenRouterContextWindowError(error) && isOpenRouter
+			const isAnthropicContextWindowError = checkIsAnthropicContextWindowError(error) && isAnthropic
 
-			if (isOpenRouter && !this.didAutomaticallyRetryFailedApiRequest) {
+			if (isAnthropic && isAnthropicContextWindowError && !this.didAutomaticallyRetryFailedApiRequest) {
+				this.conversationHistoryDeletedRange = this.contextManager.getNextTruncationRange(
+					this.apiConversationHistory,
+					this.conversationHistoryDeletedRange,
+					"quarter", // Force aggressive truncation
+				)
+				await this.saveClineMessages()
+
+				this.didAutomaticallyRetryFailedApiRequest = true
+			} else if (isOpenRouter && !this.didAutomaticallyRetryFailedApiRequest) {
 				if (isOpenRouterContextWindowError) {
 					this.conversationHistoryDeletedRange = this.contextManager.getNextTruncationRange(
 						this.apiConversationHistory,
@@ -1581,13 +1534,13 @@ export class Cline {
 				}
 
 				console.log("first chunk failed, waiting 1 second before retrying")
-				await delay(1000)
+				await setTimeoutPromise(1000)
 				this.didAutomaticallyRetryFailedApiRequest = true
 			} else {
 				// request failed after retrying automatically once, ask user if they want to retry again
 				// note that this api_req_failed ask is unique in that we only present this option if the api hasn't streamed any content yet (ie it fails on the first chunk due), as it would allow them to hit a retry button. However if the api failed mid-stream, it could be in any arbitrary state where some tools may have executed, so that error is handled differently and requires cancelling the task entirely.
 
-				if (isOpenRouterContextWindowError) {
+				if (isOpenRouterContextWindowError || isAnthropicContextWindowError) {
 					const truncatedConversationHistory = this.contextManager.getTruncatedMessages(
 						this.apiConversationHistory,
 						this.conversationHistoryDeletedRange,
@@ -2028,7 +1981,7 @@ export class Cline {
 									await this.diffViewProvider.open(relPath)
 								}
 								await this.diffViewProvider.update(newContent, true)
-								await delay(300) // wait for diff view to update
+								await setTimeoutPromise(300) // wait for diff view to update
 								this.diffViewProvider.scrollToFirstDiff()
 								// showOmissionWarning(this.diffViewProvider.originalContent || "", newContent)
 
@@ -2050,7 +2003,7 @@ export class Cline {
 									telemetryService.captureToolUsage(this.taskId, block.name, true, true)
 
 									// we need an artificial delay to let the diagnostics catch up to the changes
-									await delay(3_500)
+									await setTimeoutPromise(3_500)
 								} else {
 									// If auto-approval is enabled but this tool wasn't auto-approved, send notification
 									showNotificationForApprovalIfAutoApprovalEnabled(
@@ -4048,7 +4001,7 @@ export class Cline {
 
 		if (busyTerminals.length > 0 && this.didEditFile) {
 			//  || this.didEditFile
-			await delay(300) // delay after saving file to let terminals catch up
+			await setTimeoutPromise(300) // delay after saving file to let terminals catch up
 		}
 
 		// let terminalWasBusy = false
