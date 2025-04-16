@@ -3554,8 +3554,7 @@ export class Cline {
 					CheckpointTracker.create(this.taskId, this.providerRef.deref()?.context.globalStorageUri.fsPath),
 					{
 						milliseconds: 15_000,
-						message:
-							"Checkpoints taking too long to initialize. Consider re-opening Cline in a project that uses git, or disabling checkpoints.",
+						message: "检查点初始化时间过长。考虑在使用git的项目中重新打开GI，或禁用检查点。",
 					},
 				)
 			} catch (error) {
