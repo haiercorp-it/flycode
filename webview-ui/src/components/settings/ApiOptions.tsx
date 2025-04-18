@@ -1353,7 +1353,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							value={apiConfiguration?.deepseekLocalModelId}
 							style={{ width: "100%" }}
 							onChange={handleInputChange("deepseekLocalModelId")}>
-							<VSCodeOption key={"deepseek-v3"} value="deepseek-v3">
+							<VSCodeOption key={"deepseek-v3"} value="deepseek-v3" selected>
 								deepseek-v3-671B
 							</VSCodeOption>
 							<VSCodeOption key={"QwQ-32B"} value="QwQ-32B">
